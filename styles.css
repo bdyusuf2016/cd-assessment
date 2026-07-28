@@ -1750,7 +1750,11 @@ body.light-mode .autocomplete-list {
     font-weight: bold;
   }
 
+  #inWordsWhatsappBtn { display: none !important; }
+
   .in-words-panel {
+    display: block !important;
+    text-align: left !important;
     margin-top: 10pt;
     padding: 6pt 10pt;
     border: 1px solid #333;

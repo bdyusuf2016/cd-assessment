@@ -1197,7 +1197,12 @@ async function exportToPDF() {
 
   if (typeof html2pdf !== "undefined") {
     const tempDiv = document.createElement("div");
-    tempDiv.style.position = "relative";
+    tempDiv.style.position = "fixed";
+    tempDiv.style.top = "0";
+    tempDiv.style.left = "0";
+    tempDiv.style.width = "11in";
+    tempDiv.style.zIndex = "99999";
+    tempDiv.style.pointerEvents = "none";
     tempDiv.style.minHeight = "7.6in";
     tempDiv.style.padding = "16px 20px 36px 20px";
     tempDiv.style.boxSizing = "border-box";
@@ -1330,13 +1335,14 @@ async function exportToPDF() {
       pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    showToast(lang === "bn" ? "PDF জেনারেট হচ্ছে..." : "Generating PDF...", "info");
+    document.body.appendChild(tempDiv);
+    showToast("Generating PDF...", "info");
     html2pdf().set(opt).from(tempDiv).save().then(() => {
-      showToast(lang === "bn" ? "PDF ফাইল তৈরি সম্পন্ন হয়েছে!" : "PDF downloaded!", "success");
-    }).catch(err => {
-      console.error(err);
+      showToast("PDF downloaded!", "success");
+    }).catch(error => {
+      console.error(error);
       window.print();
-    });
+    }).finally(() => tempDiv.remove());
   } else {
     window.print();
   }
