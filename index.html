@@ -252,7 +252,43 @@
         </div>
       </div>
 
-      <!-- DASHBOARD METRIC CARDS -->
+      <!-- ============================================================
+           ADD COMPANY MODAL
+      ============================================================ -->
+      <div class="modal-overlay" id="addCompanyModal">
+        <div class="modal-card" style="width:420px;max-width:96vw;">
+          <div class="modal-header">
+            <h3 class="modal-title">🏢 নতুন কোম্পানি যোগ করুন</h3>
+            <button class="modal-close-btn" id="closeAddCompanyModalBtn">✕</button>
+          </div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;padding:20px;">
+            <div class="form-group">
+              <label class="form-label">প্রতিষ্ঠানের নাম <span style="color:var(--clr-red)">*</span></label>
+              <input type="text" class="form-control" id="newCompanyName" placeholder="যেমন: M/s ABC Garments Ltd.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">সার্কেল / Circle</label>
+              <input type="text" class="form-control" id="newCompanyCircle" placeholder="যেমন: Circle-DEPZ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">অবস্থা / Status</label>
+              <select class="form-control" id="newCompanyStatus">
+                <option value="Active">✅ Active</option>
+                <option value="Inactive">❌ Inactive</option>
+              </select>
+            </div>
+            <div id="addCompanyError" class="auth-error-msg" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost btn-sm" id="cancelAddCompanyBtn">বাতিল</button>
+            <button class="btn btn-primary" id="saveNewCompanyBtn" onclick="saveNewCompany()">
+              <span>＋</span> যোগ করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+
       <section class="metrics-strip">
         <div class="metric-card blue">
           <div class="metric-icon-wrap">📦</div>
@@ -458,6 +494,9 @@
                   </button>
                   <button id="importCompaniesCardBtn" class="btn btn-info btn-sm">
                     <span class="btn-icon">📥</span> Excel/CSV ইম্পোর্ট
+                  </button>
+                  <button id="clearAllCompaniesBtn" class="btn btn-ghost btn-sm" title="সব কোম্পানি মুছুন" style="color:var(--clr-red);">
+                    <span class="btn-icon">🗑️</span> সব মুছুন
                   </button>
                   <button id="addCompanyBtn" class="btn btn-primary btn-sm">
                     <span class="btn-icon">＋</span> নতুন কোম্পানি

@@ -1,9 +1,5 @@
-// Default Material List Database
+// Default Company List — kept minimal (only real office companies)
 const DEFAULT_COMPANIES = [
-  { name: "M/s Apex Spinning & Knitting Mills Ltd.", circle: "Circle-1 (Dhaka)", status: "Active" },
-  { name: "M/s Youngone High-Tech Sportswear Ltd.", circle: "Circle-2 (DEPZ)", status: "Active" },
-  { name: "M/s Beximco Synthetics Ltd.", circle: "Circle-3 (Savar)", status: "Active" },
-  { name: "M/s Square Fashions Ltd.", circle: "Circle-1 (Dhaka)", status: "Active" },
   { name: "GUNGE", circle: "Circle-DEPZ", status: "Active" }
 ];
 

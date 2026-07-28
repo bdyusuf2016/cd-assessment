@@ -68,11 +68,23 @@ function loadData() {
 
   const storedCompanies = localStorage.getItem("customs_companies");
   let parsedCompanies = storedCompanies ? JSON.parse(storedCompanies) : [];
+
+  // Purge legacy demo companies (inserted in older versions)
+  const DEMO_NAMES = [
+    "m/s apex spinning & knitting mills ltd.",
+    "m/s youngone high-tech sportswear ltd.",
+    "m/s beximco synthetics ltd.",
+    "m/s square fashions ltd."
+  ];
+  parsedCompanies = parsedCompanies.filter(c =>
+    !DEMO_NAMES.includes((c.name || "").toLowerCase())
+  );
+
   if (!Array.isArray(parsedCompanies) || parsedCompanies.length === 0) {
     parsedCompanies = [...DEFAULT_COMPANIES];
-    localStorage.setItem("customs_companies", JSON.stringify(parsedCompanies));
   }
   state.companies = parsedCompanies;
+  localStorage.setItem("customs_companies", JSON.stringify(parsedCompanies));
 
   const storedRates = localStorage.getItem("customs_default_rates");
   if (storedRates) state.defaultRates = JSON.parse(storedRates);
@@ -97,6 +109,22 @@ function saveState() {
   localStorage.setItem("customs_calc_method",      state.calculationMethod);
   localStorage.setItem("customs_header",           JSON.stringify(state.header));
   localStorage.setItem("customs_assessment_rows",  JSON.stringify(state.assessmentRows));
+}
+
+function clearAllCompanies() {
+  const confirmed = window.confirm(
+    state.language === "bn"
+      ? "আপনি কি সত্যিই সব কোম্পানি মুছতে চান? এই কাজটি ফেরানো যাবে না।"
+      : "Are you sure you want to clear ALL companies? This cannot be undone."
+  );
+  if (!confirmed) return;
+  state.companies = [];
+  state.header.companyName = "";
+  saveState();
+  renderCompanyOptions();
+  renderCompanyList();
+  updatePrintHeader();
+  showToast(state.language === "bn" ? "সব কোম্পানি মুছে ফেলা হয়েছে।" : "All companies cleared.", "info");
 }
 
 // === SIDEBAR ===
@@ -272,6 +300,9 @@ function initEventListeners() {
   if (document.getElementById("addCompanyBtn")) {
     document.getElementById("addCompanyBtn").addEventListener("click", addNewCompany);
   }
+  if (document.getElementById("clearAllCompaniesBtn")) {
+    document.getElementById("clearAllCompaniesBtn").addEventListener("click", clearAllCompanies);
+  }
   if (document.getElementById("saveSupabaseCredsBtn")) {
     document.getElementById("saveSupabaseCredsBtn").addEventListener("click", handleSaveSupabaseCredentials);
   }
@@ -286,6 +317,19 @@ function initEventListeners() {
   }
 
   updateSupabaseUI();
+
+  // Add Company Modal events
+  const closeAddCo = document.getElementById("closeAddCompanyModalBtn");
+  if (closeAddCo) closeAddCo.addEventListener("click", closeAddCompanyModal);
+  const cancelAddCo = document.getElementById("cancelAddCompanyBtn");
+  if (cancelAddCo) cancelAddCo.addEventListener("click", closeAddCompanyModal);
+  const addCoModal = document.getElementById("addCompanyModal");
+  if (addCoModal) addCoModal.addEventListener("click", e => { if (e.target === addCoModal) closeAddCompanyModal(); });
+  // Enter key to save
+  ["newCompanyName", "newCompanyCircle"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") saveNewCompany(); });
+  });
 
   // Global keyboard shortcuts
   document.addEventListener("keydown", handleGlobalEscape);
@@ -782,6 +826,8 @@ function handleGlobalEscape(e) {
   closeAllAutocomplete();
   closeMaterialModal();
   closeHistoryModal();
+  closeAddCompanyModal();
+  closeUserModal();
 }
 
 // === SAVE ASSESSMENTS & WHATSAPP SHARE ===
@@ -1749,18 +1795,46 @@ function renderCompanyList() {
 }
 
 function addNewCompany() {
-  const namePrompt = prompt(state.language === "bn" ? "নতুন কোম্পানির নাম লিখুন:" : "Enter new company name:");
-  if (!namePrompt || !namePrompt.trim()) return;
-  const name = namePrompt.trim();
+  openAddCompanyModal();
+}
 
-  if (state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-    showToast(state.language === "bn" ? "এই নামের কোম্পানি ইতিমধ্যে তালিকায় আছে।" : "Company name already exists.", "warning");
+function openAddCompanyModal() {
+  const modal = document.getElementById("addCompanyModal");
+  if (!modal) return;
+  // Clear fields
+  document.getElementById("newCompanyName").value  = "";
+  document.getElementById("newCompanyCircle").value = "";
+  document.getElementById("newCompanyStatus").value = "Active";
+  const errEl = document.getElementById("addCompanyError");
+  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
+  modal.classList.add("active");
+  setTimeout(() => document.getElementById("newCompanyName").focus(), 80);
+}
+
+function closeAddCompanyModal() {
+  const modal = document.getElementById("addCompanyModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function saveNewCompany() {
+  const name   = (document.getElementById("newCompanyName")?.value || "").trim();
+  const circle = (document.getElementById("newCompanyCircle")?.value || "").trim();
+  const status = document.getElementById("newCompanyStatus")?.value || "Active";
+  const errEl  = document.getElementById("addCompanyError");
+
+  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
+
+  if (!name) {
+    if (errEl) { errEl.textContent = "প্রতিষ্ঠানের নাম দিন।"; errEl.style.display = "block"; }
     return;
   }
 
-  const circlePrompt = prompt(state.language === "bn" ? "সার্কেল/ঠিকানা (ঐচ্ছিক):" : "Circle/Address (Optional):", "") || "";
+  if (state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+    if (errEl) { errEl.textContent = "এই নামের কোম্পানি ইতিমধ্যে তালিকায় আছে।"; errEl.style.display = "block"; }
+    return;
+  }
 
-  const newCompany = { name, circle: circlePrompt.trim(), status: "Active" };
+  const newCompany = { name, circle, status };
   state.companies.push(newCompany);
   state.header.companyName = name;
 
@@ -1768,8 +1842,10 @@ function addNewCompany() {
   renderCompanyOptions();
   renderCompanyList();
   updatePrintHeader();
-  showToast(state.language === "bn" ? "নতুন কোম্পানি যোগ করা হয়েছে!" : "New company added!", "success");
+  closeAddCompanyModal();
+  showToast(state.language === "bn" ? `"${name}" কোম্পানি তালিকায় যোগ হয়েছে!` : `"${name}" added to company list!`, "success");
 }
+
 
 function downloadSampleCompanyTemplate() {
   const sampleCsv = `CompanyName,Circle,Status
