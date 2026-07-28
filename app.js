@@ -1197,10 +1197,7 @@ async function exportToPDF() {
 
   if (typeof html2pdf !== "undefined") {
     const tempDiv = document.createElement("div");
-    tempDiv.style.position = "fixed";
-    tempDiv.style.left = "-20000px";
-    tempDiv.style.top = "0";
-    tempDiv.style.width = "11in";
+    tempDiv.style.position = "relative";
     tempDiv.style.minHeight = "7.6in";
     tempDiv.style.padding = "16px 20px 36px 20px";
     tempDiv.style.boxSizing = "border-box";
