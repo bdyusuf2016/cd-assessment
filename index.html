@@ -13,6 +13,45 @@
 <body class="dark-mode">
 
   <!-- ============================================================
+       FULL-SCREEN LOGIN GATE (hidden once authenticated)
+  ============================================================ -->
+  <div id="loginGate" class="login-gate">
+    <div class="login-gate-bg"></div>
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-brand-icon">📜</div>
+        <div>
+          <h1 class="login-title">কাস্টমস শুল্কায়ন ব্যবস্থাপক</h1>
+          <p class="login-subtitle">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ</p>
+        </div>
+      </div>
+
+      <div class="login-form">
+        <div class="form-group">
+          <label class="form-label login-label">👤 ব্যবহারকারীর নাম (Username)</label>
+          <input type="text" id="lgUsername" class="form-control login-input" placeholder="যেমন: admin" autocomplete="username" autofocus>
+        </div>
+        <div class="form-group">
+          <label class="form-label login-label">🔒 পাসওয়ার্ড (Password)</label>
+          <div class="password-wrap">
+            <input type="password" id="lgPassword" class="form-control login-input" placeholder="পাসওয়ার্ড দিন" autocomplete="current-password">
+            <button type="button" class="password-toggle" onclick="toggleLoginPwd()">👁</button>
+          </div>
+        </div>
+        <label class="login-remember">
+          <input type="checkbox" id="lgRemember"> লগইন মনে রাখুন (Remember me)
+        </label>
+        <div id="lgError" class="auth-error-msg" style="display:none;"></div>
+        <button class="btn btn-primary login-btn" id="lgSubmitBtn" onclick="handleLoginGate()">
+          <span>🔑</span> প্রবেশ করুন
+        </button>
+      </div>
+
+      <p class="login-footer-hint">ডিফল্ট: <code>admin</code> / <code>admin123</code> &nbsp;&bull;&nbsp; <code>yusuf</code> / <code>yusuf@123</code></p>
+    </div>
+  </div>
+
+  <!-- ============================================================
        PRINT-ONLY HEADER (hidden on screen, visible on print)
   ============================================================ -->
   <div class="print-header-container print-only">
@@ -166,7 +205,7 @@
 
           <!-- Auth button — always visible right edge -->
           <div class="auth-btn-wrap">
-            <button id="authBtn" class="btn btn-ghost btn-sm auth-btn-guest" onclick="openAuthModal()">
+            <button id="authBtn" class="btn btn-ghost btn-sm auth-btn-guest" onclick="openUserModal()">
               <span class="btn-icon">👤</span>
               <span id="authBtnLabel">লগইন</span>
             </button>
@@ -175,68 +214,39 @@
       </header>
 
       <!-- ============================================================
-           SUPABASE AUTH MODAL
+           USER PROFILE MODAL (shown after login)
       ============================================================ -->
-      <div class="modal-overlay" id="authModal">
+      <div class="modal-overlay" id="userModal">
         <div class="modal-card auth-modal-card">
-          <!-- Header -->
           <div class="modal-header auth-modal-header">
-            <div class="auth-logo">⚡</div>
+            <div class="auth-logo">🛡️</div>
             <div>
-              <h3 class="modal-title" id="authModalTitle">Supabase লগইন</h3>
-              <p class="auth-modal-subtitle">ক্লাউড সিঙ্ক ও ডেটা সুরক্ষার জন্য লগইন করুন</p>
+              <h3 class="modal-title">ব্যবহারকারী প্রোফাইল</h3>
+              <p class="auth-modal-subtitle" id="userModalSubtitle">লগইন তথ্য ও অ্যাকাউন্ট ব্যবস্থাপনা</p>
             </div>
-            <button class="modal-close-btn" id="closeAuthModalBtn">✕</button>
+            <button class="modal-close-btn" id="closeUserModalBtn">✕</button>
           </div>
-
-          <!-- Logged-out view -->
-          <div id="authLoggedOutView" class="auth-view">
-            <!-- Tab switcher -->
-            <div class="auth-tab-bar">
-              <button class="auth-tab active" id="loginTabBtn" onclick="switchAuthTab('login')">লগইন</button>
-              <button class="auth-tab" id="signupTabBtn" onclick="switchAuthTab('signup')">নতুন অ্যাকাউন্ট</button>
+          <div class="modal-body auth-loggedin-body">
+            <div class="auth-user-avatar">👤</div>
+            <div class="auth-user-info">
+              <div class="auth-user-email" id="userModalName">—</div>
+              <div class="auth-user-badge" id="userModalRole">viewer</div>
             </div>
 
-            <div class="modal-body auth-modal-body">
-              <div class="form-group full-width">
-                <label class="form-label">ইমেইল / Email</label>
-                <input type="email" class="form-control" id="authEmailInput" placeholder="you@example.com" autocomplete="email">
+            <!-- Change Password -->
+            <details class="chpwd-section" id="changePwdSection">
+              <summary>🔑 পাসওয়ার্ড পরিবর্তন</summary>
+              <div class="chpwd-body">
+                <input type="password" class="form-control" id="oldPwdInput" placeholder="পুরানো পাসওয়ার্ড">
+                <input type="password" class="form-control" id="newPwdInput" placeholder="নতুন পাসওয়ার্ড (৬+ অক্ষর)">
+                <button class="btn btn-primary btn-sm" onclick="handleChangePwd()">পরিবর্তন করুন</button>
               </div>
-              <div class="form-group full-width">
-                <label class="form-label">পাসওয়ার্ড / Password</label>
-                <div class="password-wrap">
-                  <input type="password" class="form-control" id="authPasswordInput" placeholder="••••••••" autocomplete="current-password">
-                  <button type="button" class="password-toggle" id="passwordToggleBtn" onclick="togglePasswordVisibility()">👁</button>
-                </div>
-              </div>
-              <div id="authError" class="auth-error-msg" style="display:none;"></div>
-            </div>
+            </details>
 
-            <div class="modal-footer">
-              <button class="btn btn-ghost btn-sm" id="cancelAuthBtn">বাতিল</button>
-              <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()">
-                <span id="authSubmitIcon">🔑</span>
-                <span id="authSubmitLabel">লগইন করুন</span>
+            <div class="auth-sync-btns">
+              <button class="btn btn-danger" id="logoutBtn" onclick="handleManualLogout()">
+                <span>🚪</span> লগআউট
               </button>
-            </div>
-          </div>
-
-          <!-- Logged-in view -->
-          <div id="authLoggedInView" class="auth-view" style="display:none;">
-            <div class="modal-body auth-loggedin-body">
-              <div class="auth-user-avatar">👤</div>
-              <div class="auth-user-info">
-                <div class="auth-user-email" id="authUserEmail">—</div>
-                <div class="auth-user-badge">✅ Supabase ক্লাউডে সংযুক্ত</div>
-              </div>
-              <div class="auth-sync-btns">
-                <button class="btn btn-info btn-sm" onclick="handleAuthSyncAll()">
-                  <span>☁️</span> ক্লাউড সিঙ্ক করুন
-                </button>
-                <button class="btn btn-danger btn-sm" id="logoutBtn" onclick="handleSupabaseLogout()">
-                  <span>🚪</span> লগআউট
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -605,7 +615,7 @@
   <!-- SCRIPTS -->
   <script src="data.js"></script>
   <script src="utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="supabase.js"></script>

@@ -27,6 +27,28 @@ let state = {
 
 // === INIT ===
 document.addEventListener("DOMContentLoaded", () => {
+  // Show login gate if not authenticated
+  if (!authIsLoggedIn()) {
+    showLoginGate();
+  } else {
+    hideLoginGate();
+    bootApp();
+  }
+
+  // Login gate enter-key support
+  ["lgUsername", "lgPassword"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") handleLoginGate(); });
+  });
+
+  // User modal close button
+  const closeUserBtn = document.getElementById("closeUserModalBtn");
+  if (closeUserBtn) closeUserBtn.addEventListener("click", closeUserModal);
+  const userModalEl = document.getElementById("userModal");
+  if (userModalEl) userModalEl.addEventListener("click", e => { if (e.target === userModalEl) closeUserModal(); });
+});
+
+function bootApp() {
   loadData();
   recalculateAllRows();
   initSidebar();
@@ -35,7 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCompanyOptions();
   renderCompanyList();
   if (state.assessmentRows.length === 0) addRow();
-});
+  updateTopbarUser();
+}
 
 // === LOCAL STORAGE ===
 function loadData() {
@@ -2304,24 +2327,119 @@ function updateAuthUI() {
 }
 
 // Close auth modal on overlay click / Escape
-document.addEventListener("DOMContentLoaded", () => {
-  const closeAuthBtn = document.getElementById("closeAuthModalBtn");
-  if (closeAuthBtn) closeAuthBtn.addEventListener("click", closeAuthModal);
-  const cancelAuthBtn = document.getElementById("cancelAuthBtn");
-  if (cancelAuthBtn) cancelAuthBtn.addEventListener("click", closeAuthModal);
 
-  const authModal = document.getElementById("authModal");
-  if (authModal) {
-    authModal.addEventListener("click", (e) => {
-      if (e.target === authModal) closeAuthModal();
-    });
+// ===================================================================
+// MANUAL AUTH HANDLERS — Login Gate & User Modal
+// ===================================================================
+
+function showLoginGate() {
+  const gate = document.getElementById("loginGate");
+  if (gate) gate.classList.remove("hidden");
+  // Focus username field
+  setTimeout(() => { const u = document.getElementById("lgUsername"); if (u) u.focus(); }, 100);
+}
+
+function hideLoginGate() {
+  const gate = document.getElementById("loginGate");
+  if (gate) gate.classList.add("hidden");
+}
+
+function toggleLoginPwd() {
+  const inp = document.getElementById("lgPassword");
+  if (!inp) return;
+  inp.type = inp.type === "password" ? "text" : "password";
+}
+
+function handleLoginGate() {
+  const username = (document.getElementById("lgUsername")?.value || "").trim();
+  const password  = document.getElementById("lgPassword")?.value || "";
+  const remember  = document.getElementById("lgRemember")?.checked || false;
+  const errorEl   = document.getElementById("lgError");
+  const btn       = document.getElementById("lgSubmitBtn");
+
+  errorEl.style.display = "none";
+
+  if (!username || !password) {
+    errorEl.textContent = "ব্যবহারকারীর নাম ও পাসওয়ার্ড দিন।";
+    errorEl.style.display = "block";
+    return;
   }
 
-  // Enter key to submit
-  ["authEmailInput", "authPasswordInput"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleAuthSubmit();
-    });
-  });
-});
+  btn.disabled = true;
+  btn.textContent = "যাচাই করা হচ্ছে...";
+
+  setTimeout(() => {
+    const result = authLogin(username, password, remember);
+    btn.disabled = false;
+    btn.innerHTML = "<span>🔑</span> প্রবেশ করুন";
+
+    if (result.success) {
+      hideLoginGate();
+      bootApp();
+      showToast(`স্বাগতম, ${result.user.displayName}! 👋`, "success");
+    } else {
+      errorEl.textContent = result.message;
+      errorEl.style.display = "block";
+      document.getElementById("lgPassword").value = "";
+      document.getElementById("lgPassword").focus();
+    }
+  }, 200);
+}
+
+function updateTopbarUser() {
+  const user   = authCurrentUser();
+  const btn    = document.getElementById("authBtn");
+  const lbl    = document.getElementById("authBtnLabel");
+  if (!btn || !lbl) return;
+
+  if (user) {
+    btn.className = "btn btn-ghost btn-sm auth-btn-loggedin";
+    lbl.textContent = user.displayName || user.username;
+  } else {
+    btn.className = "btn btn-ghost btn-sm auth-btn-guest";
+    lbl.textContent = "লগইন";
+  }
+}
+
+function openUserModal() {
+  const user = authCurrentUser();
+  if (!user) { showLoginGate(); return; }
+
+  document.getElementById("userModalName").textContent = user.displayName || user.username;
+  document.getElementById("userModalRole").textContent =
+    user.role === "admin" ? "🔑 Admin (অ্যাডমিন)" : "👁 Viewer";
+
+  // Show change-password only for users logged in
+  document.getElementById("userModal").classList.add("active");
+}
+
+function closeUserModal() {
+  document.getElementById("userModal").classList.remove("active");
+  // Clear change pwd fields
+  const o = document.getElementById("oldPwdInput"); if (o) o.value = "";
+  const n = document.getElementById("newPwdInput"); if (n) n.value = "";
+}
+
+function handleManualLogout() {
+  authLogout();
+  closeUserModal();
+  updateTopbarUser();
+  showToast("লগআউট সফল হয়েছে।", "info");
+  // Reload page to show login gate cleanly
+  setTimeout(() => location.reload(), 600);
+}
+
+function handleChangePwd() {
+  const user   = authCurrentUser();
+  const oldPwd = document.getElementById("oldPwdInput")?.value || "";
+  const newPwd = document.getElementById("newPwdInput")?.value || "";
+
+  if (!user) return;
+  const result = authChangePassword(user.username, oldPwd, newPwd);
+  if (result.success) {
+    showToast("পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! 🔒", "success");
+    closeUserModal();
+  } else {
+    showToast(result.message, "error");
+  }
+}
