@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="বাংলাদেশ কাস্টমস শুল্কায়ন ব্যবস্থাপক — Customs Assessment Template for BEPZA">
+  <title>কাস্টমস শুল্কায়ন ব্যবস্থাপক | Customs Assessment Template</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+
+  <!-- ============================================================
+       PRINT-ONLY HEADER (hidden on screen, visible on print)
+  ============================================================ -->
+  <div class="print-header-container print-only">
+    <div class="print-office-title">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</div>
+    <div class="print-office-sub">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</div>
+    <div class="print-doc-title">শুল্কায়ন শীট / Customs Assessment Sheet</div>
+    <div id="printHeaderInfo" class="print-meta-box"><!-- JS renders --></div>
+  </div>
+
+  <!-- ============================================================
+       MAIN APP SHELL
+  ============================================================ -->
+  <div class="app-shell print-hidden">
+
+    <!-- Mobile backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ======================================================
+         SIDEBAR
+    ====================================================== -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Logo / Branding -->
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🛡️</div>
+        <div class="sidebar-logo-text">
+          <div class="sidebar-logo-title" id="sidebarTitle">কাস্টমস ব্যবস্থাপক</div>
+          <div class="sidebar-logo-sub">Assessment v2.0</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav" id="sidebarNav">
+        <div class="sidebar-nav-label">মেনু</div>
+
+        <button class="nav-item active" data-tab="assessment" id="navAssessment">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label" id="navLabelAssessment">শুল্কায়ন শীট</span>
+        </button>
+
+        <button class="nav-item" data-tab="materials" id="navMaterials">
+          <span class="nav-icon">📦</span>
+          <span class="nav-label" id="navLabelMaterials">মালামাল তালিকা</span>
+        </button>
+
+        <button class="nav-item" data-tab="settings" id="navSettings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label" id="navLabelSettings">সেটিংস</span>
+        </button>
+      </nav>
+
+      <!-- Footer Controls -->
+      <div class="sidebar-footer">
+        <!-- Language Switch -->
+        <div class="sidebar-footer-row">
+          <div class="lang-toggle">
+            <button class="lang-btn active" id="langBtnBn">বাংলা</button>
+            <button class="lang-btn" id="langBtnEn">EN</button>
+          </div>
+          <!-- Theme Toggle -->
+          <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">🌓</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ======================================================
+         MAIN AREA
+    ====================================================== -->
+    <div class="main-area">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <!-- Mobile menu button -->
+        <button class="btn btn-ghost btn-sm topbar-menu-btn" id="sidebarToggle" aria-label="Toggle Sidebar">☰</button>
+
+        <div class="topbar-breadcrumb">
+          <span class="topbar-page-name" id="topbarPageName">শুল্কায়ন শীট</span>
+        </div>
+
+        <div class="topbar-actions" id="topbarActions">
+          <!-- Assessment tab actions (default visible) -->
+          <div id="assessmentActions" class="action-group">
+            <button id="addRowBtn" class="btn btn-primary btn-sm">
+              <span class="btn-icon">＋</span>
+              <span id="lblAddRow">নতুন আইটেম</span>
+            </button>
+            <button id="saveAssessmentBtn" class="btn btn-primary btn-sm">
+              <span class="btn-icon">💾</span>
+              <span id="lblSaveAssessment">সেভ করুন</span>
+            </button>
+            <button id="savedHistoryBtn" class="btn btn-ghost btn-sm">
+              <span class="btn-icon">📁</span>
+              <span id="lblSavedHistory">সংরক্ষিত ফাইল</span>
+            </button>
+            <button id="whatsappShareBtn" class="btn btn-whatsapp btn-sm">
+              <span class="btn-icon">💬</span>
+              <span id="lblWhatsappShare">Text শেয়ার</span>
+            </button>
+            <button id="sharePdfWhatsappBtn" class="btn btn-whatsapp btn-sm">
+              <span class="btn-icon">💬</span>
+              <span id="lblSharePdfWhatsapp">PDF WhatsApp</span>
+            </button>
+            <button id="exportPdfBtn" class="btn btn-primary btn-sm">
+              <span class="btn-icon">📄</span>
+              <span id="lblExportPdf">PDF ফাইল</span>
+            </button>
+            <button id="exportHtmlBtn" class="btn btn-info btn-sm">
+              <span class="btn-icon">🌐</span>
+              <span id="lblExportHtml">HTML ফাইল</span>
+            </button>
+            <button id="printBtn" class="btn btn-success btn-sm">
+              <span class="btn-icon">🖨️</span>
+              <span id="lblPrint">প্রিন্ট (A4)</span>
+            </button>
+            <button id="exportBtn" class="btn btn-info btn-sm">
+              <span class="btn-icon">📥</span>
+              <span id="lblExport">এক্সেল</span>
+            </button>
+            <button id="importBtn" class="btn btn-ghost btn-sm">
+              <span class="btn-icon">📤</span>
+              <span id="lblImport">ইমপোর্ট</span>
+            </button>
+            <input type="file" id="importFileInput" accept=".csv" style="display:none;">
+            <button id="resetBtn" class="btn btn-danger btn-sm">
+              <span class="btn-icon">🗑️</span>
+              <span id="lblReset">রিসেট</span>
+            </button>
+          </div>
+
+          <!-- Materials tab actions (hidden by default) -->
+          <div id="materialsActions" class="action-group" style="display:none;">
+            <button id="downloadSampleMaterialBtn" class="btn btn-ghost btn-sm" title="Download Sample Excel">
+              <span class="btn-icon">📄</span> নমুনা ফরম্যাট (Sample)
+            </button>
+            <button id="importMaterialsBtn" class="btn btn-info btn-sm">
+              <span class="btn-icon">📥</span> ইমপোর্ট (Import Excel)
+            </button>
+            <input type="file" id="materialsImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+            <button id="addNewMaterialBtn" class="btn btn-primary btn-sm">
+              <span class="btn-icon">＋</span> নতুন মালামাল (Add)
+            </button>
+          </div>
+
+          <!-- Settings tab actions (hidden by default) -->
+          <div id="settingsActions" class="action-group" style="display:none;">
+            <button id="importCompaniesBtn" class="btn btn-info btn-sm">
+              <span class="btn-icon">📥</span> Import Companies
+            </button>
+            <input type="file" id="companiesImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+          </div>
+        </div>
+      </header>
+
+      <!-- DASHBOARD METRIC CARDS -->
+      <section class="metrics-strip">
+        <div class="metric-card blue">
+          <div class="metric-icon-wrap">📦</div>
+          <div class="metric-body">
+            <div class="metric-label" id="dashLabelItems">মোট মালামাল প্রকার</div>
+            <div class="metric-value" id="dashValItems">০</div>
+          </div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-icon-wrap">💰</div>
+          <div class="metric-body">
+            <div class="metric-label" id="dashLabelVal">সর্বমোট শুল্কায়ন মূল্য (টাকা)</div>
+            <div class="metric-value" id="dashValTotalVal">৳০.০০</div>
+          </div>
+        </div>
+        <div class="metric-card gold">
+          <div class="metric-icon-wrap">🏛️</div>
+          <div class="metric-body">
+            <div class="metric-label" id="dashLabelTax">সর্বমোট শুল্ক-করাদি (টাকা)</div>
+            <div class="metric-value" id="dashValTotalTax">৳০.০০</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB CONTENT -->
+      <main class="content-area">
+
+        <!-- ================================================
+             TAB 1: ASSESSMENT SHEET
+        ================================================ -->
+        <section class="tab-panel active" id="assessment-tab">
+
+          <!-- Header Info Panel -->
+          <div class="glass-panel mb-4">
+            <div class="panel-header">
+              <div class="panel-title">
+                <span class="panel-title-icon">📄</span>
+                <span id="lblAssessmentHeader">শুল্কায়ন তথ্য</span>
+              </div>
+            </div>
+            <div class="header-form-grid">
+              <div class="form-group">
+                <label class="form-label" id="lblCompanyName" for="header-companyName">প্রতিষ্ঠানের নাম</label>
+                <select class="form-control" id="header-companyName"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" id="lblHasFile" for="header-hasFileNo">নথি নং থাকবে?</label>
+                <select class="form-control" id="header-hasFileNo">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" id="lblFilePage" for="header-filePageNo">নথি পাতা নং</label>
+                <input type="text" class="form-control" id="header-filePageNo" value="">
+              </div>
+              <div class="form-group">
+                <label class="form-label" id="lblNotePara" for="header-noteParaNo">নোটানুচ্ছেদ নং</label>
+                <input type="text" class="form-control" id="header-noteParaNo" value="৫২৩">
+              </div>
+              <div class="form-group">
+                <label class="form-label" id="lblLetterPage" for="header-letterPageNo">পত্র পাতা নং</label>
+                <input type="text" class="form-control" id="header-letterPageNo" value="৪৬১-৪৬২">
+              </div>
+              <div class="form-group">
+                <label class="form-label" id="lblBepza" for="header-bepzaRecNo">বেপজা সুপারিশ নং</label>
+                <input type="text" class="form-control" id="header-bepzaRecNo" value="১৫০৬২৬০০৯">
+              </div>
+            </div>
+          </div>
+
+          <!-- Assessment Table Panel -->
+          <div class="glass-panel">
+            <div class="table-wrap">
+              <table class="assessment-table" id="mainAssessmentTable">
+                <thead id="assessmentTableHead"><!-- JS renders --></thead>
+                <tbody id="assessmentTableBody"><!-- JS renders --></tbody>
+                <tbody id="assessmentTableFoot"><!-- JS renders --></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- In Words -->
+          <div class="in-words-panel" id="inWordsDisplay">
+            <div style="flex:1;">
+              <span class="in-words-label">কথায় :</span>
+              <span id="inWordsText">শূন্য টাকা মাত্র।</span>
+            </div>
+            <button id="inWordsWhatsappBtn" class="btn btn-whatsapp btn-sm" title="Share via WhatsApp">
+              <span class="btn-icon">💬</span> WhatsApp শেয়ার
+            </button>
+          </div>
+
+        </section>
+
+        <!-- ================================================
+             TAB 2: MATERIALS DATABASE
+        ================================================ -->
+        <section class="tab-panel" id="materials-tab">
+
+          <div class="materials-toolbar" style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;">
+            <div class="search-box" style="flex:1;">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" id="searchMaterialInput" placeholder="কোড বা বিবরণ দিয়ে খুঁজুন...">
+            </div>
+            <button id="downloadSampleMaterialBtn2" class="btn btn-ghost btn-sm" title="Download Sample Excel">
+              <span class="btn-icon">📄</span> নমুনা ফরম্যাট ডাউনলোড (Sample Excel)
+            </button>
+          </div>
+
+          <div class="glass-panel">
+            <div class="table-wrap">
+              <table class="materials-table">
+                <thead id="materialsTableHead"><!-- JS renders --></thead>
+                <tbody id="materialsGrid"><!-- JS renders --></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================
+             TAB 3: SETTINGS
+        ================================================ -->
+        <section class="tab-panel" id="settings-tab">
+          <div class="settings-grid">
+
+            <!-- Calculation Method -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <span>⚡</span>
+                  <span id="lblFormulaTitle">হিসাব সূত্র সেটিংস</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="form-group">
+                  <label class="form-label" for="calcMethodSelect">গণনা পদ্ধতি</label>
+                  <select id="calcMethodSelect" class="method-select">
+                    <option value="bd">বাংলাদেশ কাস্টমস সূত্র (ভ্যাট ও এটি স্তরীভূত)</option>
+                    <option value="simple">সরল শতকরা সূত্র (সরাসরি শুল্কায়ন মূল্যের উপর)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Default Tax Rates -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <span>📊</span>
+                  <span id="lblTaxRatesTitle">ডিফল্ট ট্যাক্স রেট (%)</span>
+                </div>
+                <button id="applyDefaultsBtn" class="btn btn-primary btn-sm">সব লাইনে প্রয়োগ</button>
+              </div>
+              <div class="settings-card-body">
+                <div class="rates-grid">
+                  <div class="rate-field">
+                    <label class="rate-label">CD <span class="rate-badge">কাস্টমস ডিউটি</span></label>
+                    <input type="number" step="any" class="form-control" id="default-cd">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label">RD <span class="rate-badge">রেগুলেটরি</span></label>
+                    <input type="number" step="any" class="form-control" id="default-rd">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label">SD <span class="rate-badge">সম্পূরক</span></label>
+                    <input type="number" step="any" class="form-control" id="default-sd">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label">VAT / মূসক</label>
+                    <input type="number" step="any" class="form-control" id="default-vat">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label">AIT <span class="rate-badge">অগ্রিম আয়কর</span></label>
+                    <input type="number" step="any" class="form-control" id="default-ait">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label">AT <span class="rate-badge">অগ্রিম কর</span></label>
+                    <input type="number" step="any" class="form-control" id="default-at">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label" id="lblInsuranceRate">ইন্সুরেন্স চার্জ</label>
+                    <input type="number" step="any" class="form-control" id="default-insurance">
+                  </div>
+                  <div class="rate-field">
+                    <label class="rate-label" id="lblLandingRate">ল্যান্ডিং চার্জ</label>
+                    <input type="number" step="any" class="form-control" id="default-landing">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Company List — full width -->
+            <div class="settings-card" style="grid-column: 1 / -1;">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <span>🏢</span>
+                  <span>কোম্পানির তালিকা (Company List)</span>
+                </div>
+                <div class="action-group">
+                  <button id="importCompaniesCardBtn" class="btn btn-info btn-sm">
+                    <span class="btn-icon">📥</span> Excel/CSV ইম্পোর্ট
+                  </button>
+                  <button id="addCompanyBtn" class="btn btn-primary btn-sm">
+                    <span class="btn-icon">＋</span> নতুন কোম্পানি
+                  </button>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="company-table-wrap">
+                  <table class="materials-table company-table">
+                    <thead id="companyTableHead"></thead>
+                    <tbody id="companyTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Supabase Integration — full width -->
+            <div class="settings-card" style="grid-column: 1 / -1; margin-top: 15px;">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <span>⚡</span>
+                  <span>Supabase Cloud API ক্লাউড সংযোগ</span>
+                </div>
+                <div class="action-group">
+                  <button id="copySqlSchemaBtn" class="btn btn-ghost btn-sm" title="Copy SQL Migration Schema">
+                    <span class="btn-icon">📋</span> SQL Schema কপি
+                  </button>
+                  <button id="testSupabaseBtn" class="btn btn-success btn-sm">
+                    <span class="btn-icon">🔗</span> টেস্ট সংযোগ
+                  </button>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 14px;">
+                  <div>
+                    <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">Supabase Project URL</label>
+                    <input type="text" class="form-control" id="supabaseUrlInput" placeholder="https://your-project.supabase.co">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">Supabase Anon API Key</label>
+                    <input type="password" class="form-control" id="supabaseKeyInput" placeholder="eyJh... (Anon Public Key)">
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                  <div id="supabaseStatusBadge" style="font-size:12px; color:var(--text-secondary);">
+                    স্ট্যাটাস: <span style="font-weight:600; color:#e74c3c;">সংযুক্ত নয় (Not Connected)</span>
+                  </div>
+                  <div class="action-group">
+                    <button id="saveSupabaseCredsBtn" class="btn btn-primary btn-sm">
+                      <span class="btn-icon">💾</span> Supabase সেভ করুন
+                    </button>
+                    <button id="syncAllToCloudBtn" class="btn btn-info btn-sm">
+                      <span class="btn-icon">☁️</span> ক্লাউডে ডেটা সিঙ্ক
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /settings-grid -->
+        </section>
+
+      </main>
+    </div><!-- /main-area -->
+  </div><!-- /app-shell -->
+
+  <!-- ============================================================
+       MATERIAL CRUD MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="materialModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="materialModalTitle">নতুন মালামাল যোগ</h3>
+        <button class="modal-close-btn" id="closeModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group full-width">
+          <label class="form-label">অনুমোদন ক্রমিক কোড / Code</label>
+          <input type="text" class="form-control" id="mat-code" placeholder="যেমন: 1A, RW-101">
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">বিবরণ / Description</label>
+          <textarea class="form-control" id="mat-desc" rows="3" placeholder="মালামালের বিবরণ লিখুন..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ইউনিট মূল্য (টাকা) / Unit Price</label>
+          <input type="number" step="any" class="form-control" id="mat-price" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">একক / Unit</label>
+          <select class="form-control" id="mat-unit">
+            <option value="kg">kg</option>
+            <option value="pcs">pcs</option>
+            <option value="mtr">mtr</option>
+            <option value="ton">ton</option>
+            <option value="set">set</option>
+            <option value="ltr">ltr</option>
+            <option value="doz">doz</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" id="cancelModalBtn">বাতিল</button>
+        <button class="btn btn-primary" id="saveMaterialBtn">💾 সংরক্ষণ করুন</button>
+      </div>
+  </div>
+
+  <!-- ============================================================
+       SAVED ASSESSMENTS HISTORY MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="historyModalTitle">📁 সংরক্ষিত শুল্কায়ন সমুহ (Saved Assessments)</h3>
+        <button class="modal-close-btn" id="closeHistoryModalBtn">✕</button>
+      </div>
+      <div class="modal-body" style="grid-template-columns: 1fr; max-height: 60vh; overflow-y: auto;">
+        <div id="historyListContainer">
+          <!-- JS renders history items -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" id="closeHistoryModalFooterBtn">বন্ধ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ============================================================
+       PRINT-ONLY SIGNATURE LAYOUT
+  ============================================================ -->
+  <div class="print-only print-signatures">
+    <div class="signature-line-group">
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title" id="printPreparedBy">প্রস্তুতকারী</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title" id="printCheckedBy">যাচাইকারী</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title" id="printApprovedBy">অনুমোদনকারী কাস্টমস কর্মকর্তা</div>
+      </div>
+    </div>
+  </div>
+  <div class="print-only print-developer-credit">
+    <div>Customs Assessment Manager v2.0</div>
+    <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="supabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
