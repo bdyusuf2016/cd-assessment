@@ -1226,6 +1226,13 @@ async function exportToPDF() {
     const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
     tempDiv.innerHTML = `
+      <style>
+        table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        tr, th, td { page-break-inside: avoid; page-break-after: auto; }
+        .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; }
+      </style>
       <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
         <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
         <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
@@ -1298,10 +1305,10 @@ async function exportToPDF() {
           </tr>
         </tfoot>
       </table>
-      <div style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
+      <div class="pdf-summary" style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
         ${dict.inWords} ${inWordsValue} ${dict.takaOnly}
       </div>
-      <div style="page-break-inside: avoid; margin-top: 40px;">
+      <div class="pdf-signatures" style="page-break-inside: avoid; margin-top: 40px;">
         <div style="display:flex; justify-content:space-between; text-align:center; font-size:11px;">
           <div style="flex:1;">
             <div style="height:42px;"></div>
@@ -1320,7 +1327,7 @@ async function exportToPDF() {
           </div>
         </div>
       </div>
-      <div style="position:absolute; bottom:6px; left:20px; right:20px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:4px; display:flex; justify-content:space-between; align-items:center;">
+      <div class="pdf-footer" style="margin-top:24px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
         <div>Customs Assessment Manager v2.0</div>
         <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
       </div>
@@ -1332,7 +1339,7 @@ async function exportToPDF() {
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak:    { mode: ['css', 'legacy'] }
     };
 
     document.body.appendChild(tempDiv);
@@ -1390,6 +1397,13 @@ async function sharePdfToWhatsApp() {
   const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
 
   tempDiv.innerHTML = `
+    <style>
+      table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr, th, td { page-break-inside: avoid; page-break-after: auto; }
+      .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; }
+    </style>
     <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
       <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
       <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
@@ -1462,10 +1476,10 @@ async function sharePdfToWhatsApp() {
         </tr>
       </tfoot>
     </table>
-    <div style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
+    <div class="pdf-summary" style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
       ${dict.inWords} ${inWordsValue} ${dict.takaOnly}
     </div>
-      <div style="page-break-inside: avoid; margin-top: 40px;">
+      <div class="pdf-signatures" style="page-break-inside: avoid; margin-top: 40px;">
         <div style="display:flex; justify-content:space-between; text-align:center; font-size:11px;">
           <div style="flex:1;">
             <div style="height:42px;"></div>
@@ -1484,7 +1498,7 @@ async function sharePdfToWhatsApp() {
           </div>
         </div>
       </div>
-      <div style="position:absolute; bottom:6px; left:20px; right:20px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:4px; display:flex; justify-content:space-between; align-items:center;">
+      <div class="pdf-footer" style="margin-top:24px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
         <div>Customs Assessment Manager v2.0</div>
         <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
       </div>
@@ -1496,7 +1510,7 @@ async function sharePdfToWhatsApp() {
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2, useCORS: true },
     jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak:    { mode: ['css', 'legacy'] }
   };
 
   try {
