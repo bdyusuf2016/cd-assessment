@@ -1168,17 +1168,32 @@ function exportToHTML() {
   showToast(lang === "bn" ? "HTML ফাইল ডাউনলোড হয়েছে!" : "HTML file downloaded!", "success");
 }
 
+// Ensure Bengali glyphs are available before html2canvas captures the PDF content.
+async function ensurePdfFontReady() {
+  if (!document.fonts || !document.fonts.load) return;
+  try {
+    await document.fonts.load('16px "Hind Siliguri"');
+    await document.fonts.ready;
+  } catch (error) {
+    console.warn('Hind Siliguri could not be preloaded for PDF export.', error);
+  }
+}
+
 // === EXPORT PDF DOCUMENT ===
-function exportToPDF() {
+async function exportToPDF() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
   const dict = TRANSLATIONS[lang];
   const dr = state.defaultRates;
   const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
+  await ensurePdfFontReady();
 
   if (typeof html2pdf !== "undefined") {
     const tempDiv = document.createElement("div");
-    tempDiv.style.position = "relative";
+    tempDiv.style.position = "fixed";
+    tempDiv.style.left = "-20000px";
+    tempDiv.style.top = "0";
+    tempDiv.style.width = "11in";
     tempDiv.style.minHeight = "7.6in";
     tempDiv.style.padding = "16px 20px 36px 20px";
     tempDiv.style.boxSizing = "border-box";
@@ -1329,6 +1344,7 @@ async function sharePdfToWhatsApp() {
   const lang = state.language;
   const dict = TRANSLATIONS[lang];
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
+  await ensurePdfFontReady();
 
   if (typeof html2pdf === "undefined") {
     exportToPDF();
