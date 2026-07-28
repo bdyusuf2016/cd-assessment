@@ -1,5 +1,5 @@
-/* ================================================================
-   CUSTOMS ASSESSMENT MANAGER — app.js v2.0
+﻿/* ================================================================
+   CUSTOMS ASSESSMENT MANAGER â€” app.js v2.0
    All business logic preserved. New: sidebar, toasts, animations.
    ================================================================ */
 
@@ -19,9 +19,9 @@ let state = {
     companyName: "GUNGE",
     hasFileNo: "Yes",
     filePageNo: "",
-    noteParaNo: "৫২৩",
-    letterPageNo: "৪৬১-৪৬২",
-    bepzaRecNo: "১৫০৬২৬০০৯"
+    noteParaNo: "à§«à§¨à§©",
+    letterPageNo: "à§ªà§¬à§§-à§ªà§¬à§¨",
+    bepzaRecNo: "à§§à§«à§¦à§¬à§¨à§¬à§¦à§¦à§¯"
   }
 };
 
@@ -132,7 +132,7 @@ function saveState() {
 function clearAllCompanies() {
   const confirmed = window.confirm(
     state.language === "bn"
-      ? "আপনি কি সত্যিই সব কোম্পানি মুছতে চান? এই কাজটি ফেরানো যাবে না।"
+      ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¸à¦¤à§à¦¯à¦¿à¦‡ à¦¸à¦¬ à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦®à§à¦›à¦¤à§‡ à¦šà¦¾à¦¨? à¦à¦‡ à¦•à¦¾à¦œà¦Ÿà¦¿ à¦«à§‡à¦°à¦¾à¦¨à§‹ à¦¯à¦¾à¦¬à§‡ à¦¨à¦¾à¥¤"
       : "Are you sure you want to clear ALL companies? This cannot be undone."
   );
   if (!confirmed) return;
@@ -142,7 +142,7 @@ function clearAllCompanies() {
   renderCompanyOptions();
   renderCompanyList();
   updatePrintHeader();
-  showToast(state.language === "bn" ? "সব কোম্পানি মুছে ফেলা হয়েছে।" : "All companies cleared.", "info");
+  showToast(state.language === "bn" ? "à¦¸à¦¬ à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "All companies cleared.", "info");
 }
 
 // === SIDEBAR ===
@@ -177,11 +177,11 @@ function showToast(message, type = "info", duration = 3500) {
   const container = document.getElementById("toastContainer");
   if (!container) { console.warn(message); return; }
 
-  const iconMap = { success: "✅", error: "❌", info: "ℹ️", warning: "⚠️" };
+  const iconMap = { success: "âœ…", error: "âŒ", info: "â„¹ï¸", warning: "âš ï¸" };
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <span class="toast-icon">${iconMap[type] || "ℹ️"}</span>
+    <span class="toast-icon">${iconMap[type] || "â„¹ï¸"}</span>
     <span class="toast-msg">${message}</span>
     <div class="toast-progress"></div>
   `;
@@ -205,7 +205,7 @@ function initEventListeners() {
     document.body.classList.toggle("dark-mode");
     document.body.classList.toggle("light-mode");
     const isDark = document.body.classList.contains("dark-mode");
-    document.getElementById("themeToggleBtn").textContent = isDark ? "🌓" : "☀️";
+    document.getElementById("themeToggleBtn").textContent = isDark ? "ðŸŒ“" : "â˜€ï¸";
   });
 
   // Calculation method
@@ -215,7 +215,7 @@ function initEventListeners() {
     recalculateAllRows();
     renderAssessmentTable();
     updateDashboardMetrics();
-    showToast(state.language === "bn" ? "হিসাব সূত্র পরিবর্তিত হয়েছে।" : "Calculation method updated.", "info");
+    showToast(state.language === "bn" ? "à¦¹à¦¿à¦¸à¦¾à¦¬ à¦¸à§‚à¦¤à§à¦° à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¿à¦¤ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Calculation method updated.", "info");
   });
 
   // Default rate inputs
@@ -236,7 +236,7 @@ function initEventListeners() {
 
   document.getElementById("applyDefaultsBtn").addEventListener("click", () => {
     if (confirm(state.language === "bn"
-      ? "আপনি কি বিদ্যমান সকল লাইনে এই ডিফল্ট রেটগুলো প্রয়োগ করতে চান?"
+      ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¬à¦¿à¦¦à§à¦¯à¦®à¦¾à¦¨ à¦¸à¦•à¦² à¦²à¦¾à¦‡à¦¨à§‡ à¦à¦‡ à¦¡à¦¿à¦«à¦²à§à¦Ÿ à¦°à§‡à¦Ÿà¦—à§à¦²à§‹ à¦ªà§à¦°à¦¯à¦¼à§‹à¦— à¦•à¦°à¦¤à§‡ à¦šà¦¾à¦¨?"
       : "Do you want to apply these default rates to all existing rows?")) {
       state.assessmentRows.forEach(row => {
         row.cdRate  = state.defaultRates.cd;
@@ -250,7 +250,7 @@ function initEventListeners() {
       recalculateAllRows();
       renderAssessmentTable();
       updateDashboardMetrics();
-      showToast(state.language === "bn" ? "সব লাইনে রেট প্রয়োগ করা হয়েছে।" : "Default rates applied to all rows.", "success");
+      showToast(state.language === "bn" ? "à¦¸à¦¬ à¦²à¦¾à¦‡à¦¨à§‡ à¦°à§‡à¦Ÿ à¦ªà§à¦°à¦¯à¦¼à§‹à¦— à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Default rates applied to all rows.", "success");
     }
   });
 
@@ -449,7 +449,7 @@ function updateUI() {
   document.getElementById("calcMethodSelect").options[0].text = dict.standardBDFormula;
   document.getElementById("calcMethodSelect").options[1].text = dict.simplePercentFormula;
   document.getElementById("applyDefaultsBtn").textContent =
-    state.language === "bn" ? "সব লাইনে প্রয়োগ" : "Apply to All Rows";
+    state.language === "bn" ? "à¦¸à¦¬ à¦²à¦¾à¦‡à¦¨à§‡ à¦ªà§à¦°à¦¯à¦¼à§‹à¦—" : "Apply to All Rows";
 
   // Search placeholder
   document.getElementById("searchMaterialInput").placeholder = dict.searchPlaceholder;
@@ -701,7 +701,7 @@ function renderAssessmentTable() {
       <td class="cell-num"><span class="readonly-val">${formatCurrency(row.at, state.language)}</span></td>
       <td class="cell-num sticky-right-2"><span class="readonly-val dt-val">${formatCurrency(row.totalDutyTax, state.language)}</span></td>
       <td class="cell-action print-hidden sticky-right">
-        <button class="btn-delete-row" title="${dict.delete}">✕</button>
+        <button class="btn-delete-row" title="${dict.delete}">âœ•</button>
       </td>
     `;
 
@@ -713,7 +713,7 @@ function renderAssessmentTable() {
 
     setupAutocomplete(codeInput, row, tr);
 
-    // qty input: update in-place (no re-render → cursor stays put)
+    // qty input: update in-place (no re-render â†’ cursor stays put)
     qtyInput.addEventListener("input", () => {
       row.quantity = parseFloat(qtyInput.value) || 0;
       calculateRow(row);
@@ -768,8 +768,8 @@ function updateDashboardMetrics() {
   const dtEl    = document.getElementById("dashValTotalTax");
 
   if (countEl) countEl.textContent = lang === "bn" ? toBengaliNumerals(state.assessmentRows.length) : state.assessmentRows.length;
-  if (avEl)    avEl.textContent    = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalAv, lang);
-  if (dtEl)    dtEl.textContent    = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalDt, lang);
+  if (avEl)    avEl.textContent    = (lang === "bn" ? "à§³" : "à§³") + formatCurrency(totalAv, lang);
+  if (dtEl)    dtEl.textContent    = (lang === "bn" ? "à§³" : "à§³") + formatCurrency(totalDt, lang);
 }
 
 // === PRINT HEADER ===
@@ -779,7 +779,7 @@ function updatePrintHeader() {
   if (!printHeaderContainer) return;
 
   const company    = state.header.companyName;
-  const fileNoVal  = state.header.hasFileNo === "Yes" ? (state.language === "bn" ? "হ্যাঁ" : "Yes") : (state.language === "bn" ? "না" : "No");
+  const fileNoVal  = state.header.hasFileNo === "Yes" ? (state.language === "bn" ? "à¦¹à§à¦¯à¦¾à¦" : "Yes") : (state.language === "bn" ? "à¦¨à¦¾" : "No");
   const filePage   = state.header.filePageNo;
   const notePara   = state.header.noteParaNo;
   const letterPage = state.header.letterPageNo;
@@ -793,7 +793,7 @@ function updatePrintHeader() {
         <span class="meta-val font-bold">${company}</span>
       </div>
       <div class="meta-item" style="justify-content:flex-end;">
-        <span class="meta-label">${state.language === "bn" ? "তারিখ :" : "Date :"}</span>
+        <span class="meta-label">${state.language === "bn" ? "à¦¤à¦¾à¦°à¦¿à¦– :" : "Date :"}</span>
         <span class="meta-val font-bold">${currentDate}</span>
       </div>
       <div class="meta-item">
@@ -820,13 +820,13 @@ function updatePrintHeader() {
 // === RESET ===
 function resetAllData() {
   const msg = state.language === "bn"
-    ? "আপনি কি নিশ্চিতভাবে সকল তথ্য মুছে ফেলতে চান?"
+    ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤à¦­à¦¾à¦¬à§‡ à¦¸à¦•à¦² à¦¤à¦¥à§à¦¯ à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¤à§‡ à¦šà¦¾à¦¨?"
     : "Are you sure you want to reset all calculations?";
   if (confirm(msg)) {
     state.assessmentRows = [];
     localStorage.removeItem("customs_assessment_rows");
     addRow();
-    showToast(state.language === "bn" ? "সব তথ্য মুছে ফেলা হয়েছে।" : "All data has been reset.", "warning");
+    showToast(state.language === "bn" ? "à¦¸à¦¬ à¦¤à¦¥à§à¦¯ à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "All data has been reset.", "warning");
   }
 }
 
@@ -856,7 +856,7 @@ function handleGlobalEscape(e) {
 function saveCurrentAssessment() {
   const defaultTitle = `${state.header.companyName || "Customs Assessment"} - ${new Date().toLocaleDateString(state.language === "bn" ? "bn-BD" : "en-US")}`;
   const title = prompt(
-    state.language === "bn" ? "সংরক্ষিত শুল্কায়নের একটি নাম লিখুন:" : "Enter a name for this saved assessment:",
+    state.language === "bn" ? "à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨à§‡à¦° à¦à¦•à¦Ÿà¦¿ à¦¨à¦¾à¦® à¦²à¦¿à¦–à§à¦¨:" : "Enter a name for this saved assessment:",
     defaultTitle
   );
   if (title === null) return;
@@ -886,7 +886,7 @@ function saveCurrentAssessment() {
     });
   }
 
-  showToast(state.language === "bn" ? "শুল্কায়ন ফাইল স্থানীয়ভাবে ও ক্লাউডে সংরক্ষিত হয়েছে!" : "Assessment saved locally & in cloud!", "success");
+  showToast(state.language === "bn" ? "à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦«à¦¾à¦‡à¦² à¦¸à§à¦¥à¦¾à¦¨à§€à¦¯à¦¼à¦­à¦¾à¦¬à§‡ à¦“ à¦•à§à¦²à¦¾à¦‰à¦¡à§‡ à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "Assessment saved locally & in cloud!", "success");
 }
 
 function openHistoryModal() {
@@ -904,7 +904,7 @@ function renderHistoryList() {
 
   if (!state.savedAssessments || state.savedAssessments.length === 0) {
     container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">
-      ${state.language === "bn" ? "কোন সংরক্ষিত শুল্কায়ন ফাইল পাওয়া যায়নি।" : "No saved assessments found."}
+      ${state.language === "bn" ? "à¦•à§‹à¦¨ à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦«à¦¾à¦‡à¦² à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿à¥¤" : "No saved assessments found."}
     </div>`;
     return;
   }
@@ -922,18 +922,18 @@ function renderHistoryList() {
         <div>
           <div class="history-title">${escapeHtml(item.title)}</div>
           <div class="history-meta">
-            🏢 ${escapeHtml(item.header?.companyName || "N/A")} | 
-            📦 ${item.assessmentRows?.length || 0} ${lang === "bn" ? "টি আইটেম" : "items"} | 
-            💰 ৳${formatCurrency(totalAv, lang)} | 
-            🏛️ ৳${formatCurrency(totalDt, lang)}
+            ðŸ¢ ${escapeHtml(item.header?.companyName || "N/A")} | 
+            ðŸ“¦ ${item.assessmentRows?.length || 0} ${lang === "bn" ? "à¦Ÿà¦¿ à¦†à¦‡à¦Ÿà§‡à¦®" : "items"} | 
+            ðŸ’° à§³${formatCurrency(totalAv, lang)} | 
+            ðŸ›ï¸ à§³${formatCurrency(totalDt, lang)}
             <br>
-            <small style="opacity:0.7;">📅 ${escapeHtml(item.timestamp)}</small>
+            <small style="opacity:0.7;">ðŸ“… ${escapeHtml(item.timestamp)}</small>
           </div>
         </div>
         <div class="history-actions">
-          <button class="btn btn-primary btn-sm btn-history-load" data-id="${item.id}">📂 ${lang === "bn" ? "লোড" : "Load"}</button>
-          <button class="btn btn-whatsapp btn-sm btn-history-wa" data-id="${item.id}">💬 Share</button>
-          <button class="btn btn-danger btn-sm btn-history-del" data-id="${item.id}">🗑️</button>
+          <button class="btn btn-primary btn-sm btn-history-load" data-id="${item.id}">ðŸ“‚ ${lang === "bn" ? "à¦²à§‹à¦¡" : "Load"}</button>
+          <button class="btn btn-whatsapp btn-sm btn-history-wa" data-id="${item.id}">ðŸ’¬ Share</button>
+          <button class="btn btn-danger btn-sm btn-history-del" data-id="${item.id}">ðŸ—‘ï¸</button>
         </div>
       </div>
     `;
@@ -957,7 +957,7 @@ function loadSavedAssessment(id) {
   const item = state.savedAssessments.find(s => s.id === id);
   if (!item) return;
 
-  if (confirm(state.language === "bn" ? "আপনি কি নিশ্চিতভাবে এই ফাইলটি লোড করতে চান?" : "Load this saved assessment? Current workspace data will be replaced.")) {
+  if (confirm(state.language === "bn" ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤à¦­à¦¾à¦¬à§‡ à¦à¦‡ à¦«à¦¾à¦‡à¦²à¦Ÿà¦¿ à¦²à§‹à¦¡ à¦•à¦°à¦¤à§‡ à¦šà¦¾à¦¨?" : "Load this saved assessment? Current workspace data will be replaced.")) {
     state.header = JSON.parse(JSON.stringify(item.header));
     state.assessmentRows = JSON.parse(JSON.stringify(item.assessmentRows));
     if (item.defaultRates) state.defaultRates = JSON.parse(JSON.stringify(item.defaultRates));
@@ -967,16 +967,16 @@ function loadSavedAssessment(id) {
     recalculateAllRows();
     updateUI();
     closeHistoryModal();
-    showToast(state.language === "bn" ? "সংরক্ষিত ফাইল সফলভাবে লোড হয়েছে!" : "Assessment loaded successfully!", "success");
+    showToast(state.language === "bn" ? "à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦«à¦¾à¦‡à¦² à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦²à§‹à¦¡ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "Assessment loaded successfully!", "success");
   }
 }
 
 function deleteSavedAssessment(id) {
-  if (confirm(state.language === "bn" ? "আপনি কি নিশ্চিতভাবে এই ফাইলটি মুছে ফেলতে চান?" : "Delete this saved assessment?")) {
+  if (confirm(state.language === "bn" ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤à¦­à¦¾à¦¬à§‡ à¦à¦‡ à¦«à¦¾à¦‡à¦²à¦Ÿà¦¿ à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¤à§‡ à¦šà¦¾à¦¨?" : "Delete this saved assessment?")) {
     state.savedAssessments = state.savedAssessments.filter(s => s.id !== id);
     localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
     renderHistoryList();
-    showToast(state.language === "bn" ? "সংরক্ষিত ফাইল মুছে ফেলা হয়েছে।" : "Saved item deleted.", "info");
+    showToast(state.language === "bn" ? "à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦«à¦¾à¦‡à¦² à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Saved item deleted.", "info");
   }
 }
 
@@ -994,20 +994,20 @@ function shareToWhatsApp(savedItem = null) {
 
   const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
 
-  let msg = `📋 *কাস্টমস শুল্কায়ন সমারি*\n`;
-  msg += `🏢 প্রতিষ্ঠান: ${header.companyName || "N/A"}\n`;
+  let msg = `ðŸ“‹ *à¦•à¦¾à¦¸à§à¦Ÿà¦®à¦¸ à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦¸à¦®à¦¾à¦°à¦¿*\n`;
+  msg += `ðŸ¢ à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨: ${header.companyName || "N/A"}\n`;
   msg += `------------------------------------\n`;
-  msg += `📦 মোট মালামাল: ${rows.length} প্রকার (${formatCurrency(totQty, lang)})\n`;
-  msg += `💰 মোট শুল্কায়ন মূল্য: ৳${formatCurrency(totAv, lang)}\n`;
-  msg += `🏛️ মোট শুল্ক-করাদি: ৳${formatCurrency(totDt, lang)}\n`;
-  msg += `🗣️ কথায়: ${inWordsValue} টাকা মাত্র।\n`;
+  msg += `ðŸ“¦ à¦®à§‹à¦Ÿ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦²: ${rows.length} à¦ªà§à¦°à¦•à¦¾à¦° (${formatCurrency(totQty, lang)})\n`;
+  msg += `ðŸ’° à¦®à§‹à¦Ÿ à¦¶à§à¦²à§à¦•à¦¾à§Ÿà¦¨ à¦®à§‚à¦²à§à¦¯: à§³${formatCurrency(totAv, lang)}\n`;
+  msg += `ðŸ›ï¸ à¦®à§‹à¦Ÿ à¦¶à§à¦²à§à¦•-à¦•à¦°à¦¾à¦¦à¦¿: à§³${formatCurrency(totDt, lang)}\n`;
+  msg += `ðŸ—£ï¸ à¦•à¦¥à¦¾à§Ÿ: ${inWordsValue} à¦Ÿà¦¾à¦•à¦¾ à¦®à¦¾à¦¤à§à¦°à¥¤\n`;
   msg += `------------------------------------\n`;
-  msg += `📦 *পণ্য বিবরণ সংক্ষেপ:*\n`;
+  msg += `ðŸ“¦ *à¦ªà¦£à§à¦¯ à¦¬à¦¿à¦¬à¦°à¦£ à¦¸à¦‚à¦•à§à¦·à§‡à¦ª:*\n`;
 
   rows.forEach((r, idx) => {
     msg += `${idx + 1}. ${r.approveCode ? "["+r.approveCode+"] " : ""}${r.description} (${r.quantity} ${r.unit})\n`;
-    msg += `   • শুল্কায়ন মূল্য: ৳${formatCurrency(r.assessableValue, lang)}\n`;
-    msg += `   • শুল্ক-করাদি: ৳${formatCurrency(r.totalDutyTax, lang)}\n`;
+    msg += `   â€¢ à¦¶à§à¦²à§à¦•à¦¾à§Ÿà¦¨ à¦®à§‚à¦²à§à¦¯: à§³${formatCurrency(r.assessableValue, lang)}\n`;
+    msg += `   â€¢ à¦¶à§à¦²à§à¦•-à¦•à¦°à¦¾à¦¦à¦¿: à§³${formatCurrency(r.totalDutyTax, lang)}\n`;
   });
 
   msg += `------------------------------------\n`;
@@ -1066,14 +1066,14 @@ function exportToHTML() {
 </head>
 <body>
   <div class="header">
-    <h2>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-    <h3>কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-    <h3 style="font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
+    <h2>à¦—à¦£à¦ªà§à¦°à¦œà¦¾à¦¤à¦¨à§à¦¤à§à¦°à§€ à¦¬à¦¾à¦‚à¦²à¦¾à¦¦à§‡à¦¶ à¦¸à¦°à¦•à¦¾à¦°</h2>
+    <h3>à¦•à¦¾à¦¸à§à¦Ÿà¦®à¦¸ à¦¬à¦¨à§à¦¡ à¦•à¦®à¦¿à¦¶à¦¨à¦¾à¦°à§‡à¦Ÿ, à¦¢à¦¾à¦•à¦¾ (à¦¦à¦•à§à¦·à¦¿à¦£), à¦¡à¦¿à¦‡à¦ªà¦¿à¦œà§‡à¦¡ à¦¬à¦¿à¦­à¦¾à¦—, à¦¸à¦¾à¦­à¦¾à¦°, à¦¢à¦¾à¦•à¦¾à¥¤</h3>
+    <h3 style="font-weight:bold;">à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦¶à§€à¦Ÿ / Customs Assessment Sheet</h3>
   </div>
 
   <div class="meta-box">
     <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-    <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
+    <div><strong>${lang === "bn" ? "à¦¤à¦¾à¦°à¦¿à¦– :" : "Date :"}</strong> ${currentDate}</div>
   </div>
 
   <table>
@@ -1165,7 +1165,7 @@ function exportToHTML() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast(lang === "bn" ? "HTML ফাইল ডাউনলোড হয়েছে!" : "HTML file downloaded!", "success");
+  showToast(lang === "bn" ? "HTML à¦«à¦¾à¦‡à¦² à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦¹à§Ÿà§‡à¦›à§‡!" : "HTML file downloaded!", "success");
 }
 
 // === EXPORT PDF DOCUMENT ===
@@ -1203,13 +1203,13 @@ function exportToPDF() {
 
     tempDiv.innerHTML = `
       <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
-        <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-        <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-        <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
+        <h2 style="margin:0; font-size:18px;">à¦—à¦£à¦ªà§à¦°à¦œà¦¾à¦¤à¦¨à§à¦¤à§à¦°à§€ à¦¬à¦¾à¦‚à¦²à¦¾à¦¦à§‡à¦¶ à¦¸à¦°à¦•à¦¾à¦°</h2>
+        <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">à¦•à¦¾à¦¸à§à¦Ÿà¦®à¦¸ à¦¬à¦¨à§à¦¡ à¦•à¦®à¦¿à¦¶à¦¨à¦¾à¦°à§‡à¦Ÿ, à¦¢à¦¾à¦•à¦¾ (à¦¦à¦•à§à¦·à¦¿à¦£), à¦¡à¦¿à¦‡à¦ªà¦¿à¦œà§‡à¦¡ à¦¬à¦¿à¦­à¦¾à¦—, à¦¸à¦¾à¦­à¦¾à¦°, à¦¢à¦¾à¦•à¦¾à¥¤</h3>
+        <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦¶à§€à¦Ÿ / Customs Assessment Sheet</h3>
       </div>
       <div style="display:flex; justify-content:space-between; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
         <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-        <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
+        <div><strong>${lang === "bn" ? "à¦¤à¦¾à¦°à¦¿à¦– :" : "Date :"}</strong> ${currentDate}</div>
       </div>
       <table style="width:100%; border-collapse:collapse; font-size:10px;">
         <thead>
@@ -1311,9 +1311,9 @@ function exportToPDF() {
       pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    showToast(lang === "bn" ? "PDF জেনারেট হচ্ছে..." : "Generating PDF...", "info");
+    showToast(lang === "bn" ? "PDF à¦œà§‡à¦¨à¦¾à¦°à§‡à¦Ÿ à¦¹à¦šà§à¦›à§‡..." : "Generating PDF...", "info");
     html2pdf().set(opt).from(tempDiv).save().then(() => {
-      showToast(lang === "bn" ? "PDF ফাইল তৈরি সম্পন্ন হয়েছে!" : "PDF downloaded!", "success");
+      showToast(lang === "bn" ? "PDF à¦«à¦¾à¦‡à¦² à¦¤à§ˆà¦°à¦¿ à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "PDF downloaded!", "success");
     }).catch(err => {
       console.error(err);
       window.print();
@@ -1335,7 +1335,7 @@ async function sharePdfToWhatsApp() {
     return;
   }
 
-  showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
+  showToast(lang === "bn" ? "WhatsApp PDF à¦ªà§à¦°à¦¸à§‡à¦¸ à¦¹à¦šà§à¦›à§‡..." : "Processing WhatsApp PDF...", "info");
 
   const tempDiv = document.createElement("div");
   tempDiv.style.position = "relative";
@@ -1365,13 +1365,13 @@ async function sharePdfToWhatsApp() {
 
   tempDiv.innerHTML = `
     <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
-      <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-      <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-      <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
+      <h2 style="margin:0; font-size:18px;">à¦—à¦£à¦ªà§à¦°à¦œà¦¾à¦¤à¦¨à§à¦¤à§à¦°à§€ à¦¬à¦¾à¦‚à¦²à¦¾à¦¦à§‡à¦¶ à¦¸à¦°à¦•à¦¾à¦°</h2>
+      <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">à¦•à¦¾à¦¸à§à¦Ÿà¦®à¦¸ à¦¬à¦¨à§à¦¡ à¦•à¦®à¦¿à¦¶à¦¨à¦¾à¦°à§‡à¦Ÿ, à¦¢à¦¾à¦•à¦¾ (à¦¦à¦•à§à¦·à¦¿à¦£), à¦¡à¦¿à¦‡à¦ªà¦¿à¦œà§‡à¦¡ à¦¬à¦¿à¦­à¦¾à¦—, à¦¸à¦¾à¦­à¦¾à¦°, à¦¢à¦¾à¦•à¦¾à¥¤</h3>
+      <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ à¦¶à§€à¦Ÿ / Customs Assessment Sheet</h3>
     </div>
     <div style="display:flex; justify-content:space-between; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
       <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-      <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
+      <div><strong>${lang === "bn" ? "à¦¤à¦¾à¦°à¦¿à¦– :" : "Date :"}</strong> ${currentDate}</div>
     </div>
     <table style="width:100%; border-collapse:collapse; font-size:10px;">
       <thead>
@@ -1483,7 +1483,7 @@ async function sharePdfToWhatsApp() {
         title: `Customs Assessment - ${company}`,
         text: `Customs Assessment Sheet PDF (${company})`
       });
-      showToast(lang === "bn" ? "PDF সরাসরি শেয়ার করা হয়েছে!" : "PDF shared directly!", "success");
+      showToast(lang === "bn" ? "PDF à¦¸à¦°à¦¾à¦¸à¦°à¦¿ à¦¶à§‡à§Ÿà¦¾à¦° à¦•à¦°à¦¾ à¦¹à§Ÿà§‡à¦›à§‡!" : "PDF shared directly!", "success");
     } else {
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
@@ -1494,9 +1494,9 @@ async function sharePdfToWhatsApp() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
+      const msgText = encodeURIComponent(`ðŸ“‹ *à¦•à¦¾à¦¸à§à¦Ÿà¦®à¦¸ à¦¶à§à¦²à§à¦•à¦¾à¦¯à¦¼à¦¨ PDF â€” ${company}*\n(PDF à¦«à¦¾à¦‡à¦²à¦Ÿà¦¿ à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦•à¦°à¦¾ à¦¹à§Ÿà§‡à¦›à§‡, WhatsApp à¦ à¦«à¦¾à¦‡à¦² à¦¹à¦¿à¦¸à§‡à¦¬à§‡ à¦¸à¦‚à¦²à¦—à§à¦¨ à¦•à¦°à§à¦¨)`);
       window.open(`https://api.whatsapp.com/send?text=${msgText}`, "_blank");
-      showToast(lang === "bn" ? "PDF ডাউনলোড করা হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
+      showToast(lang === "bn" ? "PDF à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦•à¦°à¦¾ à¦¹à§Ÿà§‡à¦›à§‡! WhatsApp à¦–à§‹à¦²à¦¾ à¦¹à¦šà§à¦›à§‡..." : "PDF downloaded! Opening WhatsApp...", "info");
     }
   } catch (err) {
     console.error(err);
@@ -1533,7 +1533,7 @@ function setupAutocomplete(inputEl, row, tr) {
         item.innerHTML = `
           <span class="ac-code">${escapeHtml(match.code)}</span>
           <span class="ac-desc">${escapeHtml(match.description)}</span>
-          <span class="ac-meta">${escapeHtml(match.unit)} · ${formatCurrency(match.price, state.language)}</span>
+          <span class="ac-meta">${escapeHtml(match.unit)} Â· ${formatCurrency(match.price, state.language)}</span>
         `;
         item.addEventListener("mousedown", (e) => {
           e.preventDefault();
@@ -1566,7 +1566,7 @@ function setupAutocomplete(inputEl, row, tr) {
       const val = inputEl.value.trim().toLowerCase();
       if (!val) return; // nothing typed, let default Tab/Enter work
 
-      // Priority: 1) exact match → 2) starts with → 3) contains
+      // Priority: 1) exact match â†’ 2) starts with â†’ 3) contains
       const match =
         state.materials.find(m => m.code.toLowerCase() === val) ||
         state.materials.find(m => m.code.toLowerCase().startsWith(val)) ||
@@ -1648,18 +1648,18 @@ function renderMaterialsList() {
       document.getElementById("mat-price").value = m.price;
       document.getElementById("mat-unit").value  = m.unit;
       document.getElementById("materialModalTitle").textContent =
-        state.language === "bn" ? "মালামালের তথ্য সম্পাদনা" : "Edit Material Details";
+        state.language === "bn" ? "à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦²à§‡à¦° à¦¤à¦¥à§à¦¯ à¦¸à¦®à§à¦ªà¦¾à¦¦à¦¨à¦¾" : "Edit Material Details";
       openMaterialModal();
     });
 
     row.querySelector(".btn-mat-delete").addEventListener("click", () => {
       if (confirm(state.language === "bn"
-        ? "আপনি কি এই মালামালটি মুছতে চান?"
+        ? "à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦à¦‡ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦²à¦Ÿà¦¿ à¦®à§à¦›à¦¤à§‡ à¦šà¦¾à¦¨?"
         : "Are you sure you want to delete this material?")) {
         state.materials = state.materials.filter(item => item.code !== m.code);
         saveState();
         renderMaterialsList();
-        showToast(state.language === "bn" ? "মালামাল মুছে ফেলা হয়েছে।" : "Material deleted.", "success");
+        showToast(state.language === "bn" ? "à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦² à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Material deleted.", "success");
       }
     });
   });
@@ -1761,7 +1761,7 @@ function downloadSampleMaterialTemplate() {
 14,Empty plastic drum (small),220.00,pcs`;
 
   downloadCSV(sampleCsv, "customs_materials_sample.csv");
-  showToast(state.language === "bn" ? "নমুনা ফরম্যাট ডাউনলোড হয়েছে!" : "Sample Excel template downloaded!", "success");
+  showToast(state.language === "bn" ? "à¦¨à¦®à§à¦¨à¦¾ à¦«à¦°à¦®à§à¦¯à¦¾à¦Ÿ à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "Sample Excel template downloaded!", "success");
 }
 
 // === COMPANY MANAGEMENT ===
@@ -1804,7 +1804,7 @@ function renderCompanyList() {
       <td style="color:var(--text-secondary)">${escapeHtml(c.circle || "-")}</td>
       <td><span class="company-status ${c.status === "Inactive" ? "status-inactive" : "status-active"}">${escapeHtml(c.status || "Active")}</span></td>
       <td style="text-align:center;">
-        <button class="btn btn-danger btn-sm btn-delete-company" data-name="${escapeHtml(c.name)}" title="Delete">✕</button>
+        <button class="btn btn-danger btn-sm btn-delete-company" data-name="${escapeHtml(c.name)}" title="Delete">âœ•</button>
       </td>
     </tr>
   `).join("");
@@ -1812,12 +1812,12 @@ function renderCompanyList() {
   body.querySelectorAll(".btn-delete-company").forEach(btn => {
     btn.addEventListener("click", () => {
       const companyName = btn.dataset.name;
-      if (confirm(state.language === "bn" ? `আপনি কি "${companyName}" মুছতে চান?` : `Delete "${companyName}"?`)) {
+      if (confirm(state.language === "bn" ? `à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ "${companyName}" à¦®à§à¦›à¦¤à§‡ à¦šà¦¾à¦¨?` : `Delete "${companyName}"?`)) {
         state.companies = state.companies.filter(c => c.name !== companyName);
         saveState();
         renderCompanyOptions();
         renderCompanyList();
-        showToast(state.language === "bn" ? "কোম্পানি মুছে ফেলা হয়েছে।" : "Company deleted.", "info");
+        showToast(state.language === "bn" ? "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Company deleted.", "info");
       }
     });
   });
@@ -1854,12 +1854,12 @@ function saveNewCompany() {
   if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
 
   if (!name) {
-    if (errEl) { errEl.textContent = "প্রতিষ্ঠানের নাম দিন।"; errEl.style.display = "block"; }
+    if (errEl) { errEl.textContent = "à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨à§‡à¦° à¦¨à¦¾à¦® à¦¦à¦¿à¦¨à¥¤"; errEl.style.display = "block"; }
     return;
   }
 
   if (state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-    if (errEl) { errEl.textContent = "এই নামের কোম্পানি ইতিমধ্যে তালিকায় আছে।"; errEl.style.display = "block"; }
+    if (errEl) { errEl.textContent = "à¦à¦‡ à¦¨à¦¾à¦®à§‡à¦° à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦‡à¦¤à¦¿à¦®à¦§à§à¦¯à§‡ à¦¤à¦¾à¦²à¦¿à¦•à¦¾à¦¯à¦¼ à¦†à¦›à§‡à¥¤"; errEl.style.display = "block"; }
     return;
   }
 
@@ -1872,7 +1872,7 @@ function saveNewCompany() {
   renderCompanyList();
   updatePrintHeader();
   closeAddCompanyModal();
-  showToast(state.language === "bn" ? `"${name}" কোম্পানি তালিকায় যোগ হয়েছে!` : `"${name}" added to company list!`, "success");
+  showToast(state.language === "bn" ? `"${name}" à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦¤à¦¾à¦²à¦¿à¦•à¦¾à¦¯à¦¼ à¦¯à§‹à¦— à¦¹à¦¯à¦¼à§‡à¦›à§‡!` : `"${name}" added to company list!`, "success");
 }
 
 
@@ -1884,7 +1884,7 @@ M/s Beximco Synthetics Ltd.,Circle-3 (Savar),Active
 M/s Square Fashions Ltd.,Circle-1 (Dhaka),Active`;
 
   downloadCSV(sampleCsv, "customs_companies_sample.csv");
-  showToast(state.language === "bn" ? "কোম্পানির নমুনা এক্সেল ফাইল ডাউনলোড হয়েছে!" : "Sample company template downloaded!", "success");
+  showToast(state.language === "bn" ? "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿à¦° à¦¨à¦®à§à¦¨à¦¾ à¦à¦•à§à¦¸à§‡à¦² à¦«à¦¾à¦‡à¦² à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "Sample company template downloaded!", "success");
 }
 
 function importCompaniesFromFile(e) {
@@ -1913,7 +1913,7 @@ function importCompaniesFromFile(e) {
 
       const imported = normalizeImportedCompanies(rows);
       if (!imported.length) {
-        showToast(state.language === "bn" ? "ফাইলে কোনো গ্রহণযোগ্য কোম্পানি পাওয়া যায়নি। কলামের শিরোনাম বা ফরম্যাট চেক করুন।" : "No usable company rows found in file.", "warning");
+        showToast(state.language === "bn" ? "à¦«à¦¾à¦‡à¦²à§‡ à¦•à§‹à¦¨à§‹ à¦—à§à¦°à¦¹à¦£à¦¯à§‹à¦—à§à¦¯ à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿à¥¤ à¦•à¦²à¦¾à¦®à§‡à¦° à¦¶à¦¿à¦°à§‹à¦¨à¦¾à¦® à¦¬à¦¾ à¦«à¦°à¦®à§à¦¯à¦¾à¦Ÿ à¦šà§‡à¦• à¦•à¦°à§à¦¨à¥¤" : "No usable company rows found in file.", "warning");
       } else {
         // Merge imported companies with existing list
         const existingNames = new Set(state.companies.map(c => c.name.toLowerCase()));
@@ -1942,13 +1942,13 @@ function importCompaniesFromFile(e) {
         }
 
         const msg = state.language === "bn"
-          ? `${addedCount} টি নতুন কোম্পানি সফলভাবে তালিকায় যুক্ত করা হয়েছে!`
+          ? `${addedCount} à¦Ÿà¦¿ à¦¨à¦¤à§à¦¨ à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦¤à¦¾à¦²à¦¿à¦•à¦¾à§Ÿ à¦¯à§à¦•à§à¦¤ à¦•à¦°à¦¾ à¦¹à§Ÿà§‡à¦›à§‡!`
           : `${addedCount} new companies imported successfully!`;
         showToast(msg, "success");
       }
     } catch (err) {
       console.error(err);
-      showToast(state.language === "bn" ? "কোম্পানি ফাইল ইমপোর্ট করতে সমস্যা হয়েছে।" : "Unable to import company list.", "error");
+      showToast(state.language === "bn" ? "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦«à¦¾à¦‡à¦² à¦‡à¦®à¦ªà§‹à¦°à§à¦Ÿ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à§Ÿà§‡à¦›à§‡à¥¤" : "Unable to import company list.", "error");
     }
     e.target.value = "";
   };
@@ -1958,9 +1958,9 @@ function importCompaniesFromFile(e) {
 function isHeaderCellText(str) {
   const s = String(str ?? "").trim().toLowerCase();
   const headers = [
-    "company name", "company_name", "companyname", "প্রতিষ্ঠানের নাম", "কোম্পানির নাম", "প্রতিষ্ঠানের নাম:", "কোম্পানি নাম",
-    "sl no", "sl.no", "sl", "s/n", "serial", "ক্রমিক", "ক্রমিক নং", "সিরিয়াল",
-    "circle", "সার্কেল", "address", "ঠিকানা", "location", "status", "স্ট্যাটাস"
+    "company name", "company_name", "companyname", "à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨à§‡à¦° à¦¨à¦¾à¦®", "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿à¦° à¦¨à¦¾à¦®", "à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨à§‡à¦° à¦¨à¦¾à¦®:", "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦¨à¦¾à¦®",
+    "sl no", "sl.no", "sl", "s/n", "serial", "à¦•à§à¦°à¦®à¦¿à¦•", "à¦•à§à¦°à¦®à¦¿à¦• à¦¨à¦‚", "à¦¸à¦¿à¦°à¦¿à¦¯à¦¼à¦¾à¦²",
+    "circle", "à¦¸à¦¾à¦°à§à¦•à§‡à¦²", "address", "à¦ à¦¿à¦•à¦¾à¦¨à¦¾", "location", "status", "à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸"
   ];
   return headers.includes(s);
 }
@@ -1998,9 +1998,9 @@ function normalizeImportedCompanies(rows) {
       }
     } else if (typeof row === "object") {
       const keys = Object.keys(row);
-      const nameKey = keys.find(k => /name|company|কোম্পানি|প্রতিষ্ঠানের|firm|importer/i.test(k));
-      const circleKey = keys.find(k => /circle|address|সার্কেল|ঠিকানা|location/i.test(k));
-      const statusKey = keys.find(k => /status|স্ট্যাটাস/i.test(k));
+      const nameKey = keys.find(k => /name|company|à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿|à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨à§‡à¦°|firm|importer/i.test(k));
+      const circleKey = keys.find(k => /circle|address|à¦¸à¦¾à¦°à§à¦•à§‡à¦²|à¦ à¦¿à¦•à¦¾à¦¨à¦¾|location/i.test(k));
+      const statusKey = keys.find(k => /status|à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸/i.test(k));
 
       name = nameKey ? String(row[nameKey] ?? "").trim() : (row[keys[0]] ? String(row[keys[0]]).trim() : "");
       circle = circleKey ? String(row[circleKey] ?? "").trim() : (row[keys[1]] ? String(row[keys[1]]).trim() : "");
@@ -2033,7 +2033,7 @@ function closeMaterialModal() {
   document.getElementById("mat-price").value = "";
   document.getElementById("mat-unit").value  = "kg";
   document.getElementById("materialModalTitle").textContent =
-    state.language === "bn" ? "নতুন মালামাল যোগ" : "Add New Material";
+    state.language === "bn" ? "à¦¨à¦¤à§à¦¨ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦² à¦¯à§‹à¦—" : "Add New Material";
 }
 
 function saveMaterial() {
@@ -2043,17 +2043,17 @@ function saveMaterial() {
   const unit  = document.getElementById("mat-unit").value.trim();
 
   if (!code || !desc) {
-    showToast(state.language === "bn" ? "কোড এবং বিবরণী পূরণ করা আবশ্যক।" : "Code and Description are required.", "error");
+    showToast(state.language === "bn" ? "à¦•à§‹à¦¡ à¦à¦¬à¦‚ à¦¬à¦¿à¦¬à¦°à¦£à§€ à¦ªà§‚à¦°à¦£ à¦•à¦°à¦¾ à¦†à¦¬à¦¶à§à¦¯à¦•à¥¤" : "Code and Description are required.", "error");
     return;
   }
 
   const idx = state.materials.findIndex(m => m.code === code);
   if (idx > -1) {
     state.materials[idx] = { code, description: desc, price, unit };
-    showToast(state.language === "bn" ? "মালামাল আপডেট করা হয়েছে।" : "Material updated.", "success");
+    showToast(state.language === "bn" ? "à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦² à¦†à¦ªà¦¡à§‡à¦Ÿ à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Material updated.", "success");
   } else {
     state.materials.push({ code, description: desc, price, unit });
-    showToast(state.language === "bn" ? "নতুন মালামাল যোগ করা হয়েছে।" : "Material added.", "success");
+    showToast(state.language === "bn" ? "à¦¨à¦¤à§à¦¨ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦² à¦¯à§‹à¦— à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Material added.", "success");
   }
 
   saveState();
@@ -2089,7 +2089,7 @@ function exportToCSV() {
   });
 
   downloadCSV(csv, `customs_assessment_${state.header.companyName || "export"}.csv`);
-  showToast(state.language === "bn" ? "ফাইল ডাউনলোড হচ্ছে..." : "File download started.", "success");
+  showToast(state.language === "bn" ? "à¦«à¦¾à¦‡à¦² à¦¡à¦¾à¦‰à¦¨à¦²à§‹à¦¡ à¦¹à¦šà§à¦›à§‡..." : "File download started.", "success");
 }
 
 // === CSV IMPORT ===
@@ -2101,7 +2101,7 @@ function importFromCSV(e) {
     const text  = evt.target.result;
     const lines = text.split("\n");
     if (lines.length < 3) {
-      showToast(state.language === "bn" ? "ভুল ফাইল ফরম্যাট।" : "Invalid CSV format.", "error");
+      showToast(state.language === "bn" ? "à¦­à§à¦² à¦«à¦¾à¦‡à¦² à¦«à¦°à¦®à§à¦¯à¦¾à¦Ÿà¥¤" : "Invalid CSV format.", "error");
       return;
     }
     try {
@@ -2116,7 +2116,7 @@ function importFromCSV(e) {
         if (cols[0] === "Customs Assessment Export") { state.header.companyName = cols[1] || ""; parsedHeader = true; continue; }
         if (cols[0] === "File No. Exist")            { state.header.hasFileNo = cols[1] || "Yes"; continue; }
         if (cols[0] === "Note Para")                 { state.header.noteParaNo = cols[1] || ""; state.header.letterPageNo = cols[3] || ""; state.header.bepzaRecNo = cols[5] || ""; continue; }
-        if (cols[0] === "Sl. No" || cols[0] === "ক্র. নং" || (parsedHeader && isNaN(parseInt(cols[0])))) continue;
+        if (cols[0] === "Sl. No" || cols[0] === "à¦•à§à¦°. à¦¨à¦‚" || (parsedHeader && isNaN(parseInt(cols[0])))) continue;
 
         if (cols.length >= 10 && !isNaN(parseInt(cols[0]))) {
           const rowId = "row_" + Date.now() + "_" + Math.floor(Math.random() * 1000) + "_" + i;
@@ -2146,13 +2146,13 @@ function importFromCSV(e) {
         document.getElementById("header-letterPageNo").value = state.header.letterPageNo || "";
         document.getElementById("header-bepzaRecNo").value  = state.header.bepzaRecNo  || "";
         updateUI();
-        showToast(state.language === "bn" ? "সফলভাবে ডাটা ইমপোর্ট করা হয়েছে!" : "Data imported successfully!", "success");
+        showToast(state.language === "bn" ? "à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦¡à¦¾à¦Ÿà¦¾ à¦‡à¦®à¦ªà§‹à¦°à§à¦Ÿ à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡!" : "Data imported successfully!", "success");
       } else {
-        showToast(state.language === "bn" ? "কোন ডাটা রো পাওয়া যায়নি।" : "No data rows found in the file.", "warning");
+        showToast(state.language === "bn" ? "à¦•à§‹à¦¨ à¦¡à¦¾à¦Ÿà¦¾ à¦°à§‹ à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿à¥¤" : "No data rows found in the file.", "warning");
       }
     } catch (err) {
       console.error(err);
-      showToast(state.language === "bn" ? "ইমপোর্ট ফাইল প্রসেস করতে ত্রুটি হয়েছে।" : "Error parsing the import CSV file.", "error");
+      showToast(state.language === "bn" ? "à¦‡à¦®à¦ªà§‹à¦°à§à¦Ÿ à¦«à¦¾à¦‡à¦² à¦ªà§à¦°à¦¸à§‡à¦¸ à¦•à¦°à¦¤à§‡ à¦¤à§à¦°à§à¦Ÿà¦¿ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤" : "Error parsing the import CSV file.", "error");
     }
     e.target.value = "";
   };
@@ -2172,8 +2172,8 @@ function updateSupabaseUI() {
 
   const isConnected = !!getSupabaseClient();
   statusEl.innerHTML = isConnected
-    ? `স্ট্যাটাস: <span style="font-weight:600; color:#2ecc71;">⚡ সংযুক্ত (Connected to Supabase Cloud)</span>`
-    : `স্ট্যাটাস: <span style="font-weight:600; color:#e74c3c;">সংযুক্ত নয় (Not Connected)</span>`;
+    ? `à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸: <span style="font-weight:600; color:#2ecc71;">âš¡ à¦¸à¦‚à¦¯à§à¦•à§à¦¤ (Connected to Supabase Cloud)</span>`
+    : `à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸: <span style="font-weight:600; color:#e74c3c;">à¦¸à¦‚à¦¯à§à¦•à§à¦¤ à¦¨à¦¯à¦¼ (Not Connected)</span>`;
 }
 
 function handleSaveSupabaseCredentials() {
@@ -2182,13 +2182,13 @@ function handleSaveSupabaseCredentials() {
 
   if (saveSupabaseCredentials(url, key)) {
     updateSupabaseUI();
-    showToast(state.language === "bn" ? "Supabase সংযোগ সফলভাবে সেভ হয়েছে!" : "Supabase credentials saved & connected!", "success");
+    showToast(state.language === "bn" ? "Supabase à¦¸à¦‚à¦¯à§‹à¦— à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦¸à§‡à¦­ à¦¹à§Ÿà§‡à¦›à§‡!" : "Supabase credentials saved & connected!", "success");
   } else {
     updateSupabaseUI();
     if (!url || !key) {
-      showToast(state.language === "bn" ? "Supabase সংযোগ মুছে ফেলা হয়েছে।" : "Supabase disconnected.", "info");
+      showToast(state.language === "bn" ? "Supabase à¦¸à¦‚à¦¯à§‹à¦— à¦®à§à¦›à§‡ à¦«à§‡à¦²à¦¾ à¦¹à§Ÿà§‡à¦›à§‡à¥¤" : "Supabase disconnected.", "info");
     } else {
-      showToast(state.language === "bn" ? "Supabase সংযোগ ব্যর্থ হয়েছে। URL ও Key পরীক্ষা করুন।" : "Supabase connection failed.", "error");
+      showToast(state.language === "bn" ? "Supabase à¦¸à¦‚à¦¯à§‹à¦— à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡à¥¤ URL à¦“ Key à¦ªà¦°à§€à¦•à§à¦·à¦¾ à¦•à¦°à§à¦¨à¥¤" : "Supabase connection failed.", "error");
     }
   }
 }
@@ -2196,17 +2196,17 @@ function handleSaveSupabaseCredentials() {
 async function handleTestSupabase() {
   const client = getSupabaseClient();
   if (!client) {
-    showToast(state.language === "bn" ? "প্রথমে Supabase URL ও Key ইনপুট দিয়ে সেভ করুন।" : "Please enter Supabase URL and Key first.", "warning");
+    showToast(state.language === "bn" ? "à¦ªà§à¦°à¦¥à¦®à§‡ Supabase URL à¦“ Key à¦‡à¦¨à¦ªà§à¦Ÿ à¦¦à¦¿à§Ÿà§‡ à¦¸à§‡à¦­ à¦•à¦°à§à¦¨à¥¤" : "Please enter Supabase URL and Key first.", "warning");
     return;
   }
-  showToast(state.language === "bn" ? "Supabase সংযোগ পরীক্ষা করা হচ্ছে..." : "Testing Supabase connection...", "info");
+  showToast(state.language === "bn" ? "Supabase à¦¸à¦‚à¦¯à§‹à¦— à¦ªà¦°à§€à¦•à§à¦·à¦¾ à¦•à¦°à¦¾ à¦¹à¦šà§à¦›à§‡..." : "Testing Supabase connection...", "info");
   try {
     const res = await fetchCompaniesFromSupabaseCloud();
     if (res.success) {
       updateSupabaseUI();
-      showToast(state.language === "bn" ? "Supabase ক্লাউড ডেটাবেজ সফলভাবে সংযুক্ত হয়েছে! ⚡" : "Connected to Supabase Cloud successfully!", "success");
+      showToast(state.language === "bn" ? "Supabase à¦•à§à¦²à¦¾à¦‰à¦¡ à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦œ à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦¸à¦‚à¦¯à§à¦•à§à¦¤ à¦¹à§Ÿà§‡à¦›à§‡! âš¡" : "Connected to Supabase Cloud successfully!", "success");
     } else {
-      showToast(state.language === "bn" ? "সংযুক্তিতে সমস্যা: " + res.message : "Connection issue: " + res.message, "error");
+      showToast(state.language === "bn" ? "à¦¸à¦‚à¦¯à§à¦•à§à¦¤à¦¿à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾: " + res.message : "Connection issue: " + res.message, "error");
     }
   } catch (err) {
     showToast("Supabase Test Error: " + err.message, "error");
@@ -2248,7 +2248,7 @@ CREATE POLICY "Allow public all access on companies" ON public.companies FOR ALL
 CREATE POLICY "Allow public all access on materials" ON public.materials FOR ALL USING (true) WITH CHECK (true);`;
 
   navigator.clipboard.writeText(sql).then(() => {
-    showToast(state.language === "bn" ? "Supabase SQL Schema ক্লিপবোর্ডে কপি হয়েছে!" : "Supabase SQL Schema copied to clipboard!", "success");
+    showToast(state.language === "bn" ? "Supabase SQL Schema à¦•à§à¦²à¦¿à¦ªà¦¬à§‹à¦°à§à¦¡à§‡ à¦•à¦ªà¦¿ à¦¹à§Ÿà§‡à¦›à§‡!" : "Supabase SQL Schema copied to clipboard!", "success");
   }).catch(() => {
     showToast("Unable to copy SQL script.", "error");
   });
@@ -2256,19 +2256,19 @@ CREATE POLICY "Allow public all access on materials" ON public.materials FOR ALL
 
 async function handleSyncAllToCloud() {
   if (!getSupabaseClient()) {
-    showToast(state.language === "bn" ? "প্রথমে Supabase সংযোগ প্রস্তুত করুন।" : "Supabase client not connected.", "warning");
+    showToast(state.language === "bn" ? "à¦ªà§à¦°à¦¥à¦®à§‡ Supabase à¦¸à¦‚à¦¯à§‹à¦— à¦ªà§à¦°à¦¸à§à¦¤à§à¦¤ à¦•à¦°à§à¦¨à¥¤" : "Supabase client not connected.", "warning");
     return;
   }
-  showToast(state.language === "bn" ? "সকল ডেটা ক্লাউডে সিঙ্ক হচ্ছে..." : "Syncing all data to Supabase Cloud...", "info");
+  showToast(state.language === "bn" ? "à¦¸à¦•à¦² à¦¡à§‡à¦Ÿà¦¾ à¦•à§à¦²à¦¾à¦‰à¦¡à§‡ à¦¸à¦¿à¦™à§à¦• à¦¹à¦šà§à¦›à§‡..." : "Syncing all data to Supabase Cloud...", "info");
 
   try {
     let compRes = await syncCompaniesToSupabaseCloud(state.companies);
     let matRes  = await syncMaterialsToSupabaseCloud(state.materials);
 
     if (compRes.success && matRes.success) {
-      showToast(state.language === "bn" ? "কোম্পানি ও মালামালের ডেটা Supabase ক্লাউডে সিঙ্ক হয়েছে! ☁️" : "Companies & Materials synced to Supabase Cloud!", "success");
+      showToast(state.language === "bn" ? "à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦“ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦²à§‡à¦° à¦¡à§‡à¦Ÿà¦¾ Supabase à¦•à§à¦²à¦¾à¦‰à¦¡à§‡ à¦¸à¦¿à¦™à§à¦• à¦¹à§Ÿà§‡à¦›à§‡! â˜ï¸" : "Companies & Materials synced to Supabase Cloud!", "success");
     } else {
-      showToast(state.language === "bn" ? "সিঙ্ক করার সময় কিছু সমস্যা হয়েছে।" : "Sync partial error.", "warning");
+      showToast(state.language === "bn" ? "à¦¸à¦¿à¦™à§à¦• à¦•à¦°à¦¾à¦° à¦¸à¦®à§Ÿ à¦•à¦¿à¦›à§ à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à§Ÿà§‡à¦›à§‡à¥¤" : "Sync partial error.", "warning");
     }
   } catch (err) {
     showToast("Cloud Sync Error: " + err.message, "error");
@@ -2299,9 +2299,9 @@ function switchAuthTab(tab) {
   _authTab = tab;
   document.getElementById("loginTabBtn").classList.toggle("active", tab === "login");
   document.getElementById("signupTabBtn").classList.toggle("active", tab === "signup");
-  document.getElementById("authSubmitIcon").textContent = tab === "login" ? "🔑" : "📝";
-  document.getElementById("authSubmitLabel").textContent = tab === "login" ? "লগইন করুন" : "অ্যাকাউন্ট তৈরি করুন";
-  document.getElementById("authModalTitle").textContent = tab === "login" ? "Supabase লগইন" : "নতুন অ্যাকাউন্ট";
+  document.getElementById("authSubmitIcon").textContent = tab === "login" ? "ðŸ”‘" : "ðŸ“";
+  document.getElementById("authSubmitLabel").textContent = tab === "login" ? "à¦²à¦—à¦‡à¦¨ à¦•à¦°à§à¦¨" : "à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¤à§ˆà¦°à¦¿ à¦•à¦°à§à¦¨";
+  document.getElementById("authModalTitle").textContent = tab === "login" ? "Supabase à¦²à¦—à¦‡à¦¨" : "à¦¨à¦¤à§à¦¨ à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ";
   clearAuthError();
 }
 
@@ -2321,10 +2321,10 @@ function togglePasswordVisibility() {
   if (!inp) return;
   if (inp.type === "password") {
     inp.type = "text";
-    btn.textContent = "🙈";
+    btn.textContent = "ðŸ™ˆ";
   } else {
     inp.type = "password";
-    btn.textContent = "👁";
+    btn.textContent = "ðŸ‘";
   }
 }
 
@@ -2334,18 +2334,18 @@ async function handleAuthSubmit() {
   clearAuthError();
 
   if (!email || !password) {
-    showAuthError("ইমেইল ও পাসওয়ার্ড দিন।");
+    showAuthError("à¦‡à¦®à§‡à¦‡à¦² à¦“ à¦ªà¦¾à¦¸à¦“à¦¯à¦¼à¦¾à¦°à§à¦¡ à¦¦à¦¿à¦¨à¥¤");
     return;
   }
   if (!getSupabaseClient()) {
-    showAuthError("প্রথমে Settings থেকে Supabase URL ও Anon Key সেভ করুন।");
+    showAuthError("à¦ªà§à¦°à¦¥à¦®à§‡ Settings à¦¥à§‡à¦•à§‡ Supabase URL à¦“ Anon Key à¦¸à§‡à¦­ à¦•à¦°à§à¦¨à¥¤");
     return;
   }
 
   const btn = document.getElementById("authSubmitBtn");
   btn.disabled = true;
   const origLabel = document.getElementById("authSubmitLabel").textContent;
-  document.getElementById("authSubmitLabel").textContent = "অপেক্ষা করুন...";
+  document.getElementById("authSubmitLabel").textContent = "à¦…à¦ªà§‡à¦•à§à¦·à¦¾ à¦•à¦°à§à¦¨...";
 
   try {
     let result;
@@ -2358,13 +2358,13 @@ async function handleAuthSubmit() {
     if (result.success) {
       updateAuthUI();
       if (_authTab === "signup" && !result.session) {
-        showToast("নিবন্ধন সফল! ইমেইল যাচাই করুন (confirm email)।", "success");
+        showToast("à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨ à¦¸à¦«à¦²! à¦‡à¦®à§‡à¦‡à¦² à¦¯à¦¾à¦šà¦¾à¦‡ à¦•à¦°à§à¦¨ (confirm email)à¥¤", "success");
       } else {
-        showToast(_authTab === "login" ? "Supabase লগইন সফল হয়েছে! ✅" : "অ্যাকাউন্ট তৈরি ও লগইন সফল!", "success");
+        showToast(_authTab === "login" ? "Supabase à¦²à¦—à¦‡à¦¨ à¦¸à¦«à¦² à¦¹à¦¯à¦¼à§‡à¦›à§‡! âœ…" : "à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¤à§ˆà¦°à¦¿ à¦“ à¦²à¦—à¦‡à¦¨ à¦¸à¦«à¦²!", "success");
       }
       closeAuthModal();
     } else {
-      showAuthError(result.message || "লগইন/নিবন্ধন ব্যর্থ হয়েছে।");
+      showAuthError(result.message || "à¦²à¦—à¦‡à¦¨/à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤");
     }
   } finally {
     btn.disabled = false;
@@ -2377,31 +2377,31 @@ async function handleSupabaseLogout() {
   if (result.success) {
     updateAuthUI();
     closeAuthModal();
-    showToast("লগআউট সফল হয়েছে।", "info");
+    showToast("à¦²à¦—à¦†à¦‰à¦Ÿ à¦¸à¦«à¦² à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤", "info");
   } else {
-    showToast("লগআউট করতে সমস্যা হয়েছে: " + result.message, "error");
+    showToast("à¦²à¦—à¦†à¦‰à¦Ÿ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡: " + result.message, "error");
   }
 }
 
 async function handleAuthSyncAll() {
-  showToast("ক্লাউডে সব ডেটা সিঙ্ক হচ্ছে...", "info");
+  showToast("à¦•à§à¦²à¦¾à¦‰à¦¡à§‡ à¦¸à¦¬ à¦¡à§‡à¦Ÿà¦¾ à¦¸à¦¿à¦™à§à¦• à¦¹à¦šà§à¦›à§‡...", "info");
   try {
     const [compRes, matRes] = await Promise.all([
       syncCompaniesToSupabaseCloud(state.companies),
       syncMaterialsToSupabaseCloud(state.materials)
     ]);
     if (compRes.success && matRes.success) {
-      showToast("কোম্পানি ও মালামাল ক্লাউডে সিঙ্ক হয়েছে! ☁️", "success");
+      showToast("à¦•à§‹à¦®à§à¦ªà¦¾à¦¨à¦¿ à¦“ à¦®à¦¾à¦²à¦¾à¦®à¦¾à¦² à¦•à§à¦²à¦¾à¦‰à¦¡à§‡ à¦¸à¦¿à¦™à§à¦• à¦¹à¦¯à¦¼à§‡à¦›à§‡! â˜ï¸", "success");
     } else {
-      showToast("সিঙ্ক আংশিক সম্পন্ন হয়েছে।", "warning");
+      showToast("à¦¸à¦¿à¦™à§à¦• à¦†à¦‚à¦¶à¦¿à¦• à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤", "warning");
     }
   } catch (err) {
-    showToast("সিঙ্ক ত্রুটি: " + err.message, "error");
+    showToast("à¦¸à¦¿à¦™à§à¦• à¦¤à§à¦°à§à¦Ÿà¦¿: " + err.message, "error");
   }
 }
 
 function updateAuthUI() {
-  const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+  const cloudUser = typeof getCurrentUser === "function" ? getCurrentUser() : null;`r`n  const localUser = typeof authCurrentUser === "function" ? authCurrentUser() : null;`r`n  const user = cloudUser || localUser;
   const btn  = document.getElementById("authBtn");
   const lblBtn = document.getElementById("authBtnLabel");
   const loggedOutView = document.getElementById("authLoggedOutView");
@@ -2412,16 +2412,16 @@ function updateAuthUI() {
     // Logged in
     if (btn) {
       btn.className = "btn btn-ghost btn-sm auth-btn-loggedin";
-      if (lblBtn) lblBtn.textContent = user.email ? user.email.split("@")[0] : "লগড ইন";
+      if (lblBtn) lblBtn.textContent = user.email ? user.email.split("@")[0] : "à¦²à¦—à¦¡ à¦‡à¦¨";
     }
     if (loggedOutView) loggedOutView.style.display = "none";
     if (loggedInView)  loggedInView.style.display  = "block";
-    if (userEmailEl)   userEmailEl.textContent = user.email || "—";
+    if (userEmailEl)   userEmailEl.textContent = user.email || "â€”";
   } else {
     // Guest
     if (btn) {
       btn.className = "btn btn-ghost btn-sm auth-btn-guest";
-      if (lblBtn) lblBtn.textContent = "লগইন";
+      if (lblBtn) lblBtn.textContent = "à¦²à¦—à¦‡à¦¨";
     }
     if (loggedOutView) loggedOutView.style.display = "block";
     if (loggedInView)  loggedInView.style.display  = "none";
@@ -2434,7 +2434,7 @@ function updateAuthUI() {
 // Close auth modal on overlay click / Escape
 
 // ===================================================================
-// MANUAL AUTH HANDLERS — Login Gate & User Modal
+// MANUAL AUTH HANDLERS â€” Login Gate & User Modal
 // ===================================================================
 
 function showLoginGate() {
@@ -2465,23 +2465,23 @@ function handleLoginGate() {
   errorEl.style.display = "none";
 
   if (!username || !password) {
-    errorEl.textContent = "ব্যবহারকারীর নাম ও পাসওয়ার্ড দিন।";
+    errorEl.textContent = "à¦¬à§à¦¯à¦¬à¦¹à¦¾à¦°à¦•à¦¾à¦°à§€à¦° à¦¨à¦¾à¦® à¦“ à¦ªà¦¾à¦¸à¦“à¦¯à¦¼à¦¾à¦°à§à¦¡ à¦¦à¦¿à¦¨à¥¤";
     errorEl.style.display = "block";
     return;
   }
 
   btn.disabled = true;
-  btn.textContent = "যাচাই করা হচ্ছে...";
+  btn.textContent = "à¦¯à¦¾à¦šà¦¾à¦‡ à¦•à¦°à¦¾ à¦¹à¦šà§à¦›à§‡...";
 
   setTimeout(() => {
     const result = authLogin(username, password, remember);
     btn.disabled = false;
-    btn.innerHTML = "<span>🔑</span> প্রবেশ করুন";
+    btn.innerHTML = "<span>ðŸ”‘</span> à¦ªà§à¦°à¦¬à§‡à¦¶ à¦•à¦°à§à¦¨";
 
     if (result.success) {
       hideLoginGate();
       bootApp();
-      showToast(`স্বাগতম, ${result.user.displayName}! 👋`, "success");
+      showToast(`à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®, ${result.user.displayName}! ðŸ‘‹`, "success");
     } else {
       errorEl.textContent = result.message;
       errorEl.style.display = "block";
@@ -2502,7 +2502,7 @@ function updateTopbarUser() {
     lbl.textContent = user.displayName || user.username;
   } else {
     btn.className = "btn btn-ghost btn-sm auth-btn-guest";
-    lbl.textContent = "লগইন";
+    lbl.textContent = "à¦²à¦—à¦‡à¦¨";
   }
 }
 
@@ -2512,7 +2512,7 @@ function openUserModal() {
 
   document.getElementById("userModalName").textContent = user.displayName || user.username;
   document.getElementById("userModalRole").textContent =
-    user.role === "admin" ? "🔑 Admin (অ্যাডমিন)" : "👁 Viewer";
+    user.role === "admin" ? "ðŸ”‘ Admin (à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨)" : "ðŸ‘ Viewer";
 
   // Show change-password only for users logged in
   document.getElementById("userModal").classList.add("active");
@@ -2529,7 +2529,7 @@ function handleManualLogout() {
   authLogout();
   closeUserModal();
   updateTopbarUser();
-  showToast("লগআউট সফল হয়েছে।", "info");
+  showToast("à¦²à¦—à¦†à¦‰à¦Ÿ à¦¸à¦«à¦² à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤", "info");
   // Reload page to show login gate cleanly
   setTimeout(() => location.reload(), 600);
 }
@@ -2542,9 +2542,10 @@ function handleChangePwd() {
   if (!user) return;
   const result = authChangePassword(user.username, oldPwd, newPwd);
   if (result.success) {
-    showToast("পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! 🔒", "success");
+    showToast("à¦ªà¦¾à¦¸à¦“à¦¯à¦¼à¦¾à¦°à§à¦¡ à¦¸à¦«à¦²à¦­à¦¾à¦¬à§‡ à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨ à¦¹à¦¯à¦¼à§‡à¦›à§‡! ðŸ”’", "success");
     closeUserModal();
   } else {
     showToast(result.message, "error");
   }
 }
+
