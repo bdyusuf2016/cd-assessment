@@ -1,5 +1,5 @@
-/**
- * Customs Assessment Manager — Supabase Integration & Authentication Module
+﻿/**
+ * Customs Assessment Manager â€” Supabase Integration & Authentication Module
  * Developed by: Md. Yusuf Ali
  */
 
@@ -218,7 +218,7 @@ async function syncCompaniesToSupabaseCloud(companies) {
 
     const { data, error } = await client
       .from('companies')
-      .upsert(payload, { onConflict: 'name' });
+      .upsert(payload, { onConflict: 'user_id,name' });
 
     if (error) throw error;
     return { success: true, data };
@@ -265,7 +265,7 @@ async function syncMaterialsToSupabaseCloud(materials) {
 
     const { data, error } = await client
       .from('materials')
-      .upsert(payload, { onConflict: 'code' });
+      .upsert(payload, { onConflict: 'user_id,code' });
 
     if (error) throw error;
     return { success: true, data };

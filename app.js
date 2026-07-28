@@ -61,13 +61,24 @@ function bootApp() {
 }
 
 // === LOCAL STORAGE ===
-function loadData() {
-  const storedMaterials = localStorage.getItem("customs_materials");
-  state.materials = storedMaterials ? JSON.parse(storedMaterials) : [...DEFAULT_MATERIALS];
-  if (!storedMaterials) localStorage.setItem("customs_materials", JSON.stringify(state.materials));
+function readStoredJson(key, fallback) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    console.warn(`Discarding invalid saved data for ${key}.`, error);
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
 
-  const storedCompanies = localStorage.getItem("customs_companies");
-  let parsedCompanies = storedCompanies ? JSON.parse(storedCompanies) : [];
+function loadData() {
+  const storedMaterials = readStoredJson("customs_materials", null);
+  state.materials = Array.isArray(storedMaterials) ? storedMaterials : [...DEFAULT_MATERIALS];
+  if (!Array.isArray(storedMaterials)) localStorage.setItem("customs_materials", JSON.stringify(state.materials));
+
+  let parsedCompanies = readStoredJson("customs_companies", []);
 
   // Purge legacy demo companies (inserted in older versions)
   const DEMO_NAMES = [
@@ -76,30 +87,37 @@ function loadData() {
     "m/s beximco synthetics ltd.",
     "m/s square fashions ltd."
   ];
-  parsedCompanies = parsedCompanies.filter(c =>
-    !DEMO_NAMES.includes((c.name || "").toLowerCase())
-  );
+  parsedCompanies = Array.isArray(parsedCompanies)
+    ? parsedCompanies.filter(c => !DEMO_NAMES.includes((c.name || "").toLowerCase()))
+    : [];
 
-  if (!Array.isArray(parsedCompanies) || parsedCompanies.length === 0) {
+  const isLegacyPlaceholderList = parsedCompanies.length > 0 &&
+    parsedCompanies.every(c => (c.name || "").trim().toLowerCase() === "gunge");
+
+  if (parsedCompanies.length === 0 || isLegacyPlaceholderList) {
     parsedCompanies = [...DEFAULT_COMPANIES];
   }
   state.companies = parsedCompanies;
   localStorage.setItem("customs_companies", JSON.stringify(parsedCompanies));
 
-  const storedRates = localStorage.getItem("customs_default_rates");
-  if (storedRates) state.defaultRates = JSON.parse(storedRates);
+  const storedRates = readStoredJson("customs_default_rates", {});
+  if (storedRates && typeof storedRates === "object" && !Array.isArray(storedRates)) {
+    state.defaultRates = { ...state.defaultRates, ...storedRates };
+  }
 
   const storedMethod = localStorage.getItem("customs_calc_method");
   if (storedMethod) state.calculationMethod = storedMethod;
 
-  const storedHeader = localStorage.getItem("customs_header");
-  if (storedHeader) state.header = JSON.parse(storedHeader);
+  const storedHeader = readStoredJson("customs_header", {});
+  if (storedHeader && typeof storedHeader === "object" && !Array.isArray(storedHeader)) {
+    state.header = { ...state.header, ...storedHeader };
+  }
 
-  const storedRows = localStorage.getItem("customs_assessment_rows");
-  if (storedRows) state.assessmentRows = JSON.parse(storedRows);
+  const storedRows = readStoredJson("customs_assessment_rows", []);
+  state.assessmentRows = Array.isArray(storedRows) ? storedRows : [];
 
-  const storedHistory = localStorage.getItem("customs_saved_assessments");
-  if (storedHistory) state.savedAssessments = JSON.parse(storedHistory);
+  const storedHistory = readStoredJson("customs_saved_assessments", []);
+  state.savedAssessments = Array.isArray(storedHistory) ? storedHistory : [];
 }
 
 function saveState() {
@@ -209,6 +227,10 @@ function initEventListeners() {
     el.addEventListener("input", (e) => {
       state.defaultRates[key] = parseFloat(e.target.value) || 0;
       saveState();
+    });
+    el.addEventListener("change", () => {
+      // Keep the table-header rate display aligned with the Settings value.
+      renderAssessmentTable();
     });
   });
 
@@ -1675,10 +1697,17 @@ function importMaterialsFromFile(e) {
       if (imported.length === 0) {
         showToast("No usable material rows were found in the import file.", "warning");
       } else {
-        state.materials = imported;
-        saveState();
-        renderMaterialsList();
-        showToast(`${imported.length} materials imported successfully.`, "success");
+        const replaceMaterials = window.confirm(
+          state.language === "bn"
+            ? `Replace current ${state.materials.length} materials with ${imported.length} imported materials?`
+            : `Replace the current ${state.materials.length} materials with ${imported.length} imported materials?`
+        );
+        if (replaceMaterials) {
+          state.materials = imported;
+          saveState();
+          renderMaterialsList();
+          showToast(`${imported.length} materials imported successfully.`, "success");
+        }
       }
     } catch (err) {
       console.error(err);

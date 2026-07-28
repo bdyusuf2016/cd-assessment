@@ -1,6 +1,710 @@
 // Default Company List — kept minimal (only real office companies)
 const DEFAULT_COMPANIES = [
-  { name: "GUNGE", circle: "Circle-DEPZ", status: "Active" }
+  {
+    "name": "A ONE (BD) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "AAMRA APPARELS LTD (FORMER-TEXAS FASHION WEAR LTD)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "AB FABRICS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "ACTOR SPORTING LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "ADVANTURE CLOTHING CO. (BD) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "ALFA PACKAGES (BANGLADESH) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "ALFA PATTERNS (BANGLADESH) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "ALLIANCE STITCHES LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "ASIAN POLY INDUSTRY",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "AUSTAN LTD (OLD-SIR JUNE (BD) CO. LIMITED)",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "AVERY DENNISON BANGLADESH LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "BANGLA GERMAN LATEX CO. LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "BAXTER BRENTON (BANGLADESH) CLOTHING MANUFACTURING CO. LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "BEN BANGLADESH (PVT) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "BENGAL WINDSOR THERMOPLASTICS  LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "BUILD-UP PLASTICS (BANGLADESH) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "BUREAU VERITAS CONSUMER PRODUCTS SERV:(BD)LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "CHERRY INTIMATE LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "COBA FASHIONS & APPARELS LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "CONTINENTAL SOCKS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "CROYDON KOWLOON DESIGNS LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "DADA (SAVAR) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "DAEYU BANGLADESH LIMITED (EPZ)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "DHAKA BEIJING D. & W. INDUSTRY LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "DHAKA REA LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "DONG BANG FACILITIES (BD) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "DONG CHANG (SAVAR) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "DUDI KNIT FASHION LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "EOS TEXTILE MILLS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "EPIC GARMENTS MANUFACTURING CO LTD, UNIT-02",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "ETACOL BANGLADESH LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "EVER WAY INDUSTRIES",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "EVERWAY CHEMICAL (BD) LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "EXPERIENCE ACCESSORIES CO. LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "EXPERIENCE CLOTHING COMPANY LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FAR EAST BANGLADESH CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FAWNWEAR LIMITED(EPZ)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "FCI (BD) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FEATHERLITE LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "FEM ACCESSORIES LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FINE TREE INDUSTRIES LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "FLAGSHIP DHAKA  CETP (BD) LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FROSTY FASHION LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "FULI INDUSTRIAL LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GEEBEE GARMENTS INDUSTRIES LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GERMAN CHEMICALS LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GLOBAL LABELS (BANGLADESH) LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "GOLD TEX GARMENTS LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GOLDTEX LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GOORYONG (BD) TEXTILE LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "GRAMEEN KNITWEAR LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "GUNZE UNITED LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HANGERS PLUS (BANGLADESH) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HAPUTEX WEAVING & DYEING FACTORY LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HELICON LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "HIN GETAH BANGLADESH LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HI-TECH KNITWEAR LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HO SUNG (BANGLADESH) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HONORWAY TEXTILES & APPA.(PVT.) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "HOP LUN (BANGLADESH) LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "HOP YICK (BANGLADESH) LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "HYOPSHIN CO. LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "IDEAL FASTENER (BD) LTD [OLD: GLOBALMAX TEXTILE CO. LTD]",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "IL KWANG CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "INTIMATE SUPPLIERS LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "JAE MEE EMBOTITCH (PVT) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "K. B. INTERLINING LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "K.B.C. CHEMICALS LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "KAIXI FASHION BANGLADESH CO. LTD(CANCELLED)",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "KAIXI FASHION BANGLADESH CO.LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "KRYOLAN (BANGLADESH) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "KUNG KENG TEXTILE (BANGLADESH) LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "LABEL MAKERS LTD(PROVISIONAL REG.)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "LEGEND ELECTRONICS (PVT) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "LENNY APPARELS LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "LENNY FASHIONS LIMITED (CONTINUOUS BOND)",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "LIK FUNG GARMENT (BANGLADESH) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "LSI INDUSTRIES LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "LZ FASHION WEAR LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "M.Y & UNION (BD) LIMITED (FORMAR RANCON SWEATERS LIMITED)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "MAINETTI BANGLADESH (PVT) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "MALANCHA HOLDINGS LTD(UNITED POWER GENERATION & DISTRIBUTION CO. LTD)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "MEE TICK HANGERS DHAKA LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "MERCHANDISE TESTING LABORATORIES (BD) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "MULTIMAX INTERNATIONAL LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "NEW STAR HI-LON CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "NEW STAR ORIENTAL LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "NIPPON MICRO DEVICE (BD) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "OSMAN INTERLINIG LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "OSPINTER GARMENTS LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "OTL DOUBLEGULL MANUFACTURING CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "PADDOCK'S JEANS LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "PAXAR BANGLADESH LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "QUEEN SOUTH TEXTILE MILLS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "REDPOINT JACKETS LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "REGENCY PACKAGING LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "RETAIL TECHNOLOGIES LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "RING SHINE TEXTILES LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SAVAR DYEING AND FINISHING INDUSTRIES LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SAVAR INDUSTRY (PVT) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SAVAR SPORTSWEAR CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SBC GARMENTS ACCESSORIES MFG (BD) LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SBF LTD (OLD-EXPCOM LIMITED)",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SCREENLINE EMBELLISHERS (BANGLADESH) LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SEJONG (BD) COMPANY LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SGWICUS (BD) LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SHANTA DENIMS LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SHANTA INDUSTRIES LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SHANTA WASH WORKS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SHASHA DENIMS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SHINE FASHION CO. PVT. LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SINSIN POLY LIMITED (OLD- JU HYUNG INDUSTRY CO. LTD)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SOFTEX SWEATER INDUSTRIES (PVT.) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SONAR MANUFACTURING LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SOUTH CHINA BLEACHING & DYEING FACTORY LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "STYRAX FASHIONS LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SUNGNAM TEXTILE MILLS LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SUPERIOR FOOTWEAR CO. LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SUPREX LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "SWAN INTERLINING CO LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "SWAN LON CO. LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "TAIWAN-BANGLA SPECIALIZED TIXTILES LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "TALISMAN LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "TEESTA HIGH FASHIONS LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "TEN CATES PERMESS INTERLINING (BD) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "THE ACCESSORIES LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "TIGERCO LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "UNITED POWER GENERATION & DISTRIBUTION COMPANY LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "VELOX FASHIONS LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "WELFORM APPARELS LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "WIREMECH BD. (PVT.) LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "YKK BANGLADESH PTE LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "YOUNG -A TEXTILE CO LIMITED",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "YOUNG OPTICS (BD) LIMITED (CONTINUOUS BOND)",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "YOUNGONE HI-TECH SPORTSWEAR INDUSTRIES LTD.",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "YOUNGONE SYNTHETIC FIBRE PROD. IND. LTD.",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "ZONG SINE TEXTILE IND. LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "TRENDY TEXTILES LTD",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "M. Y. & UNION (BD) LIMITED",
+    "circle": "East",
+    "status": "Active"
+  },
+  {
+    "name": "GAVA PRIVATE LTD",
+    "circle": "West",
+    "status": "Active"
+  },
+  {
+    "name": "Indochine Apparel (Bangladesh) Limited change from BAXTER BRENTON (BANGLADESH) CLOTHING MANUFACTURING CO. LTD.",
+    "circle": "West",
+    "status": "Active"
+  }
 ];
 
 const DEFAULT_MATERIALS = [

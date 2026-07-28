@@ -34,12 +34,30 @@ CREATE TABLE IF NOT EXISTS public.materials (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- Enable Row Level Security (RLS)
+-- Secure each record to the authenticated Supabase user.
+-- Run this migration in the Supabase SQL Editor before enabling cloud sync.
+ALTER TABLE public.assessments ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- Company and material names/codes are unique per user, not globally.
+ALTER TABLE public.companies DROP CONSTRAINT IF EXISTS companies_name_key;
+ALTER TABLE public.materials DROP CONSTRAINT IF EXISTS materials_code_key;
+CREATE UNIQUE INDEX IF NOT EXISTS companies_user_name_key ON public.companies (user_id, name);
+CREATE UNIQUE INDEX IF NOT EXISTS materials_user_code_key ON public.materials (user_id, code);
+
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.materials ENABLE ROW LEVEL SECURITY;
 
--- Create Policies to allow public read/write access with Anon Key
-CREATE POLICY "Allow public all access on assessments" ON public.assessments FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public all access on companies" ON public.companies FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public all access on materials" ON public.materials FOR ALL USING (true) WITH CHECK (true);
+-- Remove the insecure policies from the previous schema.
+DROP POLICY IF EXISTS "Allow public all access on assessments" ON public.assessments;
+DROP POLICY IF EXISTS "Allow public all access on companies" ON public.companies;
+DROP POLICY IF EXISTS "Allow public all access on materials" ON public.materials;
+
+CREATE POLICY "Users manage own assessments" ON public.assessments
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users manage own companies" ON public.companies
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users manage own materials" ON public.materials
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);

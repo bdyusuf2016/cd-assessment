@@ -1676,7 +1676,10 @@ body.light-mode .autocomplete-list {
     font-weight: bold;
   }
 
-  .tab-panel { display: block !important; }
+  .tab-panel { display: none !important; }
+  #assessment-tab { display: block !important; }
+  #materials-tab,
+  #settings-tab { display: none !important; }
   .content-area { padding: 0 !important; }
   .table-wrap { border: none !important; box-shadow: none !important; overflow: visible !important; }
   .assessment-table .btn-delete-row,
