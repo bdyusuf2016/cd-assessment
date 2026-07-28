@@ -1,12 +1,13 @@
 /**
- * Customs Assessment Manager — Supabase Integration Module
+ * Customs Assessment Manager — Supabase Integration & Authentication Module
  * Developed by: Md. Yusuf Ali
  */
 
 const SUPABASE_CONFIG = {
   urlKey: "customs_supabase_url",
   anonKey: "customs_supabase_anon_key",
-  client: null
+  client: null,
+  currentUser: null
 };
 
 // Initialize Supabase client
@@ -18,12 +19,26 @@ function initSupabase() {
     try {
       SUPABASE_CONFIG.client = supabase.createClient(url, key);
       console.log("Supabase Client initialized successfully.");
+
+      // Check current session
+      SUPABASE_CONFIG.client.auth.getSession().then(({ data }) => {
+        SUPABASE_CONFIG.currentUser = data.session ? data.session.user : null;
+        if (typeof updateAuthUI === "function") updateAuthUI();
+      });
+
+      // Listen to auth state changes
+      SUPABASE_CONFIG.client.auth.onAuthStateChange((event, session) => {
+        SUPABASE_CONFIG.currentUser = session ? session.user : null;
+        if (typeof updateAuthUI === "function") updateAuthUI();
+      });
+
       return true;
     } catch (e) {
       console.error("Failed to initialize Supabase:", e);
     }
   }
   SUPABASE_CONFIG.client = null;
+  SUPABASE_CONFIG.currentUser = null;
   return false;
 }
 
@@ -41,6 +56,7 @@ function saveSupabaseCredentials(url, key) {
     localStorage.removeItem(SUPABASE_CONFIG.urlKey);
     localStorage.removeItem(SUPABASE_CONFIG.anonKey);
     SUPABASE_CONFIG.client = null;
+    SUPABASE_CONFIG.currentUser = null;
     return false;
   }
   localStorage.setItem(SUPABASE_CONFIG.urlKey, url.trim());
@@ -56,6 +72,72 @@ function getSupabaseCredentials() {
   };
 }
 
+// --- AUTHENTICATION API ---
+
+// 1. Login with Email & Password
+async function supabaseLogin(email, password) {
+  const client = getSupabaseClient();
+  if (!client) return { success: false, message: "Supabase client not connected. Configure credentials in Settings." };
+
+  try {
+    const { data, error } = await client.auth.signInWithPassword({
+      email: email.trim(),
+      password: password
+    });
+
+    if (error) throw error;
+    SUPABASE_CONFIG.currentUser = data.user;
+    return { success: true, user: data.user, session: data.session };
+  } catch (err) {
+    console.error("Supabase Login Error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+// 2. Sign Up new user
+async function supabaseSignUp(email, password) {
+  const client = getSupabaseClient();
+  if (!client) return { success: false, message: "Supabase client not connected. Configure credentials in Settings." };
+
+  try {
+    const { data, error } = await client.auth.signUp({
+      email: email.trim(),
+      password: password
+    });
+
+    if (error) throw error;
+    SUPABASE_CONFIG.currentUser = data.user;
+    return { success: true, user: data.user, session: data.session };
+  } catch (err) {
+    console.error("Supabase SignUp Error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+// 3. Logout user
+async function supabaseLogout() {
+  const client = getSupabaseClient();
+  if (!client) {
+    SUPABASE_CONFIG.currentUser = null;
+    return { success: true };
+  }
+
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+    SUPABASE_CONFIG.currentUser = null;
+    return { success: true };
+  } catch (err) {
+    console.error("Supabase Logout Error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+// Get current active user
+function getCurrentUser() {
+  return SUPABASE_CONFIG.currentUser;
+}
+
 // --- CLOUD SYNC OPERATIONS ---
 
 // 1. Sync Assessment to Supabase Cloud
@@ -64,6 +146,7 @@ async function syncAssessmentToSupabaseCloud(assessment) {
   if (!client) return { success: false, message: "Supabase not connected" };
 
   try {
+    const user = getCurrentUser();
     const payload = {
       id: assessment.id,
       company_name: assessment.companyName || "",
@@ -72,7 +155,8 @@ async function syncAssessmentToSupabaseCloud(assessment) {
       total_assessable_value: assessment.totalAssessableValue || 0,
       total_duty_tax: assessment.totalDutyTax || 0,
       header_info: JSON.stringify(assessment.header || {}),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      ...(user ? { user_id: user.id } : {})
     };
 
     const { data, error } = await client
@@ -123,11 +207,13 @@ async function syncCompaniesToSupabaseCloud(companies) {
   if (!client || !Array.isArray(companies)) return { success: false };
 
   try {
+    const user = getCurrentUser();
     const payload = companies.map(c => ({
       name: c.name,
       circle: c.circle || "",
       status: c.status || "Active",
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      ...(user ? { user_id: user.id } : {})
     }));
 
     const { data, error } = await client
@@ -167,12 +253,14 @@ async function syncMaterialsToSupabaseCloud(materials) {
   if (!client || !Array.isArray(materials)) return { success: false };
 
   try {
+    const user = getCurrentUser();
     const payload = materials.map(m => ({
       code: m.code,
       description: m.description || "",
       price: m.price || 0,
       unit: m.unit || "kg",
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      ...(user ? { user_id: user.id } : {})
     }));
 
     const { data, error } = await client

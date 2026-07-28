@@ -2146,3 +2146,182 @@ async function handleSyncAllToCloud() {
     showToast("Cloud Sync Error: " + err.message, "error");
   }
 }
+
+// ===================================================================
+// SUPABASE AUTH MODAL HANDLERS
+// ===================================================================
+
+let _authTab = "login"; // "login" | "signup"
+
+function openAuthModal() {
+  const modal = document.getElementById("authModal");
+  if (!modal) return;
+  modal.classList.add("active");
+  updateAuthUI();
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById("authModal");
+  if (!modal) return;
+  modal.classList.remove("active");
+  clearAuthError();
+}
+
+function switchAuthTab(tab) {
+  _authTab = tab;
+  document.getElementById("loginTabBtn").classList.toggle("active", tab === "login");
+  document.getElementById("signupTabBtn").classList.toggle("active", tab === "signup");
+  document.getElementById("authSubmitIcon").textContent = tab === "login" ? "🔑" : "📝";
+  document.getElementById("authSubmitLabel").textContent = tab === "login" ? "লগইন করুন" : "অ্যাকাউন্ট তৈরি করুন";
+  document.getElementById("authModalTitle").textContent = tab === "login" ? "Supabase লগইন" : "নতুন অ্যাকাউন্ট";
+  clearAuthError();
+}
+
+function clearAuthError() {
+  const el = document.getElementById("authError");
+  if (el) { el.style.display = "none"; el.textContent = ""; }
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById("authError");
+  if (el) { el.style.display = "block"; el.textContent = msg; }
+}
+
+function togglePasswordVisibility() {
+  const inp = document.getElementById("authPasswordInput");
+  const btn = document.getElementById("passwordToggleBtn");
+  if (!inp) return;
+  if (inp.type === "password") {
+    inp.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    inp.type = "password";
+    btn.textContent = "👁";
+  }
+}
+
+async function handleAuthSubmit() {
+  const email    = (document.getElementById("authEmailInput")?.value || "").trim();
+  const password = document.getElementById("authPasswordInput")?.value || "";
+  clearAuthError();
+
+  if (!email || !password) {
+    showAuthError("ইমেইল ও পাসওয়ার্ড দিন।");
+    return;
+  }
+  if (!getSupabaseClient()) {
+    showAuthError("প্রথমে Settings থেকে Supabase URL ও Anon Key সেভ করুন।");
+    return;
+  }
+
+  const btn = document.getElementById("authSubmitBtn");
+  btn.disabled = true;
+  const origLabel = document.getElementById("authSubmitLabel").textContent;
+  document.getElementById("authSubmitLabel").textContent = "অপেক্ষা করুন...";
+
+  try {
+    let result;
+    if (_authTab === "login") {
+      result = await supabaseLogin(email, password);
+    } else {
+      result = await supabaseSignUp(email, password);
+    }
+
+    if (result.success) {
+      updateAuthUI();
+      if (_authTab === "signup" && !result.session) {
+        showToast("নিবন্ধন সফল! ইমেইল যাচাই করুন (confirm email)।", "success");
+      } else {
+        showToast(_authTab === "login" ? "Supabase লগইন সফল হয়েছে! ✅" : "অ্যাকাউন্ট তৈরি ও লগইন সফল!", "success");
+      }
+      closeAuthModal();
+    } else {
+      showAuthError(result.message || "লগইন/নিবন্ধন ব্যর্থ হয়েছে।");
+    }
+  } finally {
+    btn.disabled = false;
+    document.getElementById("authSubmitLabel").textContent = origLabel;
+  }
+}
+
+async function handleSupabaseLogout() {
+  const result = await supabaseLogout();
+  if (result.success) {
+    updateAuthUI();
+    closeAuthModal();
+    showToast("লগআউট সফল হয়েছে।", "info");
+  } else {
+    showToast("লগআউট করতে সমস্যা হয়েছে: " + result.message, "error");
+  }
+}
+
+async function handleAuthSyncAll() {
+  showToast("ক্লাউডে সব ডেটা সিঙ্ক হচ্ছে...", "info");
+  try {
+    const [compRes, matRes] = await Promise.all([
+      syncCompaniesToSupabaseCloud(state.companies),
+      syncMaterialsToSupabaseCloud(state.materials)
+    ]);
+    if (compRes.success && matRes.success) {
+      showToast("কোম্পানি ও মালামাল ক্লাউডে সিঙ্ক হয়েছে! ☁️", "success");
+    } else {
+      showToast("সিঙ্ক আংশিক সম্পন্ন হয়েছে।", "warning");
+    }
+  } catch (err) {
+    showToast("সিঙ্ক ত্রুটি: " + err.message, "error");
+  }
+}
+
+function updateAuthUI() {
+  const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+  const btn  = document.getElementById("authBtn");
+  const lblBtn = document.getElementById("authBtnLabel");
+  const loggedOutView = document.getElementById("authLoggedOutView");
+  const loggedInView  = document.getElementById("authLoggedInView");
+  const userEmailEl   = document.getElementById("authUserEmail");
+
+  if (user) {
+    // Logged in
+    if (btn) {
+      btn.className = "btn btn-ghost btn-sm auth-btn-loggedin";
+      if (lblBtn) lblBtn.textContent = user.email ? user.email.split("@")[0] : "লগড ইন";
+    }
+    if (loggedOutView) loggedOutView.style.display = "none";
+    if (loggedInView)  loggedInView.style.display  = "block";
+    if (userEmailEl)   userEmailEl.textContent = user.email || "—";
+  } else {
+    // Guest
+    if (btn) {
+      btn.className = "btn btn-ghost btn-sm auth-btn-guest";
+      if (lblBtn) lblBtn.textContent = "লগইন";
+    }
+    if (loggedOutView) loggedOutView.style.display = "block";
+    if (loggedInView)  loggedInView.style.display  = "none";
+  }
+
+  // Also update supabase settings badge if present
+  if (typeof updateSupabaseUI === "function") updateSupabaseUI();
+}
+
+// Close auth modal on overlay click / Escape
+document.addEventListener("DOMContentLoaded", () => {
+  const closeAuthBtn = document.getElementById("closeAuthModalBtn");
+  if (closeAuthBtn) closeAuthBtn.addEventListener("click", closeAuthModal);
+  const cancelAuthBtn = document.getElementById("cancelAuthBtn");
+  if (cancelAuthBtn) cancelAuthBtn.addEventListener("click", closeAuthModal);
+
+  const authModal = document.getElementById("authModal");
+  if (authModal) {
+    authModal.addEventListener("click", (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+  }
+
+  // Enter key to submit
+  ["authEmailInput", "authPasswordInput"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleAuthSubmit();
+    });
+  });
+});
