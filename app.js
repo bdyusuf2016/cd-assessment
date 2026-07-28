@@ -236,6 +236,9 @@ function initEventListeners() {
   }
   document.getElementById("materialsImportFileInput").addEventListener("change", importMaterialsFromFile);
   document.getElementById("importCompaniesBtn").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
+  if (document.getElementById("downloadSampleCompanyBtn")) {
+    document.getElementById("downloadSampleCompanyBtn").addEventListener("click", downloadSampleCompanyTemplate);
+  }
   if (document.getElementById("importCompaniesCardBtn")) {
     document.getElementById("importCompaniesCardBtn").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
   }
@@ -1741,6 +1744,17 @@ function addNewCompany() {
   showToast(state.language === "bn" ? "নতুন কোম্পানি যোগ করা হয়েছে!" : "New company added!", "success");
 }
 
+function downloadSampleCompanyTemplate() {
+  const sampleCsv = `CompanyName,Circle,Status
+M/s Apex Spinning & Knitting Mills Ltd.,Circle-1 (Dhaka),Active
+M/s Youngone High-Tech Sportswear Ltd.,Circle-2 (DEPZ),Active
+M/s Beximco Synthetics Ltd.,Circle-3 (Savar),Active
+M/s Square Fashions Ltd.,Circle-1 (Dhaka),Active`;
+
+  downloadCSV(sampleCsv, "customs_companies_sample.csv");
+  showToast(state.language === "bn" ? "কোম্পানির নমুনা এক্সেল ফাইল ডাউনলোড হয়েছে!" : "Sample company template downloaded!", "success");
+}
+
 function importCompaniesFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1767,7 +1781,7 @@ function importCompaniesFromFile(e) {
 
       const imported = normalizeImportedCompanies(rows);
       if (!imported.length) {
-        showToast(state.language === "bn" ? "ফাইলে কোনো গ্রহণযোগ্য কোম্পানি পাওয়া যায়নি।" : "No usable company rows found in file.", "warning");
+        showToast(state.language === "bn" ? "ফাইলে কোনো গ্রহণযোগ্য কোম্পানি পাওয়া যায়নি। কলামের শিরোনাম বা ফরম্যাট চেক করুন।" : "No usable company rows found in file.", "warning");
       } else {
         // Merge imported companies with existing list
         const existingNames = new Set(state.companies.map(c => c.name.toLowerCase()));
@@ -1790,14 +1804,19 @@ function importCompaniesFromFile(e) {
         renderCompanyList();
         updatePrintHeader();
 
+        // Also sync to Supabase Cloud if connected
+        if (typeof syncCompaniesToSupabaseCloud === "function" && getSupabaseClient()) {
+          syncCompaniesToSupabaseCloud(state.companies);
+        }
+
         const msg = state.language === "bn"
-          ? `${addedCount} টি নতুন কোম্পানি সফলভাবে ইমপোর্ট করা হয়েছে!`
+          ? `${addedCount} টি নতুন কোম্পানি সফলভাবে তালিকায় যুক্ত করা হয়েছে!`
           : `${addedCount} new companies imported successfully!`;
         showToast(msg, "success");
       }
     } catch (err) {
       console.error(err);
-      showToast(state.language === "bn" ? "কোম্পানি ইমপোর্ট করতে সমস্যা হয়েছে।" : "Unable to import company list.", "error");
+      showToast(state.language === "bn" ? "কোম্পানি ফাইল ইমপোর্ট করতে সমস্যা হয়েছে।" : "Unable to import company list.", "error");
     }
     e.target.value = "";
   };
@@ -1807,21 +1826,62 @@ function importCompaniesFromFile(e) {
 function normalizeImportedCompanies(rows) {
   if (!Array.isArray(rows) || !rows.length) return [];
   const normalized = [];
+
+  let nameIdx = -1;
+  let circleIdx = -1;
+  let statusIdx = -1;
+  let hasHeaderRow = false;
+
+  // Inspect the first non-empty row to detect column headers
+  const firstRow = rows.find(r => Array.isArray(r) && r.some(c => String(c ?? "").trim()));
+  if (firstRow && Array.isArray(firstRow)) {
+    const firstRowCells = firstRow.map(c => String(c ?? "").trim().toLowerCase());
+    firstRowCells.forEach((hdr, colIdx) => {
+      if (nameIdx === -1 && (hdr.includes("name") || hdr.includes("company") || hdr.includes("প্রতিষ্ঠানের") || hdr.includes("কোম্পানি") || hdr.includes("firm") || hdr.includes("importer") || hdr.includes("নাম"))) {
+        nameIdx = colIdx;
+        hasHeaderRow = true;
+      } else if (circleIdx === -1 && (hdr.includes("circle") || hdr.includes("address") || hdr.includes("সার্কেল") || hdr.includes("ঠিকানা") || hdr.includes("location"))) {
+        circleIdx = colIdx;
+        hasHeaderRow = true;
+      } else if (statusIdx === -1 && (hdr.includes("status") || hdr.includes("স্ট্যাটাস") || hdr.includes("active"))) {
+        statusIdx = colIdx;
+        hasHeaderRow = true;
+      }
+    });
+  }
+
   rows.forEach((row, index) => {
     if (!Array.isArray(row)) return;
     const cells = row.map(cell => String(cell ?? "").trim());
     if (cells.every(cell => !cell)) return;
 
-    // Skip header row if first row contains column headers
-    if (index === 0) {
-      const hdr = cells.join(" ").toLowerCase();
-      if (hdr.includes("name") || hdr.includes("company") || hdr.includes("circle") || hdr.includes("প্রতিষ্ঠানের")) return;
+    // Skip the detected header row
+    if (index === 0 && hasHeaderRow) return;
+
+    let name = "";
+    let circle = "";
+    let status = "Active";
+
+    if (nameIdx !== -1) {
+      name = cells[nameIdx] || "";
+      circle = circleIdx !== -1 ? (cells[circleIdx] || "") : "";
+      status = (statusIdx !== -1 && /inactive/i.test(cells[statusIdx] || "")) ? "Inactive" : "Active";
+    } else {
+      // Auto-detect without explicit header labels:
+      // If Col 0 is a Serial Number (e.g. 1, 2, 3...), then Col 1 is Company Name
+      const col0IsSerial = /^\d+$/.test(cells[0]);
+      if (col0IsSerial && cells[1]) {
+        name = cells[1];
+        circle = cells[2] || "";
+        status = /inactive/i.test(cells[3] || "") ? "Inactive" : "Active";
+      } else {
+        name = cells[0] || "";
+        circle = cells[1] || "";
+        status = /inactive/i.test(cells[2] || "") ? "Inactive" : "Active";
+      }
     }
 
-    const name   = cells[0] || "";
-    const circle = cells[1] || "";
-    const status = /inactive/i.test(cells[2] || "") ? "Inactive" : "Active";
-    if (!name) return;
+    if (!name || (/^\d+$/.test(name) && name.length < 4)) return;
     normalized.push({ name, circle, status });
   });
 
