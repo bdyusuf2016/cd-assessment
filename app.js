@@ -799,6 +799,10 @@ function updatePrintHeader() {
         <span class="meta-label">${dict.companyName} :</span>
         <span class="meta-val font-bold">${company}</span>
       </div>
+      <div class="meta-item">
+        <span class="meta-label">${dict.bepzaRecNo} :</span>
+        <span class="meta-val font-bold">${fmt(bepza)}</span>
+      </div>
       <div class="meta-item" style="justify-content:flex-end;">
         <span class="meta-label">${state.language === "bn" ? "তারিখ :" : "Date :"}</span>
         <span class="meta-val font-bold">${currentDate}</span>
@@ -815,10 +819,6 @@ function updatePrintHeader() {
       <div class="meta-item">
         <span class="meta-label">${dict.letterPageNo} :</span>
         <span class="meta-val">${fmt(letterPage)}</span>
-      </div>
-      <div class="meta-item col-span-2">
-        <span class="meta-label">${dict.bepzaRecNo} :</span>
-        <span class="meta-val font-bold">${fmt(bepza)}</span>
       </div>
     </div>
   `;
@@ -1224,6 +1224,7 @@ async function exportToPDF() {
 
     const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
     const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+    const bepza = state.header.bepzaRecNo || "";
 
     tempDiv.innerHTML = `
       <style>
@@ -1238,9 +1239,10 @@ async function exportToPDF() {
         <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
         <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
       </div>
-      <div style="display:flex; justify-content:space-between; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
-        <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-        <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
+        <div style="flex:1; min-width:180px;"><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
+        <div style="flex:1; min-width:160px;"><strong>${dict.bepzaRecNo}:</strong> ${escapeHtml(bepza)}</div>
+        <div style="flex:1; min-width:150px; text-align:right;"><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
       </div>
       <table style="width:100%; border-collapse:collapse; font-size:10px;">
         <thead>
@@ -1409,9 +1411,10 @@ async function sharePdfToWhatsApp() {
       <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
       <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
     </div>
-    <div style="display:flex; justify-content:space-between; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
-      <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-      <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
+    <div style="display:flex; flex-wrap: wrap; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
+      <div style="flex:1 1 260px;"><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
+      <div style="flex:1 1 220px;"><strong>${dict.bepzaRecNo}:</strong> ${escapeHtml(state.header.bepzaRecNo)}</div>
+      <div style="flex:1 1 180px; text-align:right;"><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
     </div>
     <table style="width:100%; border-collapse:collapse; font-size:10px;">
       <thead>
