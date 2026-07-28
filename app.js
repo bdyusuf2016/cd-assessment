@@ -1827,50 +1827,26 @@ function normalizeImportedCompanies(rows) {
   if (!Array.isArray(rows) || !rows.length) return [];
   const normalized = [];
 
-  let nameIdx = -1;
-  let circleIdx = -1;
-  let statusIdx = -1;
-  let hasHeaderRow = false;
-
-  // Inspect the first non-empty row to detect column headers
-  const firstRow = rows.find(r => Array.isArray(r) && r.some(c => String(c ?? "").trim()));
-  if (firstRow && Array.isArray(firstRow)) {
-    const firstRowCells = firstRow.map(c => String(c ?? "").trim().toLowerCase());
-    firstRowCells.forEach((hdr, colIdx) => {
-      if (nameIdx === -1 && (hdr.includes("name") || hdr.includes("company") || hdr.includes("প্রতিষ্ঠানের") || hdr.includes("কোম্পানি") || hdr.includes("firm") || hdr.includes("importer") || hdr.includes("নাম"))) {
-        nameIdx = colIdx;
-        hasHeaderRow = true;
-      } else if (circleIdx === -1 && (hdr.includes("circle") || hdr.includes("address") || hdr.includes("সার্কেল") || hdr.includes("ঠিকানা") || hdr.includes("location"))) {
-        circleIdx = colIdx;
-        hasHeaderRow = true;
-      } else if (statusIdx === -1 && (hdr.includes("status") || hdr.includes("স্ট্যাটাস") || hdr.includes("active"))) {
-        statusIdx = colIdx;
-        hasHeaderRow = true;
-      }
-    });
-  }
-
   rows.forEach((row, index) => {
-    if (!Array.isArray(row)) return;
-    const cells = row.map(cell => String(cell ?? "").trim());
-    if (cells.every(cell => !cell)) return;
-
-    // Skip the detected header row
-    if (index === 0 && hasHeaderRow) return;
+    if (!row) return;
 
     let name = "";
     let circle = "";
     let status = "Active";
 
-    if (nameIdx !== -1) {
-      name = cells[nameIdx] || "";
-      circle = circleIdx !== -1 ? (cells[circleIdx] || "") : "";
-      status = (statusIdx !== -1 && /inactive/i.test(cells[statusIdx] || "")) ? "Inactive" : "Active";
-    } else {
-      // Auto-detect without explicit header labels:
-      // If Col 0 is a Serial Number (e.g. 1, 2, 3...), then Col 1 is Company Name
-      const col0IsSerial = /^\d+$/.test(cells[0]);
-      if (col0IsSerial && cells[1]) {
+    if (Array.isArray(row)) {
+      const cells = row.map(cell => String(cell ?? "").trim());
+      if (cells.every(cell => !cell)) return;
+
+      // Skip header row if line 0 has words like "name", "company", "প্রতিষ্ঠানের", etc.
+      if (index === 0) {
+        const hdr = cells.join(" ").toLowerCase();
+        if (hdr.includes("name") || hdr.includes("company") || hdr.includes("circle") || hdr.includes("প্রতিষ্ঠানের") || hdr.includes("কোম্পানি") || hdr.includes("ঠিকানা") || hdr.includes("সার্কেল")) return;
+      }
+
+      // Check if col 0 is serial number (1, 2, 3...)
+      const isSerial0 = /^\d+$/.test(cells[0]);
+      if (isSerial0 && cells[1]) {
         name = cells[1];
         circle = cells[2] || "";
         status = /inactive/i.test(cells[3] || "") ? "Inactive" : "Active";
@@ -1879,6 +1855,15 @@ function normalizeImportedCompanies(rows) {
         circle = cells[1] || "";
         status = /inactive/i.test(cells[2] || "") ? "Inactive" : "Active";
       }
+    } else if (typeof row === "object") {
+      const keys = Object.keys(row);
+      const nameKey = keys.find(k => /name|company|কোম্পানি|প্রতিষ্ঠানের|firm|importer/i.test(k));
+      const circleKey = keys.find(k => /circle|address|সার্কেল|ঠিকানা|location/i.test(k));
+      const statusKey = keys.find(k => /status|স্ট্যাটাস/i.test(k));
+
+      name = nameKey ? String(row[nameKey] ?? "").trim() : (row[keys[0]] ? String(row[keys[0]]).trim() : "");
+      circle = circleKey ? String(row[circleKey] ?? "").trim() : (row[keys[1]] ? String(row[keys[1]]).trim() : "");
+      status = (statusKey && /inactive/i.test(String(row[statusKey]))) ? "Inactive" : "Active";
     }
 
     if (!name || (/^\d+$/.test(name) && name.length < 4)) return;
