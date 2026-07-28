@@ -723,6 +723,13 @@ function renderAssessmentTable() {
       updateDashboardMetrics();
     });
 
+    qtyInput.addEventListener("keydown", event => {
+      if (event.key === "Tab" && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById("addRowBtn")?.focus();
+      }
+    });
+
     codeInput.addEventListener("change", () => {
       row.approveCode = codeInput.value.trim();
       saveState();

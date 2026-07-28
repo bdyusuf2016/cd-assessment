@@ -133,10 +133,6 @@
         <div class="topbar-actions" id="topbarActions">
           <!-- Assessment tab actions (default visible) -->
           <div id="assessmentActions" class="action-group">
-            <button id="addRowBtn" class="btn btn-primary btn-sm">
-              <span class="btn-icon">＋</span>
-              <span id="lblAddRow">নতুন আইটেম</span>
-            </button>
             <button id="saveAssessmentBtn" class="btn btn-primary btn-sm">
               <span class="btn-icon">💾</span>
               <span id="lblSaveAssessment">সেভ করুন</span>
@@ -368,6 +364,13 @@
                 <tbody id="assessmentTableFoot"><!-- JS renders --></tbody>
               </table>
             </div>
+          </div>
+
+          <div class="table-add-row-action print-hidden">
+            <button id="addRowBtn" class="btn btn-primary btn-sm" type="button">
+              <span class="btn-icon">+</span>
+              <span id="lblAddRow">Add New Item</span>
+            </button>
           </div>
 
           <!-- In Words -->

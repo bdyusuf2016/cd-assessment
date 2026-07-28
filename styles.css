@@ -2285,3 +2285,10 @@ body.light-mode .autocomplete-list {
   gap: 10px;
   border-top: 1px solid var(--border-base);
 }
+
+
+.table-add-row-action {
+  display: flex;
+  justify-content: flex-end;
+  margin: 14px 0;
+}
