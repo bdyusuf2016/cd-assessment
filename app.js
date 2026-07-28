@@ -44,8 +44,12 @@ function loadData() {
   if (!storedMaterials) localStorage.setItem("customs_materials", JSON.stringify(state.materials));
 
   const storedCompanies = localStorage.getItem("customs_companies");
-  state.companies = storedCompanies ? JSON.parse(storedCompanies) : [...DEFAULT_COMPANIES];
-  if (!storedCompanies) localStorage.setItem("customs_companies", JSON.stringify(state.companies));
+  let parsedCompanies = storedCompanies ? JSON.parse(storedCompanies) : [];
+  if (!Array.isArray(parsedCompanies) || parsedCompanies.length === 0) {
+    parsedCompanies = [...DEFAULT_COMPANIES];
+    localStorage.setItem("customs_companies", JSON.stringify(parsedCompanies));
+  }
+  state.companies = parsedCompanies;
 
   const storedRates = localStorage.getItem("customs_default_rates");
   if (storedRates) state.defaultRates = JSON.parse(storedRates);
@@ -1823,6 +1827,16 @@ function importCompaniesFromFile(e) {
   useCsv ? reader.readAsText(file) : reader.readAsArrayBuffer(file);
 }
 
+function isHeaderCellText(str) {
+  const s = String(str ?? "").trim().toLowerCase();
+  const headers = [
+    "company name", "company_name", "companyname", "প্রতিষ্ঠানের নাম", "কোম্পানির নাম", "প্রতিষ্ঠানের নাম:", "কোম্পানি নাম",
+    "sl no", "sl.no", "sl", "s/n", "serial", "ক্রমিক", "ক্রমিক নং", "সিরিয়াল",
+    "circle", "সার্কেল", "address", "ঠিকানা", "location", "status", "স্ট্যাটাস"
+  ];
+  return headers.includes(s);
+}
+
 function normalizeImportedCompanies(rows) {
   if (!Array.isArray(rows) || !rows.length) return [];
   const normalized = [];
@@ -1838,10 +1852,9 @@ function normalizeImportedCompanies(rows) {
       const cells = row.map(cell => String(cell ?? "").trim());
       if (cells.every(cell => !cell)) return;
 
-      // Skip header row if line 0 has words like "name", "company", "প্রতিষ্ঠানের", etc.
-      if (index === 0) {
-        const hdr = cells.join(" ").toLowerCase();
-        if (hdr.includes("name") || hdr.includes("company") || hdr.includes("circle") || hdr.includes("প্রতিষ্ঠানের") || hdr.includes("কোম্পানি") || hdr.includes("ঠিকানা") || hdr.includes("সার্কেল")) return;
+      // Skip header row ONLY if first cell matches exact column title keywords
+      if (index === 0 && (isHeaderCellText(cells[0]) || isHeaderCellText(cells[1]))) {
+        return;
       }
 
       // Check if col 0 is serial number (1, 2, 3...)

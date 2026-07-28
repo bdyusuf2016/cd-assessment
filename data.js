@@ -1,6 +1,10 @@
 // Default Material List Database
 const DEFAULT_COMPANIES = [
-  { name: "GUNGE", circle: "", status: "Active" }
+  { name: "M/s Apex Spinning & Knitting Mills Ltd.", circle: "Circle-1 (Dhaka)", status: "Active" },
+  { name: "M/s Youngone High-Tech Sportswear Ltd.", circle: "Circle-2 (DEPZ)", status: "Active" },
+  { name: "M/s Beximco Synthetics Ltd.", circle: "Circle-3 (Savar)", status: "Active" },
+  { name: "M/s Square Fashions Ltd.", circle: "Circle-1 (Dhaka)", status: "Active" },
+  { name: "GUNGE", circle: "Circle-DEPZ", status: "Active" }
 ];
 
 const DEFAULT_MATERIALS = [
