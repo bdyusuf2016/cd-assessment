@@ -1197,14 +1197,13 @@ async function exportToPDF() {
 
   if (typeof html2pdf !== "undefined") {
     const tempDiv = document.createElement("div");
-    tempDiv.style.position = "fixed";
-    tempDiv.style.top = "0";
-    tempDiv.style.left = "0";
+    tempDiv.style.position = "absolute";
+    tempDiv.style.left = "-9999px";
+    tempDiv.style.top = "-9999px";
     tempDiv.style.width = "11in";
-    tempDiv.style.zIndex = "99999";
-    tempDiv.style.pointerEvents = "none";
+    tempDiv.style.maxWidth = "100%";
     tempDiv.style.minHeight = "7.6in";
-    tempDiv.style.padding = "16px 20px 36px 20px";
+    tempDiv.style.padding = "16px 20px 42px 20px";
     tempDiv.style.boxSizing = "border-box";
     tempDiv.style.fontFamily = "'Hind Siliguri', 'Inter', sans-serif";
     tempDiv.style.color = "#000";
@@ -1228,11 +1227,14 @@ async function exportToPDF() {
 
     tempDiv.innerHTML = `
       <style>
+        html, body { margin: 0; padding: 0; }
         table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
         thead { display: table-header-group; }
         tfoot { display: table-footer-group; }
         tr, th, td { page-break-inside: avoid; page-break-after: auto; }
-        .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; }
+        tbody tr { page-break-inside: avoid; }
+        .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; page-break-after: avoid; }
+        .pdf-footer { margin-top: 36px; padding-top: 10px; }
       </style>
       <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
         <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
@@ -1341,7 +1343,7 @@ async function exportToPDF() {
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['css', 'legacy'] }
+      pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
     };
 
     document.body.appendChild(tempDiv);
@@ -1373,9 +1375,13 @@ async function sharePdfToWhatsApp() {
   showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
 
   const tempDiv = document.createElement("div");
-  tempDiv.style.position = "relative";
+  tempDiv.style.position = "absolute";
+  tempDiv.style.left = "-9999px";
+  tempDiv.style.top = "-9999px";
+  tempDiv.style.width = "11in";
+  tempDiv.style.maxWidth = "100%";
   tempDiv.style.minHeight = "7.6in";
-  tempDiv.style.padding = "16px 20px 36px 20px";
+  tempDiv.style.padding = "16px 20px 42px 20px";
   tempDiv.style.boxSizing = "border-box";
   tempDiv.style.fontFamily = "'Hind Siliguri', 'Inter', sans-serif";
   tempDiv.style.color = "#000";
@@ -1397,14 +1403,18 @@ async function sharePdfToWhatsApp() {
   const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
   const dr = state.defaultRates;
   const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
+  const bepza = state.header.bepzaRecNo || "";
 
   tempDiv.innerHTML = `
     <style>
+      html, body { margin: 0; padding: 0; }
       table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
       thead { display: table-header-group; }
       tfoot { display: table-footer-group; }
       tr, th, td { page-break-inside: avoid; page-break-after: auto; }
-      .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; }
+      tbody tr { page-break-inside: avoid; }
+      .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; page-break-after: avoid; }
+      .pdf-footer { margin-top: 36px; padding-top: 10px; }
     </style>
     <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
       <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
@@ -1513,9 +1523,10 @@ async function sharePdfToWhatsApp() {
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2, useCORS: true },
     jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-    pagebreak:    { mode: ['css', 'legacy'] }
+    pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
   };
 
+  document.body.appendChild(tempDiv);
   try {
     const pdfBlob = await html2pdf().set(opt).from(tempDiv).output('blob');
     const file = new File([pdfBlob], filename, { type: "application/pdf" });
@@ -1544,6 +1555,8 @@ async function sharePdfToWhatsApp() {
   } catch (err) {
     console.error(err);
     exportToPDF();
+  } finally {
+    tempDiv.remove();
   }
 }
 
