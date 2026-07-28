@@ -2457,6 +2457,19 @@ function toggleLoginPwd() {
   inp.type = inp.type === "password" ? "text" : "password";
 }
 
+function resetLocalLogin() {
+  if (!window.confirm("Reset saved local login information?")) return;
+  if (typeof authResetDefaultUsers === "function") authResetDefaultUsers();
+
+  const errorEl = document.getElementById("lgError");
+  if (errorEl) {
+    errorEl.textContent = "Local login has been reset. Use your default login credentials.";
+    errorEl.style.display = "block";
+  }
+  const password = document.getElementById("lgPassword");
+  if (password) password.value = "";
+}
+
 function handleLoginGate() {
   const username = (document.getElementById("lgUsername")?.value || "").trim();
   const password  = document.getElementById("lgPassword")?.value || "";

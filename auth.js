@@ -85,6 +85,17 @@ function authLogin(username, password, remember = false) {
   return { success: true, user: { username: user.username, displayName: user.displayName, role: user.role } };
 }
 
+function authResetDefaultUsers() {
+  const defaults = AUTH.DEFAULT_USERS.map(u => ({
+    username: u.username,
+    passwordHash: authHash(u.password),
+    role: u.role,
+    displayName: u.displayName
+  }));
+  localStorage.setItem(AUTH.USERS_KEY, JSON.stringify(defaults));
+  authClearSession();
+}
+
 function authLogout() {
   authClearSession();
 }
