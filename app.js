@@ -2401,7 +2401,9 @@ async function handleAuthSyncAll() {
 }
 
 function updateAuthUI() {
-  const cloudUser = typeof getCurrentUser === "function" ? getCurrentUser() : null;`r`n  const localUser = typeof authCurrentUser === "function" ? authCurrentUser() : null;`r`n  const user = cloudUser || localUser;
+  const cloudUser = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+  const localUser = typeof authCurrentUser === "function" ? authCurrentUser() : null;
+  const user = cloudUser || localUser;
   const btn  = document.getElementById("authBtn");
   const lblBtn = document.getElementById("authBtnLabel");
   const loggedOutView = document.getElementById("authLoggedOutView");
@@ -2548,4 +2550,5 @@ function handleChangePwd() {
     showToast(result.message, "error");
   }
 }
+
 
