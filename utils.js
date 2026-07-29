@@ -97,8 +97,14 @@ function integerToBengaliWords(num) {
 function numberToBengaliWords(num) {
   if (isNaN(num) || num === null || num === undefined) return "শূন্য";
   
-  const integerPart = Math.floor(num);
-  const decimalPart = Math.round((num - integerPart) * 100);
+  let integerPart = Math.floor(num);
+  let decimalPart = Math.round((num - integerPart) * 100);
+  
+  // Handle rounding overflow (e.g., 99.999 → decimalPart = 100)
+  if (decimalPart >= 100) {
+    integerPart += 1;
+    decimalPart = 0;
+  }
   
   let result = "";
   
@@ -158,8 +164,14 @@ function integerToEnglishWords(num) {
 function numberToEnglishWords(num) {
   if (isNaN(num) || num === null || num === undefined) return "Zero";
   
-  const integerPart = Math.floor(num);
-  const decimalPart = Math.round((num - integerPart) * 100);
+  let integerPart = Math.floor(num);
+  let decimalPart = Math.round((num - integerPart) * 100);
+  
+  // Handle rounding overflow (e.g., 99.999 → decimalPart = 100)
+  if (decimalPart >= 100) {
+    integerPart += 1;
+    decimalPart = 0;
+  }
   
   let result = "";
   

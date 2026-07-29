@@ -29,7 +29,27 @@ function authHash(str) {
 function authGetUsers() {
   try {
     const raw = localStorage.getItem(AUTH.USERS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Validate shape: must be an array of objects with username and passwordHash
+      if (Array.isArray(parsed) && parsed.every(u => u && typeof u.username === 'string' && (typeof u.passwordHash === 'string' || typeof u.password === 'string'))) {
+        // If legacy entries use plain 'password', convert them to hashed form
+        let repaired = false;
+        const normalized = parsed.map(u => {
+          if (u.password && !u.passwordHash) {
+            repaired = true;
+            return { username: u.username, passwordHash: authHash(u.password), role: u.role || 'viewer', displayName: u.displayName || u.username };
+          }
+          // Ensure minimal fields
+          return { username: u.username, passwordHash: u.passwordHash || authHash(''), role: u.role || 'viewer', displayName: u.displayName || u.username };
+        });
+        if (repaired) {
+          localStorage.setItem(AUTH.USERS_KEY, JSON.stringify(normalized));
+        }
+        return normalized;
+      }
+      // If parsed value is present but invalid shape, fall through to seed defaults
+    }
   } catch (_) {}
   // Seed defaults on first run
   const defaults = AUTH.DEFAULT_USERS.map(u => ({

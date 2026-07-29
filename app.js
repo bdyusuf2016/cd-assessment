@@ -1,15 +1,18 @@
-/* ================================================================
+﻿/* ================================================================
    CUSTOMS ASSESSMENT MANAGER — app.js v2.0
    All business logic preserved. New: sidebar, toasts, animations.
    ================================================================ */
 
 // === STATE ===
 let state = {
-  language: "bn",
+  language: "en",
   calculationMethod: "bd",
   defaultRates: {
     cd: 25.0, rd: 8.0, sd: 0.0, vat: 15.0,
     ait: 5.0, at: 7.5, insurance: 1.0, landing: 1.0
+  },
+  columnVisibility: {
+    cd: true, rd: true, sd: true, vat: true, ait: true, at: true
   },
   materials: [],
   companies: [],
@@ -17,16 +20,12 @@ let state = {
   savedAssessments: [],
   header: {
     companyName: "GUNGE",
-    hasFileNo: "Yes",
-    filePageNo: "",
-    noteParaNo: "৫২৩",
-    letterPageNo: "৪৬১-৪৬২",
-    bepzaRecNo: "১৫০৬২৬০০৯"
+    permissionNo: "15062600"
   }
 };
 
 // === INIT ===
-document.addEventListener("DOMContentLoaded", () => {
+function initOnDomReady() {
   // Show login gate if not authenticated
   if (!authIsLoggedIn()) {
     showLoginGate();
@@ -41,19 +40,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") handleLoginGate(); });
   });
 
+  // Attach login button handlers (use IDs to avoid relying on inline onclick)
+  const pwdToggle = document.getElementById('lgPwdToggle');
+  if (pwdToggle) pwdToggle.addEventListener('click', e => { if (typeof toggleLoginPwd === 'function') toggleLoginPwd(); });
+  const submitBtn = document.getElementById('lgSubmitBtn');
+  if (submitBtn) submitBtn.addEventListener('click', e => { if (typeof handleLoginGate === 'function') handleLoginGate(); });
+  const resetBtn = document.getElementById('lgResetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', e => { if (typeof resetLocalLogin === 'function') resetLocalLogin(); });
+
   // User modal close button
   const closeUserBtn = document.getElementById("closeUserModalBtn");
   if (closeUserBtn) closeUserBtn.addEventListener("click", closeUserModal);
   const userModalEl = document.getElementById("userModal");
   if (userModalEl) userModalEl.addEventListener("click", e => { if (e.target === userModalEl) closeUserModal(); });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initOnDomReady);
+} else {
+  initOnDomReady();
+}
 
 function bootApp() {
   loadData();
+  // Always force English as the app language
+  state.language = "en";
+  document.documentElement.lang = "en";
   recalculateAllRows();
   initSidebar();
   initEventListeners();
   updateUI();
+  initColumnVisibilityCheckboxes();
   renderCompanyOptions();
   renderCompanyList();
   if (state.assessmentRows.length === 0) addRow();
@@ -113,20 +130,33 @@ function loadData() {
     state.header = { ...state.header, ...storedHeader };
   }
 
+  const activeCompany = state.companies.find(c => c.status !== "Inactive");
+  const headerCompanyValid = state.header.companyName && state.companies.some(c => c.name === state.header.companyName && c.status !== "Inactive");
+  if (!headerCompanyValid && activeCompany) {
+    state.header.companyName = activeCompany.name;
+    saveState();
+  }
+
   const storedRows = readStoredJson("customs_assessment_rows", []);
   state.assessmentRows = Array.isArray(storedRows) ? storedRows : [];
 
   const storedHistory = readStoredJson("customs_saved_assessments", []);
   state.savedAssessments = Array.isArray(storedHistory) ? storedHistory : [];
+
+  const storedColVis = readStoredJson("customs_column_visibility", {});
+  if (storedColVis && typeof storedColVis === "object") {
+    state.columnVisibility = { ...state.columnVisibility, ...storedColVis };
+  }
 }
 
 function saveState() {
-  localStorage.setItem("customs_materials",        JSON.stringify(state.materials));
-  localStorage.setItem("customs_companies",        JSON.stringify(state.companies));
-  localStorage.setItem("customs_default_rates",    JSON.stringify(state.defaultRates));
-  localStorage.setItem("customs_calc_method",      state.calculationMethod);
-  localStorage.setItem("customs_header",           JSON.stringify(state.header));
-  localStorage.setItem("customs_assessment_rows",  JSON.stringify(state.assessmentRows));
+  localStorage.setItem("customs_materials",           JSON.stringify(state.materials));
+  localStorage.setItem("customs_companies",           JSON.stringify(state.companies));
+  localStorage.setItem("customs_default_rates",       JSON.stringify(state.defaultRates));
+  localStorage.setItem("customs_calc_method",         state.calculationMethod);
+  localStorage.setItem("customs_header",              JSON.stringify(state.header));
+  localStorage.setItem("customs_assessment_rows",     JSON.stringify(state.assessmentRows));
+  localStorage.setItem("customs_column_visibility",   JSON.stringify(state.columnVisibility));
 }
 
 function clearAllCompanies() {
@@ -255,11 +285,11 @@ function initEventListeners() {
   });
 
   // Header field bindings
-  const headerKeys = ["companyName","hasFileNo","filePageNo","noteParaNo","letterPageNo","bepzaRecNo"];
+  const headerKeys = ["companyName", "permissionNo"];
   headerKeys.forEach(key => {
     const el = document.getElementById(`header-${key}`);
     if (!el) return;
-    if (key !== "companyName") el.value = state.header[key];
+    if (key !== "companyName") el.value = state.header[key] || "";
     const sync = (e) => {
       state.header[key] = e.target.value;
       saveState();
@@ -285,7 +315,7 @@ function initEventListeners() {
   const closeHistFootBtn = document.getElementById("closeHistoryModalFooterBtn");
   if (closeHistFootBtn) closeHistFootBtn.addEventListener("click", closeHistoryModal);
 
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("printBtn").addEventListener("click", printFromExportTemplate);
   if (document.getElementById("exportPdfBtn")) document.getElementById("exportPdfBtn").addEventListener("click", exportToPDF);
   if (document.getElementById("exportHtmlBtn")) document.getElementById("exportHtmlBtn").addEventListener("click", exportToHTML);
   document.getElementById("resetBtn").addEventListener("click", resetAllData);
@@ -313,6 +343,7 @@ function initEventListeners() {
   }
   document.getElementById("materialsImportFileInput").addEventListener("change", importMaterialsFromFile);
   document.getElementById("importCompaniesBtn").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
+  document.getElementById("companiesImportFileInput").addEventListener("change", importCompaniesFromFile);
   if (document.getElementById("downloadSampleCompanyBtn")) {
     document.getElementById("downloadSampleCompanyBtn").addEventListener("click", downloadSampleCompanyTemplate);
   }
@@ -397,6 +428,21 @@ function setLanguage(lang) {
   document.getElementById("langBtnEn").classList.toggle("active", lang === "en");
 
   updateUI();
+}
+
+// === COLUMN VISIBILITY CHECKBOXES ===
+function initColumnVisibilityCheckboxes() {
+  const keys = ["cd", "rd", "sd", "vat", "ait", "at"];
+  keys.forEach(key => {
+    const cb = document.getElementById(`col-vis-${key}`);
+    if (!cb) return;
+    cb.checked = state.columnVisibility[key] !== false;
+    cb.addEventListener("change", () => {
+      state.columnVisibility[key] = cb.checked;
+      saveState();
+      renderAssessmentTable();
+    });
+  });
 }
 
 // === FULL UI UPDATE ===
@@ -565,7 +611,8 @@ function refreshTotals() {
     totDt   += r.totalDutyTax;
   });
 
-  const qtyDisplay = lang === "bn" ? toBengaliNumerals(totQty.toFixed(2)) : totQty.toFixed(2);
+  const qtyDisplay = totQty.toFixed(2);
+  const cv = state.columnVisibility;
   tfoot.innerHTML = `
     <tr class="total-row">
       <td colspan="5" class="text-right font-bold" style="padding-right:12px;">${dict.total}:</td>
@@ -574,12 +621,12 @@ function refreshTotals() {
       <td class="cell-num font-bold">${formatCurrency(totIns,  lang)}</td>
       <td class="cell-num font-bold">${formatCurrency(totLand, lang)}</td>
       <td class="cell-num font-bold highlight-val">${formatCurrency(totAv,  lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totCd,  lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totRd,  lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totSd,  lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totVat, lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totAit, lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totAt,  lang)}</td>
+      ${cv.cd  ? `<td class="cell-num font-bold">${formatCurrency(totCd,  lang)}</td>` : ''}
+      ${cv.rd  ? `<td class="cell-num font-bold">${formatCurrency(totRd,  lang)}</td>` : ''}
+      ${cv.sd  ? `<td class="cell-num font-bold">${formatCurrency(totSd,  lang)}</td>` : ''}
+      ${cv.vat ? `<td class="cell-num font-bold">${formatCurrency(totVat, lang)}</td>` : ''}
+      ${cv.ait ? `<td class="cell-num font-bold">${formatCurrency(totAit, lang)}</td>` : ''}
+      ${cv.at  ? `<td class="cell-num font-bold">${formatCurrency(totAt,  lang)}</td>` : ''}
       <td class="cell-num font-bold highlight-val sticky-right-2">${formatCurrency(totDt, lang)}</td>
       <td class="print-hidden cell-action sticky-right"></td>
     </tr>
@@ -587,9 +634,13 @@ function refreshTotals() {
 
   // In-words
   const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
-  const inWordsPnl   = document.getElementById("inWordsDisplay");
-  if (inWordsPnl) {
-    inWordsPnl.innerHTML = `<span class="in-words-label">${dict.inWords}</span>${inWordsValue}${dict.takaOnly}`;
+  const inWordsTextEl = document.getElementById("inWordsText");
+  if (inWordsTextEl) {
+    inWordsTextEl.textContent = inWordsValue + dict.takaOnly;
+  }
+  const inWordsLabelEl = document.querySelector("#inWordsDisplay .in-words-label");
+  if (inWordsLabelEl) {
+    inWordsLabelEl.textContent = dict.inWords;
   }
 }
 
@@ -609,55 +660,34 @@ function renderAssessmentTable() {
   const dict = TRANSLATIONS[state.language];
   const dr   = state.defaultRates;
 
-  // Build header
+  // Build header — no input boxes in CD/RD/SD/VAT/AIT/AT, column visibility applied
+  const cv = state.columnVisibility;
   thead.innerHTML = `
     <tr>
-      <th class="cell-sl">${dict.sl}</th>
-      <th style="min-width:120px">${dict.approveCode}</th>
-      <th style="min-width:170px">${dict.description}</th>
-      <th class="cell-num">${dict.unitPrice}</th>
-      <th class="cell-unit">${dict.unit}</th>
-      <th class="cell-num" style="min-width:75px">${dict.qty}</th>
-      <th class="cell-num">${dict.totalPrice}</th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.insurance}</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="insurance" value="${dr.insurance}" aria-label="Insurance %">
+      <th class="cell-sl" style="text-align:center;">${dict.sl}</th>
+      <th style="min-width:120px; text-align:center;">${dict.approveCode}</th>
+      <th style="min-width:170px; text-align:center;">${dict.description}</th>
+      <th class="cell-num" style="text-align:center;">${dict.unitPrice}</th>
+      <th class="cell-unit" style="text-align:center;">${dict.unit}</th>
+      <th class="cell-num" style="min-width:75px; text-align:center;">${dict.qty}</th>
+      <th class="cell-num" style="text-align:center;">${dict.totalPrice}</th>
+      <th class="cell-num" style="text-align:center;">
+        ${dict.insurance}<br><small style="font-weight:400; opacity:0.8;">(${dr.insurance}%)</small>
       </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.landing}</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="landing" value="${dr.landing}" aria-label="Landing %">
+      <th class="cell-num" style="text-align:center;">
+        ${dict.landing}<br><small style="font-weight:400; opacity:0.8;">(${dr.landing}%)</small>
       </th>
-      <th class="cell-num" style="min-width:110px">${dict.assessableVal}</th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.cd} (${state.language === "bn" ? toBengaliNumerals(dr.cd) : dr.cd}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="cd" value="${dr.cd}" aria-label="CD %">
-      </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.rd} (${state.language === "bn" ? toBengaliNumerals(dr.rd) : dr.rd}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="rd" value="${dr.rd}" aria-label="RD %">
-      </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">SD (${state.language === "bn" ? toBengaliNumerals(dr.sd) : dr.sd}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="sd" value="${dr.sd}" aria-label="SD %">
-      </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.vat} (${state.language === "bn" ? toBengaliNumerals(dr.vat) : dr.vat}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="vat" value="${dr.vat}" aria-label="VAT %">
-      </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.ait} (${state.language === "bn" ? toBengaliNumerals(dr.ait) : dr.ait}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="ait" value="${dr.ait}" aria-label="AIT %">
-      </th>
-      <th class="cell-num rate-col">
-        <span class="th-label">${dict.at} (${state.language === "bn" ? toBengaliNumerals(dr.at) : dr.at}%)</span>
-        <input type="number" step="any" class="rate-input default-rate-input" data-rate-key="at" value="${dr.at}" aria-label="AT %">
-      </th>
-      <th class="cell-num sticky-right-2">${dict.dutyTax}</th>
-      <th class="cell-action print-hidden sticky-right">${dict.action}</th>
+      <th class="cell-num" style="min-width:110px; text-align:center;">${dict.assessableVal}</th>
+      ${cv.cd  ? `<th class="cell-num" style="text-align:center;">${dict.cd}<br><small style="font-weight:400; opacity:0.8;">(${dr.cd}%)</small></th>` : ''}
+      ${cv.rd  ? `<th class="cell-num" style="text-align:center;">${dict.rd}<br><small style="font-weight:400; opacity:0.8;">(${dr.rd}%)</small></th>` : ''}
+      ${cv.sd  ? `<th class="cell-num" style="text-align:center;">SD<br><small style="font-weight:400; opacity:0.8;">(${dr.sd}%)</small></th>` : ''}
+      ${cv.vat ? `<th class="cell-num" style="text-align:center;">${dict.vat}<br><small style="font-weight:400; opacity:0.8;">(${dr.vat}%)</small></th>` : ''}
+      ${cv.ait ? `<th class="cell-num" style="text-align:center;">${dict.ait}<br><small style="font-weight:400; opacity:0.8;">(${dr.ait}%)</small></th>` : ''}
+      ${cv.at  ? `<th class="cell-num" style="text-align:center;">${dict.at}<br><small style="font-weight:400; opacity:0.8;">(${dr.at}%)</small></th>` : ''}
+      <th class="cell-num sticky-right-2" style="text-align:center;">${dict.dutyTax}</th>
+      <th class="cell-action print-hidden sticky-right" style="text-align:center;">${dict.action}</th>
     </tr>
   `;
-
-  bindDefaultRateHeaderInputs(thead);
 
   tbody.innerHTML = "";
 
@@ -674,7 +704,7 @@ function renderAssessmentTable() {
     totVat  += row.vat; totAit += row.ait; totAt  += row.at;
     totDt   += row.totalDutyTax;
 
-    const slNo = state.language === "bn" ? toBengaliNumerals(idx + 1) : idx + 1;
+    const slNo = idx + 1;
     const tr = document.createElement("tr");
     tr.id = row.id;
     tr.innerHTML = `
@@ -693,12 +723,12 @@ function renderAssessmentTable() {
       <td class="cell-num"><span class="readonly-val">${formatCurrency(row.insurance, state.language)}</span></td>
       <td class="cell-num"><span class="readonly-val">${formatCurrency(row.landing, state.language)}</span></td>
       <td class="cell-num"><span class="readonly-val av-val">${formatCurrency(row.assessableValue, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.cd, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.rd, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.sd, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.vat, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.ait, state.language)}</span></td>
-      <td class="cell-num"><span class="readonly-val">${formatCurrency(row.at, state.language)}</span></td>
+      ${cv.cd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.cd,  state.language)}</span></td>` : ''}
+      ${cv.rd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.rd,  state.language)}</span></td>` : ''}
+      ${cv.sd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.sd,  state.language)}</span></td>` : ''}
+      ${cv.vat ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.vat, state.language)}</span></td>` : ''}
+      ${cv.ait ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.ait, state.language)}</span></td>` : ''}
+      ${cv.at  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.at,  state.language)}</span></td>` : ''}
       <td class="cell-num sticky-right-2"><span class="readonly-val dt-val">${formatCurrency(row.totalDutyTax, state.language)}</span></td>
       <td class="cell-action print-hidden sticky-right">
         <button class="btn-delete-row" title="${dict.delete}">✕</button>
@@ -740,6 +770,7 @@ function renderAssessmentTable() {
   // Render footer totals + in-words via shared function
   refreshTotals();
 }
+
 
 // === RATE HEADER INPUTS ===
 function bindDefaultRateHeaderInputs(thead) {
@@ -785,40 +816,23 @@ function updatePrintHeader() {
   const printHeaderContainer = document.getElementById("printHeaderInfo");
   if (!printHeaderContainer) return;
 
-  const company    = state.header.companyName;
-  const fileNoVal  = state.header.hasFileNo === "Yes" ? (state.language === "bn" ? "হ্যাঁ" : "Yes") : (state.language === "bn" ? "না" : "No");
-  const filePage   = state.header.filePageNo;
-  const notePara   = state.header.noteParaNo;
-  const letterPage = state.header.letterPageNo;
-  const bepza      = state.header.bepzaRecNo;
-  const currentDate = new Date().toLocaleDateString(state.language === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+  const company = state.header.companyName;
+  const permNo = state.header.permissionNo ? "GB" + state.header.permissionNo : "";
+  const currentDate = new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
   printHeaderContainer.innerHTML = `
     <div class="print-meta-grid">
       <div class="meta-item">
-        <span class="meta-label">${dict.companyName} :</span>
+        <span class="meta-label">Organization Name :</span>
         <span class="meta-val font-bold">${company}</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">${dict.bepzaRecNo} :</span>
-        <span class="meta-val font-bold">${fmt(bepza)}</span>
+        <span class="meta-label">Permission No. :</span>
+        <span class="meta-val font-bold">${escapeHtml(permNo)}</span>
       </div>
       <div class="meta-item" style="justify-content:flex-end;">
-        <span class="meta-label">${state.language === "bn" ? "তারিখ :" : "Date :"}</span>
+        <span class="meta-label">Date :</span>
         <span class="meta-val font-bold">${currentDate}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">${dict.hasFileNo} :</span>
-        <span class="meta-val">${fileNoVal}</span>
-      </div>
-      ${filePage ? `<div class="meta-item"><span class="meta-label">${dict.filePageNo} :</span><span class="meta-val">${fmt(filePage)}</span></div>` : ""}
-      <div class="meta-item">
-        <span class="meta-label">${dict.noteParaNo} :</span>
-        <span class="meta-val">${fmt(notePara)}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">${dict.letterPageNo} :</span>
-        <span class="meta-val">${fmt(letterPage)}</span>
       </div>
     </div>
   `;
@@ -843,6 +857,12 @@ function escapeHtml(value) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+// Format helper for print header values
+function fmt(val) {
+  if (!val) return "";
+  return state.language === "bn" ? toBengaliNumerals(escapeHtml(val)) : escapeHtml(val);
 }
 
 // === AUTOCOMPLETE ===
@@ -1029,139 +1049,9 @@ function shareToWhatsApp(savedItem = null) {
 function exportToHTML() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
-  const dict = TRANSLATIONS[lang];
-  const dr = state.defaultRates;
-  const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
 
-  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
-
-  state.assessmentRows.forEach(r => {
-    totQty  += parseFloat(r.quantity) || 0;
-    totVal  += r.totalPrice;  totIns  += r.insurance; totLand += r.landing;
-    totAv   += r.assessableValue;
-    totCd   += r.cd; totRd += r.rd; totSd += r.sd;
-    totVat  += r.vat; totAit += r.ait; totAt += r.at;
-    totDt   += r.totalDutyTax;
-  });
-
-  const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
-  const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
-
-  const htmlContent = `<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-  <meta charset="UTF-8">
-  <title>Customs Assessment - ${escapeHtml(company)}</title>
-  <style>
-    body { font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif; padding: 24px; color: #111; background: #fff; line-height: 1.5; }
-    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 12px; }
-    .header h2 { margin: 0; font-size: 20px; color: #111; }
-    .header h3 { margin: 4px 0; font-size: 15px; font-weight: normal; }
-    .meta-box { display: flex; justify-content: space-between; border: 1px solid #444; padding: 10px 14px; margin-bottom: 16px; font-size: 14px; background: #f9f9f9; border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; }
-    th, td { border: 1px solid #444; padding: 6px 8px; text-align: left; }
-    th { background: #eaeaea; font-weight: bold; text-align: center; }
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-    .font-bold { font-weight: bold; }
-    .in-words { border: 1px solid #444; padding: 10px 14px; font-weight: bold; margin-bottom: 30px; background: #fdfdfd; border-radius: 4px; }
-    .signatures { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
-    .sig-col { flex: 1; margin: 0 10px; }
-    .sig-line { border-top: 1px solid #000; margin-bottom: 6px; height: 30px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h2>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-    <h3>কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-    <h3 style="font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
-  </div>
-
-  <div class="meta-box">
-    <div><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-    <div><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>${dict.sl}</th>
-        <th>${dict.approveCode}</th>
-        <th>${dict.description}</th>
-        <th>${dict.unitPrice}</th>
-        <th>${dict.unit}</th>
-        <th>${dict.qty}</th>
-        <th>${dict.totalPrice}</th>
-        <th>${dict.insurance}</th>
-        <th>${dict.landing}</th>
-        <th>${dict.assessableVal}</th>
-        <th>CD (${rateFmt(dr.cd)}%)</th>
-        <th>RD (${rateFmt(dr.rd)}%)</th>
-        <th>SD (${rateFmt(dr.sd)}%)</th>
-        <th>VAT (${rateFmt(dr.vat)}%)</th>
-        <th>AIT (${rateFmt(dr.ait)}%)</th>
-        <th>AT (${rateFmt(dr.at)}%)</th>
-        <th>${dict.dutyTax}</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${state.assessmentRows.map((r, i) => `
-        <tr>
-          <td class="text-center">${lang === "bn" ? toBengaliNumerals(i + 1) : i + 1}</td>
-          <td>${escapeHtml(r.approveCode)}</td>
-          <td>${escapeHtml(r.description)}</td>
-          <td class="text-right">${formatCurrency(r.unitPrice, lang)}</td>
-          <td class="text-center">${escapeHtml(r.unit)}</td>
-          <td class="text-right">${lang === "bn" ? toBengaliNumerals((parseFloat(r.quantity)||0).toFixed(2)) : (parseFloat(r.quantity)||0).toFixed(2)}</td>
-          <td class="text-right">${formatCurrency(r.totalPrice, lang)}</td>
-          <td class="text-right">${formatCurrency(r.insurance, lang)}</td>
-          <td class="text-right">${formatCurrency(r.landing, lang)}</td>
-          <td class="text-right font-bold">${formatCurrency(r.assessableValue, lang)}</td>
-          <td class="text-right">${formatCurrency(r.cd, lang)}</td>
-          <td class="text-right">${formatCurrency(r.rd, lang)}</td>
-          <td class="text-right">${formatCurrency(r.sd, lang)}</td>
-          <td class="text-right">${formatCurrency(r.vat, lang)}</td>
-          <td class="text-right">${formatCurrency(r.ait, lang)}</td>
-          <td class="text-right">${formatCurrency(r.at, lang)}</td>
-          <td class="text-right font-bold">${formatCurrency(r.totalDutyTax, lang)}</td>
-        </tr>
-      `).join("")}
-    </tbody>
-    <tfoot>
-      <tr style="font-weight:bold; background:#eee;">
-        <td colspan="5" class="text-right">${dict.total}:</td>
-        <td class="text-right">${lang === "bn" ? toBengaliNumerals(totQty.toFixed(2)) : totQty.toFixed(2)}</td>
-        <td class="text-right">${formatCurrency(totVal, lang)}</td>
-        <td class="text-right">${formatCurrency(totIns, lang)}</td>
-        <td class="text-right">${formatCurrency(totLand, lang)}</td>
-        <td class="text-right">${formatCurrency(totAv, lang)}</td>
-        <td class="text-right">${formatCurrency(totCd, lang)}</td>
-        <td class="text-right">${formatCurrency(totRd, lang)}</td>
-        <td class="text-right">${formatCurrency(totSd, lang)}</td>
-        <td class="text-right">${formatCurrency(totVat, lang)}</td>
-        <td class="text-right">${formatCurrency(totAit, lang)}</td>
-        <td class="text-right">${formatCurrency(totAt, lang)}</td>
-        <td class="text-right">${formatCurrency(totDt, lang)}</td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <div class="in-words">
-    ${dict.inWords} ${inWordsValue} ${dict.takaOnly}
-  </div>
-
-  <div class="signatures">
-    <div class="sig-col"><div class="sig-line"></div><div>${dict.preparedBy}</div></div>
-    <div class="sig-col"><div class="sig-line"></div><div>${dict.checkedBy}</div></div>
-    <div class="sig-col"><div class="sig-line"></div><div>${dict.approvedBy}</div></div>
-  </div>
-  <div style="margin-top: 30px; font-size: 11px; color: #555; border-top: 1px dashed #aaa; padding-top: 6px; display: flex; justify-content: space-between;">
-    <div>Customs Assessment Manager v2.0</div>
-    <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
-  </div>
-</body>
-</html>`;
+  // Use shared HTML builder so HTML and PDF match
+  const htmlContent = generateExportHtml(company, lang);
 
   const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -1175,185 +1065,565 @@ function exportToHTML() {
   showToast(lang === "bn" ? "HTML ফাইল ডাউনলোড হয়েছে!" : "HTML file downloaded!", "success");
 }
 
+// Build shared export HTML used by both HTML download and PDF generation
+function generateExportHtml(company, lang) {
+  // Always force English for all exported documents and print formats
+  lang = "en";
+  const dict = TRANSLATIONS[lang];
+  const dr = state.defaultRates;
+  const h = state.header;
+
+  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
+  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
+
+  state.assessmentRows.forEach(r => {
+    totQty += parseFloat(r.quantity) || 0;
+    totVal += r.totalPrice;
+    totIns += r.insurance;
+    totLand += r.landing;
+    totAv += r.assessableValue;
+    totCd += r.cd;
+    totRd += r.rd;
+    totSd += r.sd;
+    totVat += r.vat;
+    totAit += r.ait;
+    totAt += r.at;
+    totDt += r.totalDutyTax;
+  });
+
+  const inWordsValue = numberToEnglishWords(totDt);
+  const currentDate = new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+  const fmtVal = v => v ? escapeHtml(v) : "";
+  const officeSub = "Customs Bond Commissionerate, Dhaka (South), DEPZ Division, Savar, Dhaka.";
+  const docTitle = "Customs Assessment Sheet";
+  const dateLabel = "Date";
+  const inWordsLabel = dict.inWords.replace(':', '').trim();
+  const permNoDisplay = h.permissionNo ? "GB" + escapeHtml(h.permissionNo) : "";
+
+  return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="UTF-8">
+  <title>Customs Assessment - ${escapeHtml(company)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0.3in 0.4in;
+      background: #ffffff !important;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    html, body {
+      font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important;
+      color: #000000 !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      padding: 10px 10px 12px !important;
+      font-size: 8.5pt !important;
+      line-height: 1.4 !important;
+    }
+    .sheet {
+      width: 100% !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    .sheet * {
+      color: #000000 !important;
+      border-color: #000000 !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
+    }
+    /* Elements that must stay visually transparent (no fill) */
+    .signature-line,
+    .signature-line-wrapper,
+    .signature-col,
+    .signatures {
+      background-color: #ffffff !important;
+      background: #ffffff !important;
+    }
+    .header {
+      text-align: center !important;
+      margin-bottom: 22px !important;
+    }
+    .office-title {
+      font-size: 17pt !important;
+      font-weight: 700 !important;
+      margin-bottom: 4px !important;
+      letter-spacing: 0.3px !important;
+    }
+    .office-sub {
+      font-size: 11pt !important;
+      font-weight: 500 !important;
+      margin-bottom: 8px !important;
+    }
+    .doc-title {
+      font-size: 13.5pt !important;
+      font-weight: 700 !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+    }
+    .meta-row {
+      width: 100% !important;
+      border: 1px solid #000 !important;
+      border-collapse: collapse !important;
+      margin-bottom: 14px !important;
+      table-layout: fixed !important;
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+    .meta-row td {
+      border: none !important;
+      padding: 10px 14px !important;
+      font-size: 10.5pt !important;
+      vertical-align: middle !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
+    }
+    .meta-left { text-align: left !important; }
+    .meta-center { text-align: center !important; }
+    .meta-right { text-align: right !important; }
+    .meta-label {
+      font-weight: 700 !important;
+      margin-right: 4px !important;
+    }
+    .meta-value {
+      font-weight: 700 !important;
+    }
+    .assessment-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+      margin-bottom: 12px !important;
+      font-size: 8pt !important;
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+    .assessment-table th,
+    .assessment-table td {
+      border: 1px solid #000 !important;
+      padding: 5px 3px !important;
+      vertical-align: middle !important;
+      background-color: #fff !important;
+      background: #fff !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    .assessment-table thead th {
+      font-weight: 700 !important;
+      text-align: center !important;
+      font-size: 7.5pt !important;
+      height: 42px !important;
+      line-height: 1 !important;
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+    .assessment-table tbody td {
+      font-size: 7.5pt !important;
+      line-height: 1.3 !important;
+    }
+    .assessment-table tfoot td {
+      font-weight: 700 !important;
+      font-size: 7.5pt !important;
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+    .text-center { text-align: center !important; }
+    .text-right { text-align: right !important; }
+    .text-left { text-align: left !important; }
+    
+    .note-box {
+      border: 1px solid #000 !important;
+      padding: 10px 14px !important;
+      margin-top: 14px !important;
+      font-size: 10.5pt !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      width: 100% !important;
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+    .note-label {
+      font-weight: 700 !important;
+      white-space: nowrap !important;
+    }
+    .note-value {
+      font-weight: normal !important;
+    }
+    
+    .signatures {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 40px !important;
+      margin-top: 65px !important;
+      align-items: end !important;
+      width: 100% !important;
+    }
+    .signature-col {
+      text-align: center !important;
+    }
+    .signature-line-wrapper {
+      width: 85% !important;
+      margin: 0 auto !important;
+    }
+    .signature-line {
+      border-top: 1px solid #000 !important;
+      margin-bottom: 8px !important;
+      height: 0 !important;
+    }
+    .signature-label {
+      font-size: 10.5pt !important;
+      font-weight: 700 !important;
+    }
+    
+    /* Column Widths to match screenshot ratio precisely */
+    .assessment-table th:nth-child(1), .assessment-table td:nth-child(1) { width: 3% !important; }
+    .assessment-table th:nth-child(2), .assessment-table td:nth-child(2) { width: 7.5% !important; text-align: center !important; }
+    .assessment-table th:nth-child(3), .assessment-table td:nth-child(3) { width: 14% !important; }
+    .assessment-table th:nth-child(4), .assessment-table td:nth-child(4) { width: 6.5% !important; }
+    .assessment-table th:nth-child(5), .assessment-table td:nth-child(5) { width: 3.5% !important; text-align: center !important; }
+    .assessment-table th:nth-child(6), .assessment-table td:nth-child(6) { width: 5.5% !important; }
+    .assessment-table th:nth-child(7), .assessment-table td:nth-child(7) { width: 7.5% !important; }
+    .assessment-table th:nth-child(8), .assessment-table td:nth-child(8) { width: 5.5% !important; }
+    .assessment-table th:nth-child(9), .assessment-table td:nth-child(9) { width: 5.5% !important; }
+    .assessment-table th:nth-child(10), .assessment-table td:nth-child(10) { width: 7.5% !important; }
+    .assessment-table th:nth-child(11), .assessment-table td:nth-child(11) { width: 5.5% !important; }
+    .assessment-table th:nth-child(12), .assessment-table td:nth-child(12) { width: 5.5% !important; }
+    .assessment-table th:nth-child(13), .assessment-table td:nth-child(13) { width: 5.5% !important; }
+    .assessment-table th:nth-child(14), .assessment-table td:nth-child(14) { width: 5.5% !important; }
+    .assessment-table th:nth-child(15), .assessment-table td:nth-child(15) { width: 5.5% !important; }
+    .assessment-table th:nth-child(16), .assessment-table td:nth-child(16) { width: 5.5% !important; }
+    .assessment-table th:nth-child(17), .assessment-table td:nth-child(17) { width: 7.5% !important; }
+
+    table { page-break-inside: auto; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    tr, td, th { page-break-inside: avoid; page-break-after: auto; }
+  </style>
+</head>
+<body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
+  <div class="sheet" style="width: 100% !important; background: #ffffff !important; background-color: #ffffff !important; color: #000000 !important;">
+    <div class="header" style="text-align: center !important; margin-bottom: 18px !important; background: #ffffff !important;">
+      <div class="office-sub" style="font-size: 14pt !important; font-weight: 700 !important; margin-bottom: 6px !important; text-align: center !important; color: #000000 !important; background: #ffffff !important; letter-spacing: 0.2px !important;">${officeSub}</div>
+      <div class="doc-title" style="font-size: 12pt !important; font-weight: 600 !important; display: inline-block !important; border-bottom: 2px solid #000000 !important; padding-bottom: 1px !important; text-decoration: none !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">${docTitle}</div>
+    </div>
+
+    <table class="meta-row" style="width: 100% !important; border: 1px solid #000000 !important; border-collapse: collapse !important; margin-bottom: 14px !important; table-layout: fixed !important; background: #ffffff !important; background-color: #ffffff !important;">
+      <tr>
+        <td class="meta-left" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: left !important; color: #000000 !important; background: #ffffff !important;">
+          <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">Organization Name :</span>
+          <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${escapeHtml(company)}</span>
+        </td>
+        <td class="meta-center" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">
+          <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">Permission No. :</span>
+          <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${permNoDisplay}</span>
+        </td>
+        <td class="meta-right" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: right !important; color: #000000 !important; background: #ffffff !important;">
+          <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">${dateLabel} :</span>
+          <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${currentDate}</span>
+        </td>
+      </tr>
+    </table>
+
+    <table class="assessment-table" style="width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; margin-bottom: 14px !important; font-size: 9pt !important; background: #fff !important; background-color: #fff !important; border: 1px solid #000 !important;">
+      <thead>
+        <tr>
+          <th style="width: 3% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.sl}</th>
+          <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.approveCode}</th>
+          <th style="width: 14% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.description}</th>
+          <th style="width: 6.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unitPrice}</th>
+          <th style="width: 3.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unit}</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.qty}</th>
+          <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.totalPrice}</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.insurance}</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.landing}</th>
+          <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.assessableVal}</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">CD (${lang === "bn" ? toBengaliNumerals(dr.cd) : dr.cd}%)</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">RD (${lang === "bn" ? toBengaliNumerals(dr.rd) : dr.rd}%)</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">SD (${lang === "bn" ? toBengaliNumerals(dr.sd) : dr.sd}%)</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.vat} (${lang === "bn" ? toBengaliNumerals(dr.vat) : dr.vat}%)</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">AIT (${lang === "bn" ? toBengaliNumerals(dr.ait) : dr.ait}%)</th>
+          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">AT (${lang === "bn" ? toBengaliNumerals(dr.at) : dr.at}%)</th>
+          <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 8.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.dutyTax}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.assessmentRows.map((r, i) => `
+          <tr>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: center !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${lang === "bn" ? toBengaliNumerals(i + 1) : i + 1}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: center !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${escapeHtml(r.approveCode)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: left !important; font-size: 8.5pt !important; word-wrap: break-word !important; overflow-wrap: break-word !important; background: #fff !important; color: #000 !important;">${escapeHtml(r.description)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.unitPrice, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: center !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${escapeHtml(r.unit)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${lang === "bn" ? toBengaliNumerals((parseFloat(r.quantity) || 0).toFixed(2)) : (parseFloat(r.quantity) || 0).toFixed(2)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.totalPrice, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.insurance, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.landing, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.assessableValue, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.cd, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.rd, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.sd, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.vat, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.ait, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.at, lang)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(r.totalDutyTax, lang)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${dict.total}:</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${lang === "bn" ? toBengaliNumerals(totQty.toFixed(2)) : totQty.toFixed(2)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totVal, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totIns, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totLand, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totAv, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totCd, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totRd, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totSd, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totVat, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totAit, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totAt, lang)}</td>
+          <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; font-size: 8.5pt !important; font-weight: 700 !important; background: #fff !important; color: #000 !important;">${formatCurrency(totDt, lang)}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="note-box" style="border: 1px solid #000000 !important; padding: 10px 14px !important; margin-top: 14px !important; font-size: 10.5pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
+      <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">${inWordsLabel} :</span>
+      <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${inWordsValue}${dict.takaOnly}</span>
+    </div>
+
+    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 65px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
+      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+        </div>
+        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.preparedBy}</div>
+      </div>
+      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+        </div>
+        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.checkedBy}</div>
+      </div>
+      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+        </div>
+        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.approvedBy}</div>
+      </div>
+    </div>
+    <div class="pdf-footer">
+      Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong style="color:#000000 !important;">+8801933814200</strong>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+async function createExportRenderFrame(htmlContent) {
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.left = "-10000px";
+  iframe.style.top = "0";
+  iframe.style.width = "11.69in";
+  iframe.style.height = "8.27in";
+  iframe.style.border = "0";
+  iframe.style.visibility = "hidden";
+  iframe.style.pointerEvents = "none";
+  iframe.style.background = "#ffffff";
+  iframe.setAttribute("aria-hidden", "true");
+  document.body.appendChild(iframe);
+
+  const frameDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  const frameWin = iframe.contentWindow;
+  if (!frameDoc || !frameWin) {
+    iframe.remove();
+    throw new Error("Unable to create export render frame.");
+  }
+
+  frameDoc.open();
+  frameDoc.write(htmlContent);
+  frameDoc.close();
+
+  await new Promise(resolve => {
+    iframe.onload = () => resolve();
+    setTimeout(resolve, 300);
+  });
+
+  // Wait for Bengali fonts to load inside the iframe document
+  if (frameDoc.fonts && frameDoc.fonts.load) {
+    try {
+      await frameDoc.fonts.load('16px "Noto Serif Bengali"');
+      await frameDoc.fonts.ready;
+    } catch (error) {
+      console.warn("Noto Serif Bengali iframe preload failed:", error);
+    }
+  }
+
+  // Give the browser 250ms to settle the text layout
+  await new Promise(resolve => setTimeout(resolve, 250));
+
+  try {
+    if (frameDoc.fonts?.ready) {
+      await frameDoc.fonts.ready;
+    }
+  } catch (error) {
+    console.warn("Export frame fonts could not be fully loaded.", error);
+  }
+
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return iframe;
+}
+
+async function printFromExportTemplate() {
+  const company = state.header.companyName || "Customs_Assessment";
+  const lang = state.language;
+  const exportHtml = generateExportHtml(company, lang);
+
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  iframe.style.visibility = "hidden";
+  document.body.appendChild(iframe);
+
+  const cleanup = () => {
+    setTimeout(() => iframe.remove(), 400);
+  };
+
+  const printWindow = iframe.contentWindow;
+  const printDoc = iframe.contentDocument || (printWindow ? printWindow.document : null);
+
+  if (!printWindow || !printDoc) {
+    cleanup();
+    window.print();
+    return;
+  }
+
+  printDoc.open();
+  printDoc.write(exportHtml);
+  printDoc.close();
+
+  await new Promise(resolve => {
+    iframe.onload = () => resolve();
+    setTimeout(resolve, 300);
+  });
+
+  try {
+    if (printWindow.document.fonts?.ready) {
+      await printWindow.document.fonts.ready;
+    }
+  } catch (error) {
+    console.warn("Print fonts could not be fully loaded.", error);
+  }
+
+  printWindow.focus();
+  printWindow.onafterprint = () => cleanup();
+
+  try {
+    printWindow.print();
+  } catch (error) {
+    console.error(error);
+    cleanup();
+    window.print();
+  }
+}
+
 // Ensure Bengali glyphs are available before html2canvas captures the PDF content.
 async function ensurePdfFontReady() {
   if (!document.fonts || !document.fonts.load) return;
   try {
-    await document.fonts.load('16px "Hind Siliguri"');
+    await document.fonts.load('16px "Noto Serif Bengali"');
     await document.fonts.ready;
   } catch (error) {
-    console.warn('Hind Siliguri could not be preloaded for PDF export.', error);
+    console.warn('Noto Serif Bengali could not be preloaded for PDF export.', error);
   }
 }
 
 // === EXPORT PDF DOCUMENT ===
+function addPageNumbersToPdf(pdf) {
+  if (!pdf || typeof pdf.getNumberOfPages !== 'function') return;
+
+  const pageCount = pdf.getNumberOfPages();
+  const pageSize = pdf.internal.pageSize || pdf.internal.pageSize;
+  const pageWidth = typeof pageSize.getWidth === 'function' ? pageSize.getWidth() : pageSize.width;
+  const pageHeight = typeof pageSize.getHeight === 'function' ? pageSize.getHeight() : pageSize.height;
+
+  pdf.setFontSize(7);
+  pdf.setTextColor(85, 85, 85);
+
+  for (let page = 1; page <= pageCount; page++) {
+    pdf.setPage(page);
+    pdf.text(`Page ${page} of ${pageCount}`, pageWidth - 0.4, pageHeight - 0.25, { align: 'right' });
+  }
+}
+
 async function exportToPDF() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
-  const dict = TRANSLATIONS[lang];
-  const dr = state.defaultRates;
-  const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
   await ensurePdfFontReady();
 
   if (typeof html2pdf !== "undefined") {
-    const tempDiv = document.createElement("div");
-    tempDiv.style.position = "absolute";
-    tempDiv.style.left = "-9999px";
-    tempDiv.style.top = "-9999px";
-    tempDiv.style.width = "11in";
-    tempDiv.style.maxWidth = "100%";
-    tempDiv.style.minHeight = "7.6in";
-    tempDiv.style.padding = "16px 20px 42px 20px";
-    tempDiv.style.boxSizing = "border-box";
-    tempDiv.style.fontFamily = "'Hind Siliguri', 'Inter', sans-serif";
-    tempDiv.style.color = "#000";
-    tempDiv.style.background = "#fff";
-
-    let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-    let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
-
-    state.assessmentRows.forEach(r => {
-      totQty  += parseFloat(r.quantity) || 0;
-      totVal  += r.totalPrice;  totIns  += r.insurance; totLand += r.landing;
-      totAv   += r.assessableValue;
-      totCd   += r.cd; totRd += r.rd; totSd += r.sd;
-      totVat  += r.vat; totAit += r.ait; totAt += r.at;
-      totDt   += r.totalDutyTax;
-    });
-
-    const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
-    const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
-    const bepza = state.header.bepzaRecNo || "";
-
-    tempDiv.innerHTML = `
-      <style>
-        html, body { margin: 0; padding: 0; }
-        table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
-        thead { display: table-header-group; }
-        tfoot { display: table-footer-group; }
-        tr, th, td { page-break-inside: avoid; page-break-after: auto; }
-        tbody tr { page-break-inside: avoid; }
-        .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; page-break-after: avoid; }
-        .pdf-footer { margin-top: 36px; padding-top: 10px; }
-      </style>
-      <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
-        <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-        <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-        <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
-        <div style="flex:1; min-width:180px;"><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-        <div style="flex:1; min-width:160px;"><strong>${dict.bepzaRecNo}:</strong> ${escapeHtml(bepza)}</div>
-        <div style="flex:1; min-width:150px; text-align:right;"><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
-      </div>
-      <table style="width:100%; border-collapse:collapse; font-size:10px;">
-        <thead>
-          <tr style="background:#eee;">
-            <th style="border:1px solid #333; padding:4px;">${dict.sl}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.approveCode}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.description}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.unitPrice}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.unit}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.qty}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.totalPrice}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.insurance}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.landing}</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.assessableVal}</th>
-            <th style="border:1px solid #333; padding:4px;">CD (${rateFmt(dr.cd)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">RD (${rateFmt(dr.rd)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">SD (${rateFmt(dr.sd)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">VAT (${rateFmt(dr.vat)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">AIT (${rateFmt(dr.ait)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">AT (${rateFmt(dr.at)}%)</th>
-            <th style="border:1px solid #333; padding:4px;">${dict.dutyTax}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${state.assessmentRows.map((r, i) => `
-            <tr>
-              <td style="border:1px solid #333; padding:4px; text-align:center;">${lang === "bn" ? toBengaliNumerals(i + 1) : i + 1}</td>
-              <td style="border:1px solid #333; padding:4px;">${escapeHtml(r.approveCode)}</td>
-              <td style="border:1px solid #333; padding:4px;">${escapeHtml(r.description)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.unitPrice, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:center;">${escapeHtml(r.unit)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${lang === "bn" ? toBengaliNumerals((parseFloat(r.quantity)||0).toFixed(2)) : (parseFloat(r.quantity)||0).toFixed(2)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.totalPrice, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.insurance, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.landing, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right; font-weight:bold;">${formatCurrency(r.assessableValue, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.cd, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.rd, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.sd, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.vat, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.ait, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.at, lang)}</td>
-              <td style="border:1px solid #333; padding:4px; text-align:right; font-weight:bold;">${formatCurrency(r.totalDutyTax, lang)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-        <tfoot>
-          <tr style="font-weight:bold; background:#eee;">
-            <td colspan="5" style="border:1px solid #333; padding:4px; text-align:right;">${dict.total}:</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${lang === "bn" ? toBengaliNumerals(totQty.toFixed(2)) : totQty.toFixed(2)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totVal, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totIns, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totLand, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAv, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totCd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totRd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totSd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totVat, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAit, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAt, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totDt, lang)}</td>
-          </tr>
-        </tfoot>
-      </table>
-      <div class="pdf-summary" style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
-        ${dict.inWords} ${inWordsValue} ${dict.takaOnly}
-      </div>
-      <div class="pdf-signatures" style="page-break-inside: avoid; margin-top: 40px;">
-        <div style="display:flex; justify-content:space-between; text-align:center; font-size:11px;">
-          <div style="flex:1;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.preparedBy}
-          </div>
-          <div style="flex:1; margin:0 20px;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.checkedBy}
-          </div>
-          <div style="flex:1;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.approvedBy}
-          </div>
-        </div>
-      </div>
-      <div class="pdf-footer" style="margin-top:24px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
-        <div>Customs Assessment Manager v2.0</div>
-        <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
-      </div>
-    `;
+    const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
 
     const opt = {
       margin:       [0.2, 0.3, 0.15, 0.3],
       filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
+      html2canvas:  {
+        scale: 2,
+        useCORS: true,
+        logging: true,
+        letterRendering: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
       pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
     };
 
-    document.body.appendChild(tempDiv);
+    const exportRoot = exportFrame.contentDocument?.body;
+    if (!exportRoot) throw new Error("Export frame body not available.");
+    await new Promise(resolve => setTimeout(resolve, 180));
     showToast("Generating PDF...", "info");
-    html2pdf().set(opt).from(tempDiv).save().then(() => {
+    try {
+      const worker = html2pdf().set(opt).from(exportRoot);
+      const pdfDoc = await worker.toPdf().get('pdf');
+      addPageNumbersToPdf(pdfDoc);
+      const pdfBlob = await worker.output('blob');
+      if (!pdfBlob || pdfBlob.size < 1024) {
+        throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
+      }
+
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       showToast("PDF downloaded!", "success");
-    }).catch(error => {
+    } catch (error) {
       console.error(error);
       window.print();
-    }).finally(() => tempDiv.remove());
+    } finally {
+      exportFrame.remove();
+    }
   } else {
     window.print();
   }
@@ -1365,173 +1635,61 @@ async function sharePdfToWhatsApp() {
   const lang = state.language;
   const dict = TRANSLATIONS[lang];
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
-  await ensurePdfFontReady();
 
-  if (typeof html2pdf === "undefined") {
-    exportToPDF();
-    return;
+  // Open blank window immediately to bypass desktop browser popup blocker
+  let waWindow = null;
+  const canShare = navigator.canShare && navigator.canShare({ files: [new File([], filename, { type: "application/pdf" })] });
+  if (!canShare) {
+    waWindow = window.open("", "_blank");
   }
 
-  showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
-
-  const tempDiv = document.createElement("div");
-  tempDiv.style.position = "absolute";
-  tempDiv.style.left = "-9999px";
-  tempDiv.style.top = "-9999px";
-  tempDiv.style.width = "11in";
-  tempDiv.style.maxWidth = "100%";
-  tempDiv.style.minHeight = "7.6in";
-  tempDiv.style.padding = "16px 20px 42px 20px";
-  tempDiv.style.boxSizing = "border-box";
-  tempDiv.style.fontFamily = "'Hind Siliguri', 'Inter', sans-serif";
-  tempDiv.style.color = "#000";
-  tempDiv.style.background = "#fff";
-
-  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
-
-  state.assessmentRows.forEach(r => {
-    totQty  += parseFloat(r.quantity) || 0;
-    totVal  += r.totalPrice;  totIns  += r.insurance; totLand += r.landing;
-    totAv   += r.assessableValue;
-    totCd   += r.cd; totRd += r.rd; totSd += r.sd;
-    totVat  += r.vat; totAit += r.ait; totAt += r.at;
-    totDt   += r.totalDutyTax;
-  });
-
-  const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
-  const currentDate  = new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
-  const dr = state.defaultRates;
-  const rateFmt = v => lang === "bn" ? toBengaliNumerals(v) : v;
-  const bepza = state.header.bepzaRecNo || "";
-
-  tempDiv.innerHTML = `
-    <style>
-      html, body { margin: 0; padding: 0; }
-      table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
-      thead { display: table-header-group; }
-      tfoot { display: table-footer-group; }
-      tr, th, td { page-break-inside: avoid; page-break-after: auto; }
-      tbody tr { page-break-inside: avoid; }
-      .pdf-footer, .pdf-signatures, .pdf-summary { page-break-inside: avoid; page-break-after: avoid; }
-      .pdf-footer { margin-top: 36px; padding-top: 10px; }
-    </style>
-    <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #333; padding-bottom:10px;">
-      <h2 style="margin:0; font-size:18px;">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
-      <h3 style="margin:2px 0; font-size:13px; font-weight:normal;">কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।</h3>
-      <h3 style="margin:2px 0; font-size:13px; font-weight:bold;">শুল্কায়ন শীট / Customs Assessment Sheet</h3>
-    </div>
-    <div style="display:flex; flex-wrap: wrap; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid #333; padding:8px 12px; margin-bottom:12px; font-size:12px; background:#f9f9f9;">
-      <div style="flex:1 1 260px;"><strong>${dict.companyName}:</strong> ${escapeHtml(company)}</div>
-      <div style="flex:1 1 220px;"><strong>${dict.bepzaRecNo}:</strong> ${escapeHtml(state.header.bepzaRecNo)}</div>
-      <div style="flex:1 1 180px; text-align:right;"><strong>${lang === "bn" ? "তারিখ :" : "Date :"}</strong> ${currentDate}</div>
-    </div>
-    <table style="width:100%; border-collapse:collapse; font-size:10px;">
-      <thead>
-        <tr style="background:#eee;">
-          <th style="border:1px solid #333; padding:4px;">${dict.sl}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.approveCode}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.description}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.unitPrice}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.unit}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.qty}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.totalPrice}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.insurance}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.landing}</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.assessableVal}</th>
-          <th style="border:1px solid #333; padding:4px;">CD (${rateFmt(dr.cd)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">RD (${rateFmt(dr.rd)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">SD (${rateFmt(dr.sd)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">VAT (${rateFmt(dr.vat)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">AIT (${rateFmt(dr.ait)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">AT (${rateFmt(dr.at)}%)</th>
-          <th style="border:1px solid #333; padding:4px;">${dict.dutyTax}</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${state.assessmentRows.map((r, i) => `
-          <tr>
-            <td style="border:1px solid #333; padding:4px; text-align:center;">${lang === "bn" ? toBengaliNumerals(i + 1) : i + 1}</td>
-            <td style="border:1px solid #333; padding:4px;">${escapeHtml(r.approveCode)}</td>
-            <td style="border:1px solid #333; padding:4px;">${escapeHtml(r.description)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.unitPrice, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:center;">${escapeHtml(r.unit)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${lang === "bn" ? toBengaliNumerals((parseFloat(r.quantity)||0).toFixed(2)) : (parseFloat(r.quantity)||0).toFixed(2)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.totalPrice, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.insurance, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.landing, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right; font-weight:bold;">${formatCurrency(r.assessableValue, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.cd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.rd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.sd, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.vat, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.ait, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(r.at, lang)}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:right; font-weight:bold;">${formatCurrency(r.totalDutyTax, lang)}</td>
-          </tr>
-        `).join("")}
-      </tbody>
-      <tfoot>
-        <tr style="font-weight:bold; background:#eee;">
-          <td colspan="5" style="border:1px solid #333; padding:4px; text-align:right;">${dict.total}:</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${lang === "bn" ? toBengaliNumerals(totQty.toFixed(2)) : totQty.toFixed(2)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totVal, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totIns, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totLand, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAv, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totCd, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totRd, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totSd, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totVat, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAit, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totAt, lang)}</td>
-          <td style="border:1px solid #333; padding:4px; text-align:right;">${formatCurrency(totDt, lang)}</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="pdf-summary" style="border:1px solid #333; padding:8px; font-size:11px; font-weight:bold; margin-top:12px;">
-      ${dict.inWords} ${inWordsValue} ${dict.takaOnly}
-    </div>
-      <div class="pdf-signatures" style="page-break-inside: avoid; margin-top: 40px;">
-        <div style="display:flex; justify-content:space-between; text-align:center; font-size:11px;">
-          <div style="flex:1;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.preparedBy}
-          </div>
-          <div style="flex:1; margin:0 20px;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.checkedBy}
-          </div>
-          <div style="flex:1;">
-            <div style="height:42px;"></div>
-            <div style="border-top:1px solid #000; margin-bottom:4px;"></div>
-            ${dict.approvedBy}
-          </div>
-        </div>
-      </div>
-      <div class="pdf-footer" style="margin-top:24px; font-size:8.5px; color:#444; border-top:1px dashed #999; padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
-        <div>Customs Assessment Manager v2.0</div>
-        <div>Developed by: <strong>Md. Yusuf Ali</strong></div>
-      </div>
-    `;
-
-  const opt = {
-    margin:       [0.2, 0.3, 0.15, 0.3],
-    filename:     filename,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-    pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
-  };
-
-  document.body.appendChild(tempDiv);
   try {
-    const pdfBlob = await html2pdf().set(opt).from(tempDiv).output('blob');
+    await ensurePdfFontReady();
+
+    if (typeof html2pdf === "undefined") {
+      if (waWindow) waWindow.close();
+      exportToPDF();
+      return;
+    }
+
+    showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
+
+    const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
+
+    const opt = {
+      margin:       [0.2, 0.3, 0.15, 0.3],
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  {
+        scale: 2,
+        useCORS: true,
+        logging: true,
+        letterRendering: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
+      pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
+    };
+
+    const exportRoot = exportFrame.contentDocument?.body;
+    if (!exportRoot) {
+      if (waWindow) waWindow.close();
+      throw new Error("Export frame body not available.");
+    }
+    await new Promise(resolve => setTimeout(resolve, 180));
+
+    const pdfBlob = await html2pdf().set(opt).from(exportRoot).output('blob');
+    exportFrame.remove();
+
+    if (!pdfBlob || pdfBlob.size < 1024) {
+      if (waWindow) waWindow.close();
+      throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
+    }
     const file = new File([pdfBlob], filename, { type: "application/pdf" });
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (canShare) {
       await navigator.share({
         files: [file],
         title: `Customs Assessment - ${company}`,
@@ -1549,14 +1707,19 @@ async function sharePdfToWhatsApp() {
       URL.revokeObjectURL(url);
 
       const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
-      window.open(`https://api.whatsapp.com/send?text=${msgText}`, "_blank");
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${msgText}`;
+
+      if (waWindow) {
+        waWindow.location.href = whatsappUrl;
+      } else {
+        window.open(whatsappUrl, "_blank");
+      }
       showToast(lang === "bn" ? "PDF ডাউনলোড করা হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
     }
   } catch (err) {
     console.error(err);
+    if (waWindow) waWindow.close();
     exportToPDF();
-  } finally {
-    tempDiv.remove();
   }
 }
 
@@ -1589,7 +1752,7 @@ function setupAutocomplete(inputEl, row, tr) {
         item.innerHTML = `
           <span class="ac-code">${escapeHtml(match.code)}</span>
           <span class="ac-desc">${escapeHtml(match.description)}</span>
-          <span class="ac-meta">${escapeHtml(match.unit)} · ${formatCurrency(match.price, state.language)}</span>
+          <span class="ac-meta">${escapeHtml(match.unit)} Â· ${formatCurrency(match.price, state.language)}</span>
         `;
         item.addEventListener("mousedown", (e) => {
           e.preventDefault();
@@ -1827,13 +1990,20 @@ function renderCompanyOptions() {
   const active  = state.companies.filter(c => c.status !== "Inactive");
   const current = state.header.companyName || "";
   const options = [...active];
-  if (current && !options.some(c => c.name === current)) {
-    options.unshift({ name: current, circle: "", status: "Active" });
+
+  if (!current && active.length) {
+    state.header.companyName = active[0].name;
+    saveState();
   }
+
+  if (state.header.companyName && !options.some(c => c.name === state.header.companyName)) {
+    options.unshift({ name: state.header.companyName, circle: "", status: "Active" });
+  }
+
   select.innerHTML = options.length
     ? options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
     : `<option value="">No active companies</option>`;
-  select.value = current;
+  select.value = state.header.companyName || "";
 }
 
 function renderCompanyList() {
@@ -2512,6 +2682,8 @@ function toggleLoginPwd() {
   if (!inp) return;
   inp.type = inp.type === "password" ? "text" : "password";
 }
+// ensure global access for inline handlers
+if (typeof window !== 'undefined') window.toggleLoginPwd = toggleLoginPwd;
 
 function resetLocalLogin() {
   if (!window.confirm("Reset saved local login information?")) return;
@@ -2525,6 +2697,7 @@ function resetLocalLogin() {
   const password = document.getElementById("lgPassword");
   if (password) password.value = "";
 }
+if (typeof window !== 'undefined') window.resetLocalLogin = resetLocalLogin;
 
 function handleLoginGate() {
   const username = (document.getElementById("lgUsername")?.value || "").trim();
@@ -2561,6 +2734,7 @@ function handleLoginGate() {
     }
   }, 200);
 }
+if (typeof window !== 'undefined') window.handleLoginGate = handleLoginGate;
 
 function updateTopbarUser() {
   const user   = authCurrentUser();
@@ -2618,6 +2792,22 @@ function handleChangePwd() {
   } else {
     showToast(result.message, "error");
   }
+}
+
+
+// Expose a few handlers to the global window for inline onclick attributes
+try {
+  if (typeof window !== 'undefined') {
+    window.toggleLoginPwd = typeof toggleLoginPwd === 'function' ? toggleLoginPwd : undefined;
+    window.handleLoginGate = typeof handleLoginGate === 'function' ? handleLoginGate : undefined;
+    window.resetLocalLogin = typeof resetLocalLogin === 'function' ? resetLocalLogin : undefined;
+    window.openUserModal = typeof openUserModal === 'function' ? openUserModal : undefined;
+    window.handleChangePwd = typeof handleChangePwd === 'function' ? handleChangePwd : undefined;
+    window.handleManualLogout = typeof handleManualLogout === 'function' ? handleManualLogout : undefined;
+    window.saveNewCompany = typeof saveNewCompany === 'function' ? saveNewCompany : undefined;
+  }
+} catch (e) {
+  // ignore in non-browser environments
 }
 
 
