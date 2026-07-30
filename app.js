@@ -1343,6 +1343,20 @@ function generateExportHtml(company, lang) {
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     tr, td, th { page-break-inside: avoid; page-break-after: auto; }
+    .pdf-footer {
+      position: fixed;
+      bottom: -0.05in;
+      left: 0;
+      right: 0;
+      border-top: 1px dashed #000000 !important;
+      font-size: 7.5pt !important;
+      padding-top: 4px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      width: 100% !important;
+      background-color: #ffffff !important;
+    }
   </style>
 </head>
 <body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
@@ -1459,7 +1473,8 @@ function generateExportHtml(company, lang) {
       </div>
     </div>
     <div class="pdf-footer">
-      Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong style="color:#000000 !important;">+8801933814200</strong>
+      <span>Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong></span>
+      <span>Mobile: <strong style="color:#000000 !important;">+8801933814200</strong></span>
     </div>
   </div>
 </body>
