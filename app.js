@@ -1630,7 +1630,7 @@ async function exportToPDF() {
     const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
 
     const opt = {
-      margin:       [0.2, 0.3, 0.15, 0.3],
+      margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  {
@@ -1707,7 +1707,7 @@ async function sharePdfToWhatsApp() {
     const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
 
     const opt = {
-      margin:       [0.2, 0.3, 0.15, 0.3],
+      margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  {
