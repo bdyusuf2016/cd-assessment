@@ -2539,3 +2539,137 @@ body.light-mode .searchable-select-dropdown {
   color: var(--text-muted);
   font-size: 13px;
 }
+
+/* ================================================================
+   COMPANY LIST PAGE STYLES
+   ================================================================ */
+
+/* Status badges */
+.company-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.company-status-badge.status-active {
+  background: var(--clr-green-dim);
+  color: var(--clr-green);
+  border: 1px solid rgba(63,185,80,0.3);
+}
+
+.company-status-badge.status-inactive {
+  background: var(--clr-red-dim);
+  color: var(--clr-red);
+  border: 1px solid rgba(248,81,73,0.25);
+}
+
+/* Inactive row dimming */
+.company-row-inactive td {
+  opacity: 0.55;
+}
+
+.company-row-inactive:hover td {
+  opacity: 0.8;
+}
+
+/* Company action buttons group */
+.company-actions-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* Extra small button size */
+.btn-xs {
+  padding: 3px 9px;
+  font-size: 11px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--t-fast);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.btn-toggle-inactive {
+  background: rgba(248,81,73,0.12);
+  color: var(--clr-red);
+  border-color: rgba(248,81,73,0.3);
+}
+
+.btn-toggle-inactive:hover {
+  background: rgba(248,81,73,0.22);
+  border-color: var(--clr-red);
+}
+
+.btn-toggle-active {
+  background: var(--clr-green-dim);
+  color: var(--clr-green);
+  border-color: rgba(63,185,80,0.3);
+}
+
+.btn-toggle-active:hover {
+  background: rgba(63,185,80,0.22);
+  border-color: var(--clr-green);
+}
+
+.btn-ghost.btn-xs {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+}
+
+.btn-ghost.btn-xs:hover {
+  background: rgba(255,255,255,0.10);
+  color: var(--text-primary);
+}
+
+.btn-danger.btn-xs {
+  background: var(--clr-red-dim);
+  color: var(--clr-red);
+  border-color: rgba(248,81,73,0.3);
+}
+
+.btn-danger.btn-xs:hover {
+  background: rgba(248,81,73,0.22);
+  border-color: var(--clr-red);
+}
+
+/* Company table wrap */
+.company-table-wrap {
+  overflow-x: auto;
+}
+
+/* Light mode adaptations */
+body.light-mode .company-status-badge.status-active {
+  background: rgba(22,163,74,0.12);
+  color: #16a34a;
+  border-color: rgba(22,163,74,0.3);
+}
+
+body.light-mode .company-status-badge.status-inactive {
+  background: rgba(220,38,38,0.10);
+  color: #dc2626;
+  border-color: rgba(220,38,38,0.25);
+}
+
+body.light-mode .btn-toggle-inactive {
+  background: rgba(220,38,38,0.08);
+  color: #dc2626;
+  border-color: rgba(220,38,38,0.25);
+}
+
+body.light-mode .btn-toggle-active {
+  background: rgba(22,163,74,0.10);
+  color: #16a34a;
+  border-color: rgba(22,163,74,0.25);
+}

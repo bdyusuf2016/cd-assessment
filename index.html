@@ -107,6 +107,11 @@
           <span class="nav-label" id="navLabelMaterials">মালামাল তালিকা</span>
         </button>
 
+        <button class="nav-item" data-tab="companies" id="navCompanies">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-label" id="navLabelCompanies">কোম্পানি তালিকা</span>
+        </button>
+
         <button class="nav-item" data-tab="settings" id="navSettings">
           <span class="nav-icon">⚙️</span>
           <span class="nav-label" id="navLabelSettings">সেটিংস</span>
@@ -201,12 +206,28 @@
             </button>
           </div>
 
-          <!-- Settings tab actions (hidden by default) -->
-          <div id="settingsActions" class="action-group" style="display:none;">
-            <button id="importCompaniesBtn" class="btn btn-info btn-sm">
-              <span class="btn-icon">📥</span> Import Companies
+          <!-- Companies tab actions (hidden by default) -->
+          <div id="companiesActions" class="action-group" style="display:none;">
+            <button id="downloadSampleCompanyBtnTop" class="btn btn-ghost btn-sm" title="Download Sample">
+              <span class="btn-icon">📄</span> নমুনা ফরম্যাট
+            </button>
+            <button id="importCompaniesBtnTop" class="btn btn-info btn-sm">
+              <span class="btn-icon">📥</span> Excel/CSV ইম্পোর্ট
             </button>
             <input type="file" id="companiesImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+            <button id="clearAllCompaniesBtnTop" class="btn btn-ghost btn-sm" style="color:var(--clr-red);">
+              <span class="btn-icon">🗑️</span> সব মুছুন
+            </button>
+            <button id="addCompanyBtnTop" class="btn btn-primary btn-sm">
+              <span class="btn-icon">＋</span> নতুন কোম্পানি
+            </button>
+          </div>
+
+          <!-- Settings tab actions (hidden by default) -->
+          <div id="settingsActions" class="action-group" style="display:none;">
+            <button id="importCompaniesBtn" class="btn btn-info btn-sm" style="display:none;">
+              <span class="btn-icon">📥</span> Import Companies
+            </button>
           </div>
 
           <!-- Auth button — always visible right edge -->
@@ -289,6 +310,43 @@
             <button class="btn btn-ghost btn-sm" id="cancelAddCompanyBtn">বাতিল</button>
             <button class="btn btn-primary" id="saveNewCompanyBtn" onclick="saveNewCompany()">
               <span>＋</span> যোগ করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           EDIT COMPANY MODAL
+      ============================================================ -->
+      <div class="modal-overlay" id="editCompanyModal">
+        <div class="modal-card" style="width:440px;max-width:96vw;">
+          <div class="modal-header">
+            <h3 class="modal-title">✏️ কোম্পানির তথ্য সম্পাদনা</h3>
+            <button class="modal-close-btn" id="closeEditCompanyModalBtn">✕</button>
+          </div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;padding:20px;">
+            <input type="hidden" id="editCompanyOriginalName">
+            <div class="form-group">
+              <label class="form-label">প্রতিষ্ঠানের নাম <span style="color:var(--clr-red)">*</span></label>
+              <input type="text" class="form-control" id="editCompanyName" placeholder="যেমন: M/s ABC Garments Ltd.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">সার্কেল / Circle</label>
+              <input type="text" class="form-control" id="editCompanyCircle" placeholder="যেমন: Circle-DEPZ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">অবস্থা / Status</label>
+              <select class="form-control" id="editCompanyStatus">
+                <option value="Active">✅ Active</option>
+                <option value="Inactive">❌ Inactive</option>
+              </select>
+            </div>
+            <div id="editCompanyError" class="auth-error-msg" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost btn-sm" id="cancelEditCompanyBtn">বাতিল</button>
+            <button class="btn btn-primary" id="saveEditCompanyBtn">
+              <span>💾</span> সংরক্ষণ করুন
             </button>
           </div>
         </div>
@@ -417,7 +475,42 @@
         </section>
 
         <!-- ================================================
-             TAB 3: SETTINGS
+             TAB 3: COMPANIES
+        ================================================ -->
+        <section class="tab-panel" id="companies-tab">
+          <div class="companies-page-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px;">
+            <div>
+              <h2 style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin:0;">🏢 কোম্পানির তালিকা</h2>
+              <p style="font-size:0.8rem; color:var(--text-secondary); margin:4px 0 0;">সকল নিবন্ধিত প্রতিষ্ঠানের তথ্য পরিচালনা করুন।</p>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <div class="company-filter-wrap" style="display:flex; align-items:center; gap:6px;">
+                <label style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">ফিল্টার:</label>
+                <select id="companyStatusFilter" class="form-control" style="width:130px; font-size:12px; padding:5px 8px; height:32px;">
+                  <option value="all">সব দেখুন</option>
+                  <option value="Active">✅ Active</option>
+                  <option value="Inactive">❌ Inactive</option>
+                </select>
+              </div>
+              <div class="search-box" style="width:200px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchCompanyInput" placeholder="কোম্পানি খুঁজুন...">
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <div class="company-table-wrap">
+              <table class="materials-table company-table">
+                <thead id="companyTableHead"></thead>
+                <tbody id="companyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================
+             TAB 4: SETTINGS
         ================================================ -->
         <section class="tab-panel" id="settings-tab">
           <div class="settings-grid">
@@ -507,37 +600,6 @@
               </div>
             </div>
 
-            <!-- Company List — full width -->
-            <div class="settings-card" style="grid-column: 1 / -1;">
-              <div class="settings-card-header">
-                <div class="settings-card-title">
-                  <span>🏢</span>
-                  <span>কোম্পানির তালিকা (Company List)</span>
-                </div>
-                <div class="action-group">
-                  <button id="downloadSampleCompanyBtn" class="btn btn-ghost btn-sm" title="Download Sample Company Excel">
-                    <span class="btn-icon">📄</span> নমুনা ফরম্যাট
-                  </button>
-                  <button id="importCompaniesCardBtn" class="btn btn-info btn-sm">
-                    <span class="btn-icon">📥</span> Excel/CSV ইম্পোর্ট
-                  </button>
-                  <button id="clearAllCompaniesBtn" class="btn btn-ghost btn-sm" title="সব কোম্পানি মুছুন" style="color:var(--clr-red);">
-                    <span class="btn-icon">🗑️</span> সব মুছুন
-                  </button>
-                  <button id="addCompanyBtn" class="btn btn-primary btn-sm">
-                    <span class="btn-icon">＋</span> নতুন কোম্পানি
-                  </button>
-                </div>
-              </div>
-              <div class="settings-card-body">
-                <div class="company-table-wrap">
-                  <table class="materials-table company-table">
-                    <thead id="companyTableHead"></thead>
-                    <tbody id="companyTableBody"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
 
             <!-- Supabase Integration — full width -->
             <div class="settings-card" style="grid-column: 1 / -1; margin-top: 15px;">

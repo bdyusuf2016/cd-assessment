@@ -361,20 +361,29 @@ function initEventListeners() {
     document.getElementById("downloadSampleMaterialBtn2").addEventListener("click", downloadSampleMaterialTemplate);
   }
   document.getElementById("materialsImportFileInput").addEventListener("change", importMaterialsFromFile);
-  document.getElementById("importCompaniesBtn").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
-  document.getElementById("companiesImportFileInput").addEventListener("change", importCompaniesFromFile);
-  if (document.getElementById("downloadSampleCompanyBtn")) {
-    document.getElementById("downloadSampleCompanyBtn").addEventListener("click", downloadSampleCompanyTemplate);
+  // Companies tab topbar buttons
+  if (document.getElementById("addCompanyBtnTop")) {
+    document.getElementById("addCompanyBtnTop").addEventListener("click", addNewCompany);
   }
-  if (document.getElementById("importCompaniesCardBtn")) {
-    document.getElementById("importCompaniesCardBtn").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
+  if (document.getElementById("clearAllCompaniesBtnTop")) {
+    document.getElementById("clearAllCompaniesBtnTop").addEventListener("click", clearAllCompanies);
   }
-  if (document.getElementById("addCompanyBtn")) {
-    document.getElementById("addCompanyBtn").addEventListener("click", addNewCompany);
+  if (document.getElementById("downloadSampleCompanyBtnTop")) {
+    document.getElementById("downloadSampleCompanyBtnTop").addEventListener("click", downloadSampleCompanyTemplate);
   }
-  if (document.getElementById("clearAllCompaniesBtn")) {
-    document.getElementById("clearAllCompaniesBtn").addEventListener("click", clearAllCompanies);
+  if (document.getElementById("importCompaniesBtnTop")) {
+    document.getElementById("importCompaniesBtnTop").addEventListener("click", () => document.getElementById("companiesImportFileInput").click());
   }
+  if (document.getElementById("companiesImportFileInput")) {
+    document.getElementById("companiesImportFileInput").addEventListener("change", importCompaniesFromFile);
+  }
+
+  // Company search & filter
+  const searchCompanyInput = document.getElementById("searchCompanyInput");
+  if (searchCompanyInput) searchCompanyInput.addEventListener("input", renderCompanyList);
+  const companyStatusFilter = document.getElementById("companyStatusFilter");
+  if (companyStatusFilter) companyStatusFilter.addEventListener("change", renderCompanyList);
+
   if (document.getElementById("saveSupabaseCredsBtn")) {
     document.getElementById("saveSupabaseCredsBtn").addEventListener("click", handleSaveSupabaseCredentials);
   }
@@ -403,6 +412,20 @@ function initEventListeners() {
     if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") saveNewCompany(); });
   });
 
+  // Edit Company Modal events
+  const closeEditCo = document.getElementById("closeEditCompanyModalBtn");
+  if (closeEditCo) closeEditCo.addEventListener("click", closeEditCompanyModal);
+  const cancelEditCo = document.getElementById("cancelEditCompanyBtn");
+  if (cancelEditCo) cancelEditCo.addEventListener("click", closeEditCompanyModal);
+  const saveEditCoBtn = document.getElementById("saveEditCompanyBtn");
+  if (saveEditCoBtn) saveEditCoBtn.addEventListener("click", saveEditCompany);
+  const editCoModal = document.getElementById("editCompanyModal");
+  if (editCoModal) editCoModal.addEventListener("click", e => { if (e.target === editCoModal) closeEditCompanyModal(); });
+  ["editCompanyName", "editCompanyCircle"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") saveEditCompany(); });
+  });
+
   // Global keyboard shortcuts
   document.addEventListener("keydown", handleGlobalEscape);
 }
@@ -422,16 +445,18 @@ function switchTab(tabId) {
   // Topbar action groups
   document.getElementById("assessmentActions").style.display = tabId === "assessment" ? "" : "none";
   document.getElementById("materialsActions").style.display  = tabId === "materials"  ? "" : "none";
+  document.getElementById("companiesActions").style.display  = tabId === "companies"  ? "" : "none";
   document.getElementById("settingsActions").style.display   = tabId === "settings"   ? "" : "none";
 
   // Update page name
   const dict = TRANSLATIONS[state.language];
-  const pageNames = { assessment: dict.assessment, materials: dict.materials, settings: dict.settings };
+  const pageNames = { assessment: dict.assessment, materials: dict.materials, settings: dict.settings, companies: "কোম্পানি তালিকা" };
   const el = document.getElementById("topbarPageName");
   if (el) el.textContent = pageNames[tabId] || "";
 
   // Render if needed
   if (tabId === "materials") renderMaterialsList();
+  if (tabId === "companies") renderCompanyList();
 
   // Close mobile sidebar
   document.getElementById("sidebar").classList.remove("open");
@@ -911,6 +936,7 @@ function handleGlobalEscape(e) {
   closeMaterialModal();
   closeHistoryModal();
   closeAddCompanyModal();
+  closeEditCompanyModal();
   closeUserModal();
   closePasteExcelModal();
 }
@@ -2198,27 +2224,66 @@ function renderCompanyList() {
 
   const dict = TRANSLATIONS[state.language];
   head.innerHTML = `<tr>
+    <th>#</th>
     <th>${dict.companyName || "Name"}</th>
     <th>Circle / Address</th>
-    <th>Status</th>
+    <th style="text-align:center;">Status</th>
     <th style="text-align:center;">Action</th>
   </tr>`;
 
-  const sorted = [...state.companies].sort((a, b) => a.name.localeCompare(b.name));
+  // Get filter & search values
+  const filterVal = (document.getElementById("companyStatusFilter")?.value || "all");
+  const searchVal = (document.getElementById("searchCompanyInput")?.value || "").trim().toLowerCase();
+
+  let sorted = [...state.companies].sort((a, b) => a.name.localeCompare(b.name));
+
+  if (filterVal !== "all") {
+    sorted = sorted.filter(c => (c.status || "Active") === filterVal);
+  }
+  if (searchVal) {
+    sorted = sorted.filter(c =>
+      c.name.toLowerCase().includes(searchVal) ||
+      (c.circle || "").toLowerCase().includes(searchVal)
+    );
+  }
+
   if (!sorted.length) {
-    body.innerHTML = `<tr><td colspan="4" class="materials-empty">No companies found.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5" class="materials-empty">No companies found.</td></tr>`;
     return;
   }
-  body.innerHTML = sorted.map(c => `
-    <tr>
+
+  body.innerHTML = sorted.map((c, idx) => {
+    const isActive = (c.status || "Active") !== "Inactive";
+    const toggleLabel = isActive ? "❌ Inactive করুন" : "✅ Active করুন";
+    const toggleClass = isActive ? "btn-toggle-inactive" : "btn-toggle-active";
+    return `
+    <tr class="${!isActive ? 'company-row-inactive' : ''}">
+      <td style="text-align:center; color:var(--text-muted); width:40px;">${idx + 1}</td>
       <td style="font-weight:600">${escapeHtml(c.name)}</td>
       <td style="color:var(--text-secondary)">${escapeHtml(c.circle || "-")}</td>
-      <td><span class="company-status ${c.status === "Inactive" ? "status-inactive" : "status-active"}">${escapeHtml(c.status || "Active")}</span></td>
       <td style="text-align:center;">
-        <button class="btn btn-danger btn-sm btn-delete-company" data-name="${escapeHtml(c.name)}" title="Delete">✕</button>
+        <span class="company-status-badge ${isActive ? 'status-active' : 'status-inactive'}">
+          ${isActive ? "✅ Active" : "❌ Inactive"}
+        </span>
+      </td>
+      <td style="text-align:center;">
+        <div class="company-actions-wrap">
+          <button class="btn btn-ghost btn-xs btn-edit-company" data-name="${escapeHtml(c.name)}" title="Edit">✏️ Edit</button>
+          <button class="btn btn-xs ${toggleClass} btn-toggle-company" data-name="${escapeHtml(c.name)}" title="${toggleLabel}">${toggleLabel}</button>
+          <button class="btn btn-danger btn-xs btn-delete-company" data-name="${escapeHtml(c.name)}" title="Delete">✕</button>
+        </div>
       </td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
+
+  body.querySelectorAll(".btn-edit-company").forEach(btn => {
+    btn.addEventListener("click", () => openEditCompanyModal(btn.dataset.name));
+  });
+
+  body.querySelectorAll(".btn-toggle-company").forEach(btn => {
+    btn.addEventListener("click", () => toggleCompanyStatus(btn.dataset.name));
+  });
 
   body.querySelectorAll(".btn-delete-company").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -2254,6 +2319,82 @@ function openAddCompanyModal() {
 function closeAddCompanyModal() {
   const modal = document.getElementById("addCompanyModal");
   if (modal) modal.classList.remove("active");
+}
+
+function openEditCompanyModal(companyName) {
+  const co = state.companies.find(c => c.name === companyName);
+  if (!co) return;
+  const modal = document.getElementById("editCompanyModal");
+  if (!modal) return;
+  document.getElementById("editCompanyOriginalName").value = co.name;
+  document.getElementById("editCompanyName").value = co.name;
+  document.getElementById("editCompanyCircle").value = co.circle || "";
+  document.getElementById("editCompanyStatus").value = co.status || "Active";
+  const errEl = document.getElementById("editCompanyError");
+  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
+  modal.classList.add("active");
+  setTimeout(() => document.getElementById("editCompanyName").focus(), 80);
+}
+
+function closeEditCompanyModal() {
+  const modal = document.getElementById("editCompanyModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function saveEditCompany() {
+  const originalName = (document.getElementById("editCompanyOriginalName")?.value || "").trim();
+  const name         = (document.getElementById("editCompanyName")?.value || "").trim();
+  const circle       = (document.getElementById("editCompanyCircle")?.value || "").trim();
+  const status       = document.getElementById("editCompanyStatus")?.value || "Active";
+  const errEl        = document.getElementById("editCompanyError");
+
+  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
+
+  if (!name) {
+    if (errEl) { errEl.textContent = "প্রতিষ্ঠানের নাম দিন।"; errEl.style.display = "block"; }
+    return;
+  }
+
+  // Check for duplicate name (excluding own entry)
+  if (name.toLowerCase() !== originalName.toLowerCase() &&
+      state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+    if (errEl) { errEl.textContent = "এই নামের কোম্পানি ইতিমধ্যে তালিকায় আছে।"; errEl.style.display = "block"; }
+    return;
+  }
+
+  const idx = state.companies.findIndex(c => c.name === originalName);
+  if (idx === -1) {
+    if (errEl) { errEl.textContent = "কোম্পানি খুঁজে পাওয়া যায়নি।"; errEl.style.display = "block"; }
+    return;
+  }
+
+  state.companies[idx] = { name, circle, status };
+
+  // If the currently selected company was renamed, update header
+  if (state.header.companyName === originalName) {
+    state.header.companyName = name;
+  }
+
+  saveState();
+  renderCompanyOptions();
+  renderCompanyList();
+  updatePrintHeader();
+  closeEditCompanyModal();
+  showToast(`"${name}" সফলভাবে আপডেট হয়েছে!`, "success");
+}
+
+function toggleCompanyStatus(companyName) {
+  const co = state.companies.find(c => c.name === companyName);
+  if (!co) return;
+  const wasActive = (co.status || "Active") !== "Inactive";
+  co.status = wasActive ? "Inactive" : "Active";
+  saveState();
+  renderCompanyOptions();
+  renderCompanyList();
+  const msg = wasActive
+    ? `"${companyName}" Inactive করা হয়েছে।`
+    : `"${companyName}" Active করা হয়েছে।`;
+  showToast(msg, wasActive ? "warning" : "success");
 }
 
 function saveNewCompany() {
