@@ -1343,20 +1343,6 @@ function generateExportHtml(company, lang) {
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     tr, td, th { page-break-inside: avoid; page-break-after: auto; }
-    .pdf-footer {
-      position: fixed;
-      bottom: -0.05in;
-      left: 0;
-      right: 0;
-      border-top: 1px dashed #000000 !important;
-      font-size: 7.5pt !important;
-      padding-top: 4px !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      width: 100% !important;
-      background-color: #ffffff !important;
-    }
   </style>
 </head>
 <body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
@@ -1471,10 +1457,6 @@ function generateExportHtml(company, lang) {
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.approvedBy}</div>
       </div>
-    </div>
-    <div class="pdf-footer">
-      <span>Customs Assessment Manager v2.0</span>
-      <span>Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong style="color:#000000 !important;">+8801933814200</strong></span>
     </div>
   </div>
 </body>
@@ -1608,16 +1590,31 @@ function addPageNumbersToPdf(pdf) {
   if (!pdf || typeof pdf.getNumberOfPages !== 'function') return;
 
   const pageCount = pdf.getNumberOfPages();
-  const pageSize = pdf.internal.pageSize || pdf.internal.pageSize;
+  const pageSize = pdf.internal.pageSize;
   const pageWidth = typeof pageSize.getWidth === 'function' ? pageSize.getWidth() : pageSize.width;
   const pageHeight = typeof pageSize.getHeight === 'function' ? pageSize.getHeight() : pageSize.height;
 
-  pdf.setFontSize(7);
-  pdf.setTextColor(85, 85, 85);
-
   for (let page = 1; page <= pageCount; page++) {
     pdf.setPage(page);
-    pdf.text(`Page ${page} of ${pageCount}`, pageWidth - 0.4, pageHeight - 0.25, { align: 'right' });
+
+    // Draw thin separator line
+    pdf.setDrawColor(180, 180, 180);
+    pdf.setLineWidth(0.008);
+    pdf.line(0.4, pageHeight - 0.35, pageWidth - 0.4, pageHeight - 0.35);
+
+    // Set font size and color for the footer text
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(100, 100, 100);
+
+    // Left side: Version
+    pdf.text("Customs Assessment Manager v2.0", 0.4, pageHeight - 0.22, { align: 'left' });
+
+    // Center: Developer Credit
+    pdf.text("Developed by: Md. Yusuf Ali  |  Mobile: +8801933814200", pageWidth / 2, pageHeight - 0.22, { align: 'center' });
+
+    // Right side: Page Numbers
+    pdf.text(`Page ${page} of ${pageCount}`, pageWidth - 0.4, pageHeight - 0.22, { align: 'right' });
   }
 }
 
