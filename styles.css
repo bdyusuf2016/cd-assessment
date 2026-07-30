@@ -939,7 +939,12 @@ select.form-control {
 
 .cell-code { min-width: 110px; max-width: 130px; }
 .cell-desc { min-width: 140px; }
-.cell-num  { text-align: right; font-variant-numeric: tabular-nums; min-width: 80px; }
+.cell-num  {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+  white-space: nowrap !important;
+}
 .cell-unit { text-align: center; min-width: 44px; width: 44px; }
 .cell-action { text-align: center; width: 44px; min-width: 44px; }
 
