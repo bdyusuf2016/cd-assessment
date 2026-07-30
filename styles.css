@@ -937,7 +937,7 @@ select.form-control {
   width: 32px;
 }
 
-.cell-code { min-width: 110px; max-width: 130px; }
+.cell-code { min-width: 80px; max-width: 100px; }
 .cell-desc { min-width: 140px; }
 .cell-num  {
   text-align: right;
