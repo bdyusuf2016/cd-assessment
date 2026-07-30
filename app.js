@@ -1473,8 +1473,8 @@ function generateExportHtml(company, lang) {
       </div>
     </div>
     <div class="pdf-footer">
-      <span>Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong></span>
-      <span>Mobile: <strong style="color:#000000 !important;">+8801933814200</strong></span>
+      <span>Customs Assessment Manager v2.0</span>
+      <span>Developed by: <strong style="color:#000000 !important;">Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong style="color:#000000 !important;">+8801933814200</strong></span>
     </div>
   </div>
 </body>
@@ -1730,7 +1730,10 @@ async function sharePdfToWhatsApp() {
     }
     await new Promise(resolve => setTimeout(resolve, 180));
 
-    const pdfBlob = await html2pdf().set(opt).from(exportRoot).output('blob');
+    const worker = html2pdf().set(opt).from(exportRoot);
+    const pdfDoc = await worker.toPdf().get('pdf');
+    addPageNumbersToPdf(pdfDoc);
+    const pdfBlob = await worker.output('blob');
     exportFrame.remove();
 
     if (!pdfBlob || pdfBlob.size < 1024) {
