@@ -336,9 +336,18 @@
               </div>
             </div>
             <div class="header-form-grid">
-              <div class="form-group">
+              <div class="form-group" style="position: relative;">
                 <label class="form-label" id="lblCompanyName" for="header-companyName">Organization Name</label>
-                <select class="form-control" id="header-companyName"></select>
+                <select class="form-control" id="header-companyName" style="display: none;"></select>
+                <div class="searchable-select" id="company-search-container">
+                  <input type="text" class="form-control searchable-select-input" id="company-search-input" placeholder="Select Organization..." readonly>
+                  <div class="searchable-select-dropdown" id="company-search-dropdown" style="display: none;">
+                    <div class="searchable-select-search-wrap">
+                      <input type="text" class="form-control searchable-select-search-input" id="company-search-filter" placeholder="Search organization...">
+                    </div>
+                    <div class="searchable-select-options" id="company-search-options"></div>
+                  </div>
+                </div>
               </div>
               <div class="form-group">
                 <label class="form-label" id="lblPermissionNo" for="header-permissionNo">Permission No. <span style="font-size:0.78rem;color:var(--text-muted);">(prefix GB added automatically)</span></label>

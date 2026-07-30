@@ -69,6 +69,7 @@ function bootApp() {
   recalculateAllRows();
   initSidebar();
   initEventListeners();
+  initCompanySearch();
   updateUI();
   initColumnVisibilityCheckboxes();
   renderCompanyOptions();
@@ -2054,6 +2055,140 @@ function renderCompanyOptions() {
     ? options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
     : `<option value="">No active companies</option>`;
   select.value = state.header.companyName || "";
+
+  // Synchronize options and current value with custom searchable select
+  updateCustomCompanySearchOptions(options);
+}
+
+// === SEARCHABLE COMPANY DROPDOWN IMPLEMENTATION ===
+function initCompanySearch() {
+  const container = document.getElementById("company-search-container");
+  const input     = document.getElementById("company-search-input");
+  const dropdown  = document.getElementById("company-search-dropdown");
+  const filterInput = document.getElementById("company-search-filter");
+
+  if (!container || !input || !dropdown || !filterInput) return;
+
+  // Move dropdown to <body> so it escapes ALL parent stacking contexts
+  document.body.appendChild(dropdown);
+  dropdown.style.display = "none";
+
+  // Toggle dropdown on input click
+  input.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isHidden = dropdown.style.display === "none" || dropdown.style.display === "";
+    if (isHidden) {
+      openCompanySearchDropdown();
+    } else {
+      closeCompanySearchDropdown();
+    }
+  });
+
+  // Filter options as user types
+  filterInput.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const allOptions = window.customCompanyOptions || [];
+    const filtered = allOptions.filter(c => {
+      const nameMatch = c.name.toLowerCase().includes(query);
+      const circleMatch = c.circle ? c.circle.toLowerCase().includes(query) : false;
+      return nameMatch || circleMatch;
+    });
+    renderCustomCompanyList(filtered);
+  });
+
+  // Prevent dropdown click from closing dropdown
+  dropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  // Click outside closes dropdown
+  document.addEventListener("click", () => {
+    closeCompanySearchDropdown();
+  });
+
+  // Close on scroll outside the dropdown
+  window.addEventListener("scroll", (e) => {
+    if (dropdown.contains(e.target)) return;
+    closeCompanySearchDropdown();
+  }, true);
+
+  window.addEventListener("resize", positionCompanyDropdown);
+}
+
+function positionCompanyDropdown() {
+  const input    = document.getElementById("company-search-input");
+  const dropdown = document.getElementById("company-search-dropdown");
+  if (!input || !dropdown || dropdown.style.display === "none") return;
+  const rect = input.getBoundingClientRect();
+  dropdown.style.top   = (rect.bottom + 4) + "px";
+  dropdown.style.left  = rect.left + "px";
+  dropdown.style.width = rect.width + "px";
+}
+
+function openCompanySearchDropdown() {
+  const dropdown    = document.getElementById("company-search-dropdown");
+  const filterInput = document.getElementById("company-search-filter");
+  if (!dropdown) return;
+  // Position BEFORE showing to avoid flash
+  positionCompanyDropdown();
+  dropdown.style.display = "flex";
+  // Re-position after display so layout is calculated
+  requestAnimationFrame(positionCompanyDropdown);
+  if (filterInput) {
+    filterInput.value = "";
+    filterInput.focus();
+  }
+  renderCustomCompanyList(window.customCompanyOptions || []);
+}
+
+function closeCompanySearchDropdown() {
+  const dropdown = document.getElementById("company-search-dropdown");
+  if (dropdown) {
+    dropdown.style.display = "none";
+  }
+}
+
+
+function updateCustomCompanySearchOptions(options) {
+  const searchInput = document.getElementById("company-search-input");
+  if (!searchInput) return;
+
+  const current = state.header.companyName || "";
+  searchInput.value = current || (state.language === "bn" ? "কোম্পানি সিলেক্ট করুন..." : "Select Organization...");
+
+  window.customCompanyOptions = options;
+  renderCustomCompanyList(options);
+}
+
+function renderCustomCompanyList(options) {
+  const optionsContainer = document.getElementById("company-search-options");
+  if (!optionsContainer) return;
+
+  const current = state.header.companyName || "";
+
+  if (options.length === 0) {
+    optionsContainer.innerHTML = `<div class="searchable-select-no-results">${state.language === "bn" ? "কোন কোম্পানি পাওয়া যায়নি" : "No results found"}</div>`;
+    return;
+  }
+
+  optionsContainer.innerHTML = options.map(c => {
+    const isSelected = c.name === current;
+    const displayText = `${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}`;
+    return `<div class="searchable-select-option${isSelected ? ' selected' : ''}" data-value="${escapeHtml(c.name)}">${displayText}</div>`;
+  }).join("");
+
+  // Attach click listener to each option
+  optionsContainer.querySelectorAll(".searchable-select-option").forEach(el => {
+    el.addEventListener("click", () => {
+      const selectedValue = el.dataset.value;
+      const select = document.getElementById("header-companyName");
+      if (select) {
+        select.value = selectedValue;
+        select.dispatchEvent(new Event("change"));
+      }
+      closeCompanySearchDropdown();
+    });
+  });
 }
 
 function renderCompanyList() {
