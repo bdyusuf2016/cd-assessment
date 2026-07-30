@@ -793,7 +793,13 @@ const TRANSLATIONS = {
     signatures: "সাক্ষরসমূহ",
     preparedBy: "প্রস্তুতকারী",
     checkedBy: "যাচাইকারী",
-    approvedBy: "অনুমোদনকারী কাস্টমস কর্মকর্তা"
+    approvedBy: "অনুমোদনকারী কাস্টমস কর্মকর্তা",
+    pasteExcelBtn: "Excel হতে পেস্ট",
+    pasteExcelModalTitle: "Excel হতে ডাটা পেস্ট করুন",
+    pasteExcelLabel: "Excel হতে Approve Code, Description, Unit Price (Tk), Unit, Qty কলামের ডাটা একসাথে কপি করে নিচের বক্সে পেস্ট (Ctrl+V) করুন।",
+    pasteExcelPlaceholder: "এখানে পেস্ট করুন...\nযেমন:\n1A\tWaste carton\t11\tkg\t150\nRW-1\tWaste Poly\t20\tkg\t300",
+    importDataBtn: "ডাটা ইমপোর্ট করুন",
+    cancelBtn: "বাতিল"
   },
   en: {
     title: "Customs Assessment Manager",
@@ -855,7 +861,13 @@ const TRANSLATIONS = {
     signatures: "Signatures",
     preparedBy: "Prepared By",
     checkedBy: "Checked By",
-    approvedBy: "Approving Customs Officer"
+    approvedBy: "Approving Customs Officer",
+    pasteExcelBtn: "Paste from Excel",
+    pasteExcelModalTitle: "Paste Excel Data",
+    pasteExcelLabel: "Copy columns (Approve Code, Description, Unit Price (Tk), Unit, Qty) from Excel and paste (Ctrl+V) them in the box below.",
+    pasteExcelPlaceholder: "Paste here...\nExample:\n1A\tWaste carton\t11\tkg\t150\nRW-1\tWaste Poly\t20\tkg\t300",
+    importDataBtn: "Import Data",
+    cancelBtn: "Cancel"
   }
 };
 

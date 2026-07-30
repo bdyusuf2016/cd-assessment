@@ -1,4 +1,4 @@
-﻿/* ================================================================
+/* ================================================================
    CUSTOMS ASSESSMENT MANAGER — app.js v2.0
    All business logic preserved. New: sidebar, toasts, animations.
    ================================================================ */
@@ -323,6 +323,24 @@ function initEventListeners() {
   document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFileInput").click());
   document.getElementById("importFileInput").addEventListener("change", importFromCSV);
 
+  // Paste Excel events
+  if (document.getElementById("pasteExcelBtn")) {
+    document.getElementById("pasteExcelBtn").addEventListener("click", openPasteExcelModal);
+  }
+  if (document.getElementById("closePasteExcelModalBtn")) {
+    document.getElementById("closePasteExcelModalBtn").addEventListener("click", closePasteExcelModal);
+  }
+  if (document.getElementById("cancelPasteExcelBtn")) {
+    document.getElementById("cancelPasteExcelBtn").addEventListener("click", closePasteExcelModal);
+  }
+  if (document.getElementById("processPasteExcelBtn")) {
+    document.getElementById("processPasteExcelBtn").addEventListener("click", handleBulkPasteFromModal);
+  }
+  const pasteExcelModalEl = document.getElementById("pasteExcelModal");
+  if (pasteExcelModalEl) {
+    pasteExcelModalEl.addEventListener("click", e => { if (e.target === pasteExcelModalEl) closePasteExcelModal(); });
+  }
+
   // Sidebar navigation
   document.querySelectorAll(".nav-item[data-tab]").forEach(btn => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
@@ -482,12 +500,20 @@ function updateUI() {
   document.getElementById("dashLabelTax").textContent     = dict.totalDutyTax;
 
   // Form labels
-  document.getElementById("lblCompanyName").textContent   = dict.companyName;
-  document.getElementById("lblHasFile").textContent       = dict.hasFileNo;
-  document.getElementById("lblFilePage").textContent      = dict.filePageNo;
-  document.getElementById("lblNotePara").textContent      = dict.noteParaNo;
-  document.getElementById("lblLetterPage").textContent    = dict.letterPageNo;
-  document.getElementById("lblBepza").textContent         = dict.bepzaRecNo;
+  if (document.getElementById("lblCompanyName")) document.getElementById("lblCompanyName").textContent   = dict.companyName;
+  if (document.getElementById("lblHasFile"))       document.getElementById("lblHasFile").textContent       = dict.hasFileNo;
+  if (document.getElementById("lblFilePage"))      document.getElementById("lblFilePage").textContent      = dict.filePageNo;
+  if (document.getElementById("lblNotePara"))      document.getElementById("lblNotePara").textContent      = dict.noteParaNo;
+  if (document.getElementById("lblLetterPage"))    document.getElementById("lblLetterPage").textContent    = dict.letterPageNo;
+  if (document.getElementById("lblBepza"))         document.getElementById("lblBepza").textContent         = dict.bepzaRecNo;
+
+  // Excel Paste elements
+  if (document.getElementById("lblPasteExcel"))            document.getElementById("lblPasteExcel").textContent = dict.pasteExcelBtn;
+  if (document.getElementById("lblPasteExcelModalTitle"))  document.getElementById("lblPasteExcelModalTitle").textContent = dict.pasteExcelModalTitle;
+  if (document.getElementById("lblPasteExcelLabel"))       document.getElementById("lblPasteExcelLabel").textContent = dict.pasteExcelLabel;
+  if (document.getElementById("excelPasteArea"))           document.getElementById("excelPasteArea").placeholder = dict.pasteExcelPlaceholder;
+  if (document.getElementById("processPasteExcelBtn"))     document.getElementById("processPasteExcelBtn").innerHTML = `<span>📋</span> ${dict.importDataBtn}`;
+  if (document.getElementById("cancelPasteExcelBtn"))      document.getElementById("cancelPasteExcelBtn").textContent = dict.cancelBtn;
 
   // Settings
   document.getElementById("lblFormulaTitle").textContent  = dict.formulaSettings;
@@ -764,6 +790,14 @@ function renderAssessmentTable() {
       row.approveCode = codeInput.value.trim();
       saveState();
     });
+    codeInput.addEventListener("paste", (e) => {
+      const clipboardData = e.clipboardData || window.clipboardData;
+      const pastedText = clipboardData.getData("Text");
+      if (pastedText && (pastedText.includes("\t") || pastedText.includes("\n"))) {
+        e.preventDefault();
+        handleExcelPaste(pastedText, row.id);
+      }
+    });
     delBtn.addEventListener("click", () => deleteRow(row.id));
   });
 
@@ -877,6 +911,7 @@ function handleGlobalEscape(e) {
   closeHistoryModal();
   closeAddCompanyModal();
   closeUserModal();
+  closePasteExcelModal();
 }
 
 // === SAVE ASSESSMENTS & WHATSAPP SHARE ===
@@ -2247,6 +2282,175 @@ function normalizeImportedCompanies(rows) {
   return deduped;
 }
 
+// === PASTE EXCEL MODAL ===
+function openPasteExcelModal() {
+  document.getElementById("pasteExcelModal").classList.add("active");
+  const area = document.getElementById("excelPasteArea");
+  if (area) {
+    area.value = "";
+    area.focus();
+  }
+}
+
+function closePasteExcelModal() {
+  document.getElementById("pasteExcelModal").classList.remove("active");
+  const area = document.getElementById("excelPasteArea");
+  if (area) area.value = "";
+}
+
+function handleBulkPasteFromModal() {
+  const area = document.getElementById("excelPasteArea");
+  if (!area) return;
+  const text = area.value;
+  if (!text.trim()) {
+    showToast(state.language === "bn" ? "কোন ডাটা পেস্ট করা হয়নি।" : "No data pasted.", "warning");
+    return;
+  }
+  closePasteExcelModal();
+  handleExcelPaste(text, null);
+}
+
+function isHeaderRow(cols) {
+  if (cols.length === 0) return false;
+  const col0 = cols[0].toLowerCase().trim();
+  const col1 = cols[1] ? cols[1].toLowerCase().trim() : "";
+  
+  const headerKeywords = [
+    "approve code", "code", "নথির", "ক্রমিক", "approve_code", "approve-code",
+    "description", "বিবরণ", "particulars", "item name", "items"
+  ];
+  
+  return headerKeywords.some(keyword => col0.includes(keyword) || col1.includes(keyword));
+}
+
+function handleExcelPaste(text, startRowId) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length === 0) return;
+
+  // Detect and skip header row if present
+  let firstLineCols = lines[0].split("\t");
+  let startIndexLines = 0;
+  if (isHeaderRow(firstLineCols)) {
+    startIndexLines = 1;
+    console.log("Skipping header row in Excel paste:", lines[0]);
+  }
+
+  let currentIdx = 0;
+  if (startRowId) {
+    currentIdx = state.assessmentRows.findIndex(r => r.id === startRowId);
+    if (currentIdx === -1) currentIdx = 0;
+  }
+
+  let pastedCount = 0;
+
+  for (let i = startIndexLines; i < lines.length; i++) {
+    const line = lines[i];
+    const cols = line.split("\t");
+    if (cols.length === 0 || !cols[0].trim()) continue;
+
+    const code = cols[0] ? cols[0].trim() : "";
+    let desc = cols[1] ? cols[1].trim() : "";
+    let priceStr = cols[2] ? cols[2].trim() : "";
+    let unit = cols[3] ? cols[3].trim() : "";
+    let qtyStr = cols[4] ? cols[4].trim() : "";
+
+    // Parse fewer columns case
+    if (cols.length === 2) {
+      if (!isNaN(cols[1]) && cols[1] !== "") {
+        qtyStr = cols[1];
+        desc = "";
+        priceStr = "";
+        unit = "";
+      } else {
+        desc = cols[1];
+        priceStr = "";
+        unit = "";
+        qtyStr = "";
+      }
+    } else if (cols.length === 3) {
+      if (!isNaN(cols[2]) && cols[2] !== "") {
+        qtyStr = cols[2];
+        if (!isNaN(cols[1]) && cols[1] !== "") {
+          priceStr = cols[1];
+          desc = "";
+        } else {
+          desc = cols[1];
+          priceStr = "";
+        }
+      } else {
+        desc = cols[1];
+        priceStr = cols[2];
+      }
+    } else if (cols.length === 4) {
+      qtyStr = cols[3];
+      if (!isNaN(cols[2]) && cols[2] !== "") {
+        priceStr = cols[2];
+        desc = cols[1];
+      } else {
+        unit = cols[2];
+        desc = cols[1];
+      }
+    }
+
+    // Lookup fallback using loaded state.materials
+    const material = state.materials.find(m => m.code.toLowerCase() === code.toLowerCase());
+    if (material) {
+      if (!desc) desc = material.description;
+      if (!priceStr) priceStr = material.price.toString();
+      if (!unit) unit = material.unit;
+    }
+
+    const cleanNum = (str) => {
+      if (!str) return 0;
+      const sanitized = str.replace(/[$,৳\s]/g, "").replace(/,/g, "");
+      const val = parseFloat(sanitized);
+      return isNaN(val) ? 0 : val;
+    };
+
+    const price = cleanNum(priceStr);
+    const qty = cleanNum(qtyStr);
+
+    let row;
+    if (currentIdx < state.assessmentRows.length) {
+      row = state.assessmentRows[currentIdx];
+      row.approveCode = code;
+      row.description = desc;
+      row.unitPrice = price;
+      row.unit = unit || "kg";
+      row.quantity = qty;
+    } else {
+      const rowId = "row_" + Date.now() + "_" + Math.floor(Math.random() * 1000) + "_" + currentIdx;
+      row = {
+        id:          rowId,
+        approveCode: code,
+        description: desc,
+        unitPrice:   price,
+        unit:        unit || "kg",
+        quantity:    qty,
+        totalPrice: 0, insurance: 0, landing: 0, assessableValue: 0,
+        cdRate:  state.defaultRates.cd,  rdRate:  state.defaultRates.rd,
+        sdRate:  state.defaultRates.sd,  vatRate: state.defaultRates.vat,
+        aitRate: state.defaultRates.ait, atRate:  state.defaultRates.at,
+        cd: 0, rd: 0, sd: 0, vat: 0, ait: 0, at: 0, totalDutyTax: 0
+      };
+      state.assessmentRows.push(row);
+    }
+
+    calculateRow(row);
+    currentIdx++;
+    pastedCount++;
+  }
+
+  saveState();
+  renderAssessmentTable();
+  updateDashboardMetrics();
+
+  const successMsg = state.language === "bn"
+    ? `${pastedCount}টি লাইনের ডাটা এক্সেল হতে পেস্ট করা হয়েছে।`
+    : `Pasted ${pastedCount} rows of data from Excel.`;
+  showToast(successMsg, "success");
+}
+
 // === MATERIAL MODAL ===
 function openMaterialModal() {
   document.getElementById("materialModal").classList.add("active");
@@ -2366,11 +2570,11 @@ function importFromCSV(e) {
         state.assessmentRows = newRows;
         saveState();
         renderCompanyOptions();
-        document.getElementById("header-hasFileNo").value   = state.header.hasFileNo;
-        document.getElementById("header-filePageNo").value  = state.header.filePageNo  || "";
-        document.getElementById("header-noteParaNo").value  = state.header.noteParaNo  || "";
-        document.getElementById("header-letterPageNo").value = state.header.letterPageNo || "";
-        document.getElementById("header-bepzaRecNo").value  = state.header.bepzaRecNo  || "";
+        if (document.getElementById("header-hasFileNo"))   document.getElementById("header-hasFileNo").value   = state.header.hasFileNo;
+        if (document.getElementById("header-filePageNo"))  document.getElementById("header-filePageNo").value  = state.header.filePageNo  || "";
+        if (document.getElementById("header-noteParaNo"))  document.getElementById("header-noteParaNo").value  = state.header.noteParaNo  || "";
+        if (document.getElementById("header-letterPageNo")) document.getElementById("header-letterPageNo").value = state.header.letterPageNo || "";
+        if (document.getElementById("header-bepzaRecNo"))  document.getElementById("header-bepzaRecNo").value  = state.header.bepzaRecNo  || "";
         updateUI();
         showToast(state.language === "bn" ? "সফলভাবে ডাটা ইমপোর্ট করা হয়েছে!" : "Data imported successfully!", "success");
       } else {

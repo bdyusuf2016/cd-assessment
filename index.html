@@ -363,6 +363,10 @@
               <span class="btn-icon">+</span>
               <span id="lblAddRow">Add New Item</span>
             </button>
+            <button id="pasteExcelBtn" class="btn btn-info btn-sm" type="button" style="margin-left: 10px;">
+              <span class="btn-icon">📋</span>
+              <span id="lblPasteExcel">Excel হতে পেস্ট</span>
+            </button>
           </div>
 
           <!-- In Words -->
@@ -634,6 +638,32 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost btn-sm" id="closeHistoryModalFooterBtn">বন্ধ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PASTE EXCEL MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="pasteExcelModal">
+    <div class="modal-card" style="width: 520px; max-width: 96vw;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="lblPasteExcelModalTitle">Excel হতে ডাটা পেস্ট করুন</h3>
+        <button class="modal-close-btn" id="closePasteExcelModalBtn">✕</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:14px; padding:20px; grid-template-columns: 1fr;">
+        <p id="lblPasteExcelLabel" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">
+          Excel হতে Approve Code, Description, Unit Price (Tk), Unit, Qty কলামের ডাটা একসাথে কপি করে নিচের বক্সে পেস্ট (Ctrl+V) করুন।
+        </p>
+        <div class="form-group full-width">
+          <textarea class="form-control" id="excelPasteArea" rows="8" placeholder="এখানে পেস্ট করুন..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" id="cancelPasteExcelBtn">বাতিল</button>
+        <button class="btn btn-primary" id="processPasteExcelBtn">
+          <span>📋</span> ডাটা ইমপোর্ট করুন
+        </button>
       </div>
     </div>
   </div>
