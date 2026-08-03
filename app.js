@@ -143,8 +143,8 @@ function loadData() {
     saveState();
   }
 
-  const storedRows = readStoredJson("customs_assessment_rows", []);
-  state.assessmentRows = Array.isArray(storedRows) ? storedRows : [];
+  // Default to empty assessment table (reset mode) on boot instead of loading stored rows
+  state.assessmentRows = [];
 
   const storedHistory = readStoredJson("customs_saved_assessments", []);
   state.savedAssessments = Array.isArray(storedHistory) ? storedHistory : [];
