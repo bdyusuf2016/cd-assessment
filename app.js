@@ -76,6 +76,11 @@ function bootApp() {
   renderCompanyList();
   if (state.assessmentRows.length === 0) addRow();
   updateTopbarUser();
+
+  // Pull data from cloud asynchronously on startup if connected
+  if (getSupabaseClient()) {
+    pullAllDataFromCloud(true);
+  }
 }
 
 // === LOCAL STORAGE ===
@@ -395,6 +400,9 @@ function initEventListeners() {
   }
   if (document.getElementById("syncAllToCloudBtn")) {
     document.getElementById("syncAllToCloudBtn").addEventListener("click", handleSyncAllToCloud);
+  }
+  if (document.getElementById("pullFromCloudBtn")) {
+    document.getElementById("pullFromCloudBtn").addEventListener("click", handlePullFromCloud);
   }
 
   updateSupabaseUI();
@@ -2997,6 +3005,139 @@ async function handleSyncAllToCloud() {
     }
   } catch (err) {
     showToast("Cloud Sync Error: " + err.message, "error");
+  }
+}
+
+async function handlePullFromCloud() {
+  if (!getSupabaseClient()) {
+    showToast(state.language === "bn" ? "প্রথমে Supabase সংযোগ প্রস্তুত করুন।" : "Supabase client not connected.", "warning");
+    return;
+  }
+  showToast(state.language === "bn" ? "ক্লাউড থেকে ডেটা লোড হচ্ছে..." : "Loading data from Supabase Cloud...", "info");
+
+  try {
+    const success = await pullAllDataFromCloud(false);
+    if (success) {
+      showToast(state.language === "bn" ? "ক্লাউড ডেটাবেজ সফলভাবে লোড ও সিনক্রোনাইজ হয়েছে! ☁️" : "Data loaded and synced from Supabase Cloud!", "success");
+    }
+  } catch (err) {
+    showToast("Cloud Pull Error: " + err.message, "error");
+  }
+}
+
+async function pullAllDataFromCloud(silent = true) {
+  if (!getSupabaseClient()) return false;
+
+  try {
+    const [compRes, matRes, assessRes] = await Promise.all([
+      fetchCompaniesFromSupabaseCloud(),
+      fetchMaterialsFromSupabaseCloud(),
+      fetchAssessmentsFromSupabaseCloud()
+    ]);
+
+    let changed = false;
+
+    // 1. Merge Companies
+    if (compRes.success && Array.isArray(compRes.data)) {
+      const cloudCompanies = compRes.data;
+      const mergedMap = new Map();
+      
+      // Preserve local ones first
+      state.companies.forEach(c => {
+        if (c && c.name) mergedMap.set(c.name.trim().toLowerCase(), c);
+      });
+      
+      // Merge cloud ones
+      cloudCompanies.forEach(c => {
+        if (c && c.name) {
+          const key = c.name.trim().toLowerCase();
+          mergedMap.set(key, {
+            name: c.name.trim(),
+            circle: c.circle || "",
+            status: c.status || "Active"
+          });
+        }
+      });
+      
+      const newCompanies = Array.from(mergedMap.values());
+      if (JSON.stringify(state.companies) !== JSON.stringify(newCompanies)) {
+        state.companies = newCompanies;
+        localStorage.setItem("customs_companies", JSON.stringify(state.companies));
+        changed = true;
+      }
+    }
+
+    // 2. Merge Materials
+    if (matRes.success && Array.isArray(matRes.data)) {
+      const cloudMaterials = matRes.data;
+      const mergedMap = new Map();
+      
+      state.materials.forEach(m => {
+        if (m && m.code) mergedMap.set(m.code.trim().toLowerCase(), m);
+      });
+      
+      cloudMaterials.forEach(m => {
+        if (m && m.code) {
+          const key = m.code.trim().toLowerCase();
+          mergedMap.set(key, {
+            code: m.code.trim(),
+            description: m.description || "",
+            price: parseFloat(m.price) || 0,
+            unit: m.unit || "kg"
+          });
+        }
+      });
+      
+      const newMaterials = Array.from(mergedMap.values());
+      if (JSON.stringify(state.materials) !== JSON.stringify(newMaterials)) {
+        state.materials = newMaterials;
+        localStorage.setItem("customs_materials", JSON.stringify(state.materials));
+        changed = true;
+      }
+    }
+
+    // 3. Merge Assessments
+    if (assessRes.success && Array.isArray(assessRes.data)) {
+      const cloudAssessments = assessRes.data;
+      const mergedMap = new Map();
+      
+      state.savedAssessments.forEach(a => {
+        if (a && a.id) mergedMap.set(a.id, a);
+      });
+      
+      cloudAssessments.forEach(a => {
+        if (a && a.id) {
+          mergedMap.set(a.id, {
+            id: a.id,
+            header: a.header || {},
+            assessmentRows: a.assessmentRows || a.rows || [],
+            calculationMethod: a.calculationMethod || "bd",
+            date: a.date || a.assessment_date || new Date().toISOString()
+          });
+        }
+      });
+      
+      const newAssessments = Array.from(mergedMap.values());
+      if (JSON.stringify(state.savedAssessments) !== JSON.stringify(newAssessments)) {
+        state.savedAssessments = newAssessments;
+        localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      // Re-render UI components
+      renderCompanyOptions();
+      renderCompanyList();
+      if (typeof renderMaterialsList === "function") renderMaterialsList();
+      if (typeof renderHistoryList === "function") renderHistoryList();
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Failed to pull data from cloud:", err);
+    if (!silent) throw err;
+    return false;
   }
 }
 

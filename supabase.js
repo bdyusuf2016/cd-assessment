@@ -313,6 +313,25 @@ async function syncMaterialsToSupabaseCloud(materials) {
   }
 }
 
+// 6. Fetch Materials from Supabase Cloud
+async function fetchMaterialsFromSupabaseCloud() {
+  const client = getSupabaseClient();
+  if (!client) return { success: false, data: [] };
+
+  try {
+    const { data, error } = await client
+      .from('materials')
+      .select('*')
+      .order('code', { ascending: true });
+
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (err) {
+    console.error("Supabase fetchMaterials error:", err);
+    return { success: false, message: err.message, data: [] };
+  }
+}
+
 // Initialize on script load
 document.addEventListener("DOMContentLoaded", () => {
   initSupabase();
