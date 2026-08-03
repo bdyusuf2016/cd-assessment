@@ -618,7 +618,8 @@
                 </div>
               </div>
               <div class="settings-card-body">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 14px;">
+                <!-- URL & Key fields hidden since they are now built-in -->
+                <div style="display:none; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 14px;">
                   <div>
                     <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">Supabase Project URL</label>
                     <input type="text" class="form-control" id="supabaseUrlInput" placeholder="https://your-project.supabase.co">
@@ -633,7 +634,7 @@
                     স্ট্যাটাস: <span style="font-weight:600; color:#e74c3c;">সংযুক্ত নয় (Not Connected)</span>
                   </div>
                   <div class="action-group">
-                    <button id="saveSupabaseCredsBtn" class="btn btn-primary btn-sm">
+                    <button id="saveSupabaseCredsBtn" class="btn btn-primary btn-sm" style="display:none;">
                       <span class="btn-icon">💾</span> Supabase সেভ করুন
                     </button>
                     <button id="syncAllToCloudBtn" class="btn btn-info btn-sm">

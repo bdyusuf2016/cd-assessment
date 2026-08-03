@@ -34,30 +34,59 @@ CREATE TABLE IF NOT EXISTS public.materials (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- Secure each record to the authenticated Supabase user.
--- Run this migration in the Supabase SQL Editor before enabling cloud sync.
+-- ============================================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- Run the migration below in the Supabase SQL Editor to configure access.
+-- ============================================================================
+
+-- Add user_id reference columns (nullable to allow anonymous uploads if needed)
 ALTER TABLE public.assessments ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 
--- Company and material names/codes are unique per user, not globally.
+-- Company and material names/codes are unique per user (or unique globally when user_id is null)
 ALTER TABLE public.companies DROP CONSTRAINT IF EXISTS companies_name_key;
 ALTER TABLE public.materials DROP CONSTRAINT IF EXISTS materials_code_key;
 CREATE UNIQUE INDEX IF NOT EXISTS companies_user_name_key ON public.companies (user_id, name);
 CREATE UNIQUE INDEX IF NOT EXISTS materials_user_code_key ON public.materials (user_id, code);
 
+-- Enable RLS
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.materials ENABLE ROW LEVEL SECURITY;
 
--- Remove the insecure policies from the previous schema.
+-- Remove old policies
 DROP POLICY IF EXISTS "Allow public all access on assessments" ON public.assessments;
 DROP POLICY IF EXISTS "Allow public all access on companies" ON public.companies;
 DROP POLICY IF EXISTS "Allow public all access on materials" ON public.materials;
+DROP POLICY IF EXISTS "Users manage own assessments" ON public.assessments;
+DROP POLICY IF EXISTS "Users manage own companies" ON public.companies;
+DROP POLICY IF EXISTS "Users manage own materials" ON public.materials;
+DROP POLICY IF EXISTS "Allow anon all access on assessments" ON public.assessments;
+DROP POLICY IF EXISTS "Allow anon all access on companies" ON public.companies;
+DROP POLICY IF EXISTS "Allow anon all access on materials" ON public.materials;
 
-CREATE POLICY "Users manage own assessments" ON public.assessments
-  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users manage own companies" ON public.companies
-  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users manage own materials" ON public.materials
-  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ----------------------------------------------------------------------------
+-- OPTION A: Anonymous Sync (Recommended for Standalone Manual Local Auth)
+-- Run this if you are using manual local sign-in and NOT logging in via Supabase Auth.
+-- This allows anonymous reads and writes (via the Anon Key) to synchronize data.
+-- ----------------------------------------------------------------------------
+CREATE POLICY "Allow anon all access on assessments" ON public.assessments
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow anon all access on companies" ON public.companies
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow anon all access on materials" ON public.materials
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- ----------------------------------------------------------------------------
+-- OPTION B: Authenticated Sync (Use only if you restore Supabase Sign-in UI)
+-- Run this if you want users to log in directly via Supabase Auth accounts.
+-- ----------------------------------------------------------------------------
+-- CREATE POLICY "Users manage own assessments" ON public.assessments
+--   FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY "Users manage own companies" ON public.companies
+--   FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY "Users manage own materials" ON public.materials
+--   FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);

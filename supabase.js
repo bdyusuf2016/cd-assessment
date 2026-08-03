@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Customs Assessment Manager â€” Supabase Integration & Authentication Module
  * Developed by: Md. Yusuf Ali
  */
@@ -6,14 +6,16 @@
 const SUPABASE_CONFIG = {
   urlKey: "customs_supabase_url",
   anonKey: "customs_supabase_anon_key",
+  defaultUrl: "https://hskevkuknjvytyiideli.supabase.co",
+  defaultKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhza2V2a3Vrbmp2eXR5aWlkZWxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzE3NDgsImV4cCI6MjEwMDgwNzc0OH0.XJnpJ9YSes48cEkbx_RxP5b022JKjfaG85OpNkrnFck",
   client: null,
   currentUser: null
 };
 
 // Initialize Supabase client
 function initSupabase() {
-  const url = localStorage.getItem(SUPABASE_CONFIG.urlKey) || "";
-  const key = localStorage.getItem(SUPABASE_CONFIG.anonKey) || "";
+  const url = localStorage.getItem(SUPABASE_CONFIG.urlKey) || SUPABASE_CONFIG.defaultUrl;
+  const key = localStorage.getItem(SUPABASE_CONFIG.anonKey) || SUPABASE_CONFIG.defaultKey;
 
   if (url && key && typeof supabase !== "undefined") {
     try {
@@ -67,8 +69,8 @@ function saveSupabaseCredentials(url, key) {
 // Get saved Credentials
 function getSupabaseCredentials() {
   return {
-    url: localStorage.getItem(SUPABASE_CONFIG.urlKey) || "",
-    key: localStorage.getItem(SUPABASE_CONFIG.anonKey) || ""
+    url: localStorage.getItem(SUPABASE_CONFIG.urlKey) || SUPABASE_CONFIG.defaultUrl,
+    key: localStorage.getItem(SUPABASE_CONFIG.anonKey) || SUPABASE_CONFIG.defaultKey
   };
 }
 
@@ -204,17 +206,35 @@ async function fetchAssessmentsFromSupabaseCloud() {
 // 3. Sync Companies to Supabase Cloud
 async function syncCompaniesToSupabaseCloud(companies) {
   const client = getSupabaseClient();
-  if (!client || !Array.isArray(companies)) return { success: false };
+  if (!client) return { success: false, message: "Supabase client not connected." };
+  if (!Array.isArray(companies)) return { success: false, message: "Invalid companies data." };
+  if (companies.length === 0) return { success: true, data: [] };
 
   try {
     const user = getCurrentUser();
-    const payload = companies.map(c => ({
-      name: c.name,
+    
+    // Deduplicate companies by name (case-insensitive key, keeping last defined entry)
+    const uniqueCompanies = [];
+    const seenNames = new Set();
+    for (let i = companies.length - 1; i >= 0; i--) {
+      const c = companies[i];
+      if (!c || !c.name) continue;
+      const normalizedName = c.name.trim().toLowerCase();
+      if (normalizedName && !seenNames.has(normalizedName)) {
+        seenNames.add(normalizedName);
+        uniqueCompanies.unshift(c);
+      }
+    }
+
+    const payload = uniqueCompanies.map(c => ({
+      name: c.name.trim(),
       circle: c.circle || "",
       status: c.status || "Active",
       updated_at: new Date().toISOString(),
       ...(user ? { user_id: user.id } : {})
     }));
+
+    if (payload.length === 0) return { success: true, data: [] };
 
     const { data, error } = await client
       .from('companies')
@@ -250,18 +270,36 @@ async function fetchCompaniesFromSupabaseCloud() {
 // 5. Sync Materials to Supabase Cloud
 async function syncMaterialsToSupabaseCloud(materials) {
   const client = getSupabaseClient();
-  if (!client || !Array.isArray(materials)) return { success: false };
+  if (!client) return { success: false, message: "Supabase client not connected." };
+  if (!Array.isArray(materials)) return { success: false, message: "Invalid materials data." };
+  if (materials.length === 0) return { success: true, data: [] };
 
   try {
     const user = getCurrentUser();
-    const payload = materials.map(m => ({
-      code: m.code,
+    
+    // Deduplicate materials by code (case-insensitive key, keeping last defined entry)
+    const uniqueMaterials = [];
+    const seenCodes = new Set();
+    for (let i = materials.length - 1; i >= 0; i--) {
+      const m = materials[i];
+      if (!m || !m.code) continue;
+      const normalizedCode = m.code.trim().toLowerCase();
+      if (normalizedCode && !seenCodes.has(normalizedCode)) {
+        seenCodes.add(normalizedCode);
+        uniqueMaterials.unshift(m);
+      }
+    }
+
+    const payload = uniqueMaterials.map(m => ({
+      code: m.code.trim(),
       description: m.description || "",
       price: m.price || 0,
       unit: m.unit || "kg",
       updated_at: new Date().toISOString(),
       ...(user ? { user_id: user.id } : {})
     }));
+
+    if (payload.length === 0) return { success: true, data: [] };
 
     const { data, error } = await client
       .from('materials')

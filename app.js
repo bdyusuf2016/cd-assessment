@@ -2989,7 +2989,11 @@ async function handleSyncAllToCloud() {
     if (compRes.success && matRes.success) {
       showToast(state.language === "bn" ? "কোম্পানি ও মালামালের ডেটা Supabase ক্লাউডে সিঙ্ক হয়েছে! ☁️" : "Companies & Materials synced to Supabase Cloud!", "success");
     } else {
-      showToast(state.language === "bn" ? "সিঙ্ক করার সময় কিছু সমস্যা হয়েছে।" : "Sync partial error.", "warning");
+      let details = [];
+      if (!compRes.success && compRes.message) details.push((state.language === "bn" ? "কোম্পানি: " : "Companies: ") + compRes.message);
+      if (!matRes.success && matRes.message) details.push((state.language === "bn" ? "মালামাল: " : "Materials: ") + matRes.message);
+      let detailStr = details.length > 0 ? " (" + details.join(" | ") + ")" : "";
+      showToast((state.language === "bn" ? "সিঙ্ক করার সময় কিছু সমস্যা হয়েছে।" : "Sync partial error.") + detailStr, "warning");
     }
   } catch (err) {
     showToast("Cloud Sync Error: " + err.message, "error");
@@ -3114,7 +3118,11 @@ async function handleAuthSyncAll() {
     if (compRes.success && matRes.success) {
       showToast("কোম্পানি ও মালামাল ক্লাউডে সিঙ্ক হয়েছে! ☁️", "success");
     } else {
-      showToast("সিঙ্ক আংশিক সম্পন্ন হয়েছে।", "warning");
+      let details = [];
+      if (!compRes.success && compRes.message) details.push("কোম্পানি: " + compRes.message);
+      if (!matRes.success && matRes.message) details.push("মালামাল: " + matRes.message);
+      let detailStr = details.length > 0 ? " (" + details.join(" | ") + ")" : "";
+      showToast("সিঙ্ক আংশিক সম্পন্ন হয়েছে।" + detailStr, "warning");
     }
   } catch (err) {
     showToast("সিঙ্ক ত্রুটি: " + err.message, "error");
