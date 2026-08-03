@@ -137,7 +137,7 @@ function loadData() {
   }
 
   const activeCompany = state.companies.find(c => c.status !== "Inactive");
-  const headerCompanyValid = state.header.companyName && state.companies.some(c => c.name === state.header.companyName && c.status !== "Inactive");
+  const headerCompanyValid = state.header.companyName === "" || (state.header.companyName && state.companies.some(c => c.name === state.header.companyName && c.status !== "Inactive"));
   if (!headerCompanyValid && activeCompany) {
     state.header.companyName = activeCompany.name;
     saveState();
@@ -300,6 +300,9 @@ function initEventListeners() {
       state.header[key] = e.target.value;
       saveState();
       updatePrintHeader();
+      if (key === "companyName") {
+        renderCompanyOptions();
+      }
     };
     el.addEventListener("input",  sync);
     el.addEventListener("change", sync);
@@ -566,6 +569,8 @@ function updateUI() {
   renderCompanyList();
   updateDashboardMetrics();
   updatePrintHeader();
+  const permInput = document.getElementById("header-permissionNo");
+  if (permInput) permInput.value = state.header.permissionNo || "";
 }
 
 // === ROW MANAGEMENT ===
@@ -914,7 +919,19 @@ function resetAllData() {
   if (confirm(msg)) {
     state.assessmentRows = [];
     localStorage.removeItem("customs_assessment_rows");
+    
+    state.header.companyName = "";
+    state.header.permissionNo = "";
+    
     addRow();
+    
+    // Update the UI controls
+    renderCompanyOptions();
+    const permInput = document.getElementById("header-permissionNo");
+    if (permInput) permInput.value = "";
+    
+    updatePrintHeader();
+    
     showToast(state.language === "bn" ? "সব তথ্য মুছে ফেলা হয়েছে।" : "All data has been reset.", "warning");
   }
 }
@@ -2073,21 +2090,18 @@ function renderCompanyOptions() {
   const select = document.getElementById("header-companyName");
   if (!select) return;
   const active  = state.companies.filter(c => c.status !== "Inactive");
-  const current = state.header.companyName || "";
   const options = [...active];
-
-  if (!current && active.length) {
-    state.header.companyName = active[0].name;
-    saveState();
-  }
 
   if (state.header.companyName && !options.some(c => c.name === state.header.companyName)) {
     options.unshift({ name: state.header.companyName, circle: "", status: "Active" });
   }
 
-  select.innerHTML = options.length
-    ? options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
+  const selectHtml = options.length
+    ? `<option value="">Select Organization...</option>` +
+      options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
     : `<option value="">No active companies</option>`;
+
+  select.innerHTML = selectHtml;
   select.value = state.header.companyName || "";
 
   // Synchronize options and current value with custom searchable select
@@ -2205,11 +2219,21 @@ function renderCustomCompanyList(options) {
     return;
   }
 
-  optionsContainer.innerHTML = options.map(c => {
+  const filterInput = document.getElementById("company-search-filter");
+  const filterVal = filterInput ? filterInput.value.trim() : "";
+  let html = "";
+  if (!filterVal) {
+    const defaultText = state.language === "bn" ? "কোম্পানি সিলেক্ট করুন..." : "Select Organization...";
+    html += `<div class="searchable-select-option${!current ? ' selected' : ''}" data-value="">${defaultText}</div>`;
+  }
+
+  html += options.map(c => {
     const isSelected = c.name === current;
     const displayText = `${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}`;
     return `<div class="searchable-select-option${isSelected ? ' selected' : ''}" data-value="${escapeHtml(c.name)}">${displayText}</div>`;
   }).join("");
+
+  optionsContainer.innerHTML = html;
 
   // Attach click listener to each option
   optionsContainer.querySelectorAll(".searchable-select-option").forEach(el => {
