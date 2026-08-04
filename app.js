@@ -1704,6 +1704,18 @@ function addPageNumbersToPdf(pdf) {
   }
 }
 
+// Helper: inject temporary white-bg override into main page during PDF capture
+function _injectPdfBgOverride() {
+  const s = document.createElement('style');
+  s.id = 'pdf-export-override';
+  s.textContent = 'body, body::before, body::after, html { background: #fff !important; background-color: #fff !important; background-image: none !important; } body::before, body::after { display: none !important; content: none !important; }';
+  document.head.appendChild(s);
+}
+function _removePdfBgOverride() {
+  const s = document.getElementById('pdf-export-override');
+  if (s) s.remove();
+}
+
 async function exportToPDF() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
@@ -1711,6 +1723,8 @@ async function exportToPDF() {
 
   if (typeof html2pdf !== "undefined") {
     const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
+
+    _injectPdfBgOverride();
 
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
@@ -1724,11 +1738,7 @@ async function exportToPDF() {
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
-        onclone: function(clonedDoc) {
-          const s = clonedDoc.createElement('style');
-          s.textContent = '*, *::before, *::after { background: #fff !important; background-color: #fff !important; background-image: none !important; filter: none !important; -webkit-filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; text-shadow: none !important; } *::before, *::after { display: none !important; content: none !important; }';
-          clonedDoc.head.appendChild(s);
-        }
+        windowWidth: 1122
       },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
       pagebreak:    { mode: ['css', 'legacy'] }
@@ -1761,6 +1771,7 @@ async function exportToPDF() {
       window.print();
     } finally {
       exportFrame.remove();
+      _removePdfBgOverride();
     }
   } else {
     window.print();
@@ -1794,6 +1805,8 @@ async function sharePdfToWhatsApp() {
 
     const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
 
+    _injectPdfBgOverride();
+
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     filename,
@@ -1806,11 +1819,7 @@ async function sharePdfToWhatsApp() {
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
-        onclone: function(clonedDoc) {
-          const s = clonedDoc.createElement('style');
-          s.textContent = '*, *::before, *::after { background: #fff !important; background-color: #fff !important; background-image: none !important; filter: none !important; -webkit-filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; text-shadow: none !important; } *::before, *::after { display: none !important; content: none !important; }';
-          clonedDoc.head.appendChild(s);
-        }
+        windowWidth: 1122
       },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
       pagebreak:    { mode: ['css', 'legacy'] }
@@ -1819,6 +1828,7 @@ async function sharePdfToWhatsApp() {
     const exportRoot = exportFrame.contentDocument?.body;
     if (!exportRoot) {
       if (waWindow) waWindow.close();
+      _removePdfBgOverride();
       throw new Error("Export frame body not available.");
     }
     await new Promise(resolve => setTimeout(resolve, 180));
@@ -1828,6 +1838,7 @@ async function sharePdfToWhatsApp() {
     addPageNumbersToPdf(pdfDoc);
     const pdfBlob = await worker.output('blob');
     exportFrame.remove();
+    _removePdfBgOverride();
 
     if (!pdfBlob || pdfBlob.size < 1024) {
       if (waWindow) waWindow.close();
