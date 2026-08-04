@@ -1572,8 +1572,8 @@ function generateExportHtml(company, lang) {
     </table>
 
     <div class="note-box" style="border: 1px solid #000000 !important; padding: 10px 14px !important; margin-top: 14px !important; font-size: 10.5pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
-      <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">${inWordsLabel} :</span>
-      <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${inWordsValue}${dict.takaOnly}</span>
+      <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">কথায় :</span>
+      <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${numberToBengaliWords(totDt)} টাকা মাত্র।</span>
     </div>
 
     <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 55px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
