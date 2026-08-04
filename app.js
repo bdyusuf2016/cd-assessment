@@ -1571,28 +1571,28 @@ function generateExportHtml(company, lang) {
       </tfoot>
     </table>
 
-    <div class="note-box" style="border: 1px solid #000000 !important; padding: 10px 14px !important; margin-top: 14px !important; font-size: 10.5pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
+    <div class="note-box" style="border: 1px solid #000000 !important; padding: 6px 10px !important; margin-top: 8px !important; font-size: 10pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
       <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">কথায় :</span>
       <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${numberToBengaliWords(totDt)} টাকা মাত্র।</span>
     </div>
 
-    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 55px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
+    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 24px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
+        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.preparedBy}</div>
       </div>
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
+        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.checkedBy}</div>
       </div>
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
+        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
@@ -1951,7 +1951,7 @@ async function generatePdfBlobFromExportHtml(company, lang) {
 
     // Add extra pages if content naturally exceeds 1 page
     while (heightLeft >= 10) {
-      position = heightLeft - imgHeight;
+      position = heightLeft - imgHeight + 10;
       pdf.addPage();
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
