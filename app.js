@@ -1715,18 +1715,23 @@ async function exportToPDF() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
-      image:        { type: 'jpeg', quality: 1.0 },
+      image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  {
         scale: 2,
         useCORS: true,
-        logging: true,
+        logging: false,
         letterRendering: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        onclone: function(clonedDoc) {
+          const s = clonedDoc.createElement('style');
+          s.textContent = '*, *::before, *::after { background: #fff !important; background-color: #fff !important; background-image: none !important; filter: none !important; -webkit-filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; text-shadow: none !important; } *::before, *::after { display: none !important; content: none !important; }';
+          clonedDoc.head.appendChild(s);
+        }
       },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
+      pagebreak:    { mode: ['css', 'legacy'] }
     };
 
     const exportRoot = exportFrame.contentDocument?.body;
@@ -1792,18 +1797,23 @@ async function sharePdfToWhatsApp() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     filename,
-      image:        { type: 'jpeg', quality: 1.0 },
+      image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  {
         scale: 2,
         useCORS: true,
-        logging: true,
+        logging: false,
         letterRendering: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        onclone: function(clonedDoc) {
+          const s = clonedDoc.createElement('style');
+          s.textContent = '*, *::before, *::after { background: #fff !important; background-color: #fff !important; background-image: none !important; filter: none !important; -webkit-filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; text-shadow: none !important; } *::before, *::after { display: none !important; content: none !important; }';
+          clonedDoc.head.appendChild(s);
+        }
       },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['css', 'legacy'], after: '.pdf-summary' }
+      pagebreak:    { mode: ['css', 'legacy'] }
     };
 
     const exportRoot = exportFrame.contentDocument?.body;
