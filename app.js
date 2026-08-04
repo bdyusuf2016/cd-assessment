@@ -1596,9 +1596,14 @@ function generateExportHtml(company, lang) {
       </div>
     </div>
 
-    <div class="code-instruction-box" style="margin-top: 18px !important; border: 1px solid #000000 !important; padding: 6px 12px !important; font-size: 8.5pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important;">
-      <div style="font-weight: 700 !important; margin-bottom: 4px !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important;">
-        ${lang === "bn" ? "চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা:" : "Treasury Code Tax Payment Directive:"}
+    <div class="code-instruction-box" style="margin-top: 16px !important; border: 1px solid #000000 !important; padding: 6px 12px !important; font-size: 8.5pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important;">
+      <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 4px !important; background: #ffffff !important; color: #000000 !important;">
+        <div style="font-weight: 700 !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important;">
+          ${lang === "bn" ? "চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা:" : "Treasury Code Tax Payment Directive:"}
+        </div>
+        <div style="font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
+          Customs Bond Commissionerate, Dhaka(South) এর অফিস কোড : <strong>1110208102384</strong>
+        </div>
       </div>
       <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; font-size: 8pt !important; line-height: 1.35 !important; background: #ffffff !important; color: #000000 !important;">
         <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> ${lang === "bn" ? "কাস্টমস শুল্ক (CD + RD)" : "Customs Duty (CD + RD)"} = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), lang)}</strong></div>
