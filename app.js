@@ -1596,6 +1596,17 @@ function generateExportHtml(company, lang) {
       </div>
     </div>
 
+    <div class="code-instruction-box" style="margin-top: 18px !important; border: 1px solid #000000 !important; padding: 6px 12px !important; font-size: 8.5pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important;">
+      <div style="font-weight: 700 !important; margin-bottom: 4px !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important;">
+        ${lang === "bn" ? "চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা:" : "Treasury Code Tax Payment Directive:"}
+      </div>
+      <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; font-size: 8pt !important; line-height: 1.35 !important; background: #ffffff !important; color: #000000 !important;">
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> ${lang === "bn" ? "কাস্টমস শুল্ক (CD + RD)" : "Customs Duty (CD + RD)"} = <strong>${formatCurrency(totCd + totRd, lang)}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> ${lang === "bn" ? "আমদানি পণ্যের উপর মূসক (VAT + ATD)" : "Import VAT (VAT + ATD)"} = <strong>${formatCurrency(totVat + totSd + totAt, lang)}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> ${lang === "bn" ? "কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT)" : "Income Tax on Companies (AIT)"} = <strong>${formatCurrency(totAit, lang)}</strong></div>
+      </div>
+    </div>
+
     <div class="export-footer-credit" style="position: absolute !important; bottom: 18px !important; left: 48px !important; right: 48px !important; border-top: 1px solid #b0b0b0 !important; padding-top: 6px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; font-size: 8pt !important; color: #505050 !important; font-family: 'Inter', 'Segoe UI', sans-serif !important; background: #ffffff !important;">
       <div style="background: #ffffff !important; color: #505050 !important;">Customs Assessment Manager v2.0</div>
       <div style="background: #ffffff !important; color: #505050 !important;">Developed by: <strong>Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong>+8801933814200</strong></div>
