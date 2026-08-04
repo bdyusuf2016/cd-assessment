@@ -1601,9 +1601,9 @@ function generateExportHtml(company, lang) {
     </div>
 
     <div class="code-instruction-box" style="margin-top: 10px !important; border: 1px solid #000000 !important; padding: 6px 12px !important; font-size: 8.5pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important;">
-      <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 4px !important; background: #ffffff !important; color: #000000 !important;">
-        <div style="font-weight: 700 !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important;">
-          চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা:
+      <div style="display: flex !important; justify-content: flex-start !important; align-items: center !important; gap: 12px !important; margin-bottom: 4px !important; background: #ffffff !important; color: #000000 !important;">
+        <div style="font-weight: 700 !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important; white-space: nowrap !important;">
+          চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা :
         </div>
         <div style="font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
           কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ) এর অফিস কোড : <strong>1110208102384</strong>
