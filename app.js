@@ -1167,9 +1167,8 @@ function exportToHTML() {
 
 // Build shared export HTML used by both HTML download and PDF generation
 function generateExportHtml(company, lang) {
-  // Always force English for all exported documents and print formats
-  lang = "en";
-  const dict = TRANSLATIONS[lang];
+  lang = lang || state.language || "bn";
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.bn;
   const dr = state.defaultRates;
   const cv = state.columnVisibility || { cd: true, rd: true, sd: true, vat: true, ait: true, at: true };
   const h = state.header;
@@ -1192,14 +1191,18 @@ function generateExportHtml(company, lang) {
     totDt += r.totalDutyTax;
   });
 
-  const inWordsValue = numberToEnglishWords(totDt);
-  const currentDate = new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+  const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
+  const currentDate = lang === "bn" 
+    ? toBengaliNumerals(new Date().toLocaleDateString("en-GB", { year: 'numeric', month: 'long', day: 'numeric' }))
+    : new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
   const fmtVal = v => v ? escapeHtml(v) : "";
-  const officeSub = "Customs Bond Commissionerate, Dhaka (South), DEPZ Division, Savar, Dhaka.";
-  const docTitle = "Customs Assessment Sheet";
-  const dateLabel = "Date";
-  const inWordsLabel = dict.inWords.replace(':', '').trim();
-  const permNoDisplay = h.permissionNo ? "GB" + escapeHtml(h.permissionNo) : "";
+  const officeSub = lang === "bn" 
+    ? "কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।" 
+    : "Customs Bond Commissionerate, Dhaka (South), DEPZ Division, Savar, Dhaka.";
+  const docTitle = lang === "bn" ? "কাস্টমস শুল্কায়ন বিবরণী" : "Customs Assessment Sheet";
+  const dateLabel = lang === "bn" ? "তারিখ" : "Date";
+  const inWordsLabel = dict.inWords ? dict.inWords.replace(':', '').trim() : (lang === "bn" ? "কথায়" : "In Words");
+  const permNoDisplay = h.permissionNo ? "GB" + (lang === "bn" ? toBengaliNumerals(escapeHtml(h.permissionNo)) : escapeHtml(h.permissionNo)) : "";
 
   return `<!DOCTYPE html>
 <html lang="${lang}" style="background:#ffffff !important;background-color:#ffffff !important;background-image:none !important;">
