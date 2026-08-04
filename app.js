@@ -1171,6 +1171,7 @@ function generateExportHtml(company, lang) {
   lang = "en";
   const dict = TRANSLATIONS[lang];
   const dr = state.defaultRates;
+  const cv = state.columnVisibility || { cd: true, rd: true, sd: true, vat: true, ait: true, at: true };
   const h = state.header;
 
   let totQty = 0, totVal = 0, totIns = 0, totLand = 0, totAv = 0;
