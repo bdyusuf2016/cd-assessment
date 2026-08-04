@@ -1887,16 +1887,20 @@ async function generatePdfBlobFromExportHtml(company, lang) {
   tempDiv.style.overflow = "visible";
   tempDiv.style.pointerEvents = "none";
 
-  // Parse export HTML and extract sheet body
+  // Parse export HTML and inject styles + sheet body
   const fullHtml = generateExportHtml(company, lang);
   const parser = new DOMParser();
   const doc = parser.parseFromString(fullHtml, "text/html");
-  const sheetNode = doc.querySelector(".sheet");
 
+  // Include all style tags from head to ensure full styling rules apply inside tempDiv
+  const styleNodes = Array.from(doc.head.querySelectorAll("style, link"));
+  styleNodes.forEach(st => tempDiv.appendChild(doc.adoptNode(st.cloneNode(true))));
+
+  const sheetNode = doc.querySelector(".sheet");
   if (sheetNode) {
     tempDiv.appendChild(doc.adoptNode(sheetNode.cloneNode(true)));
   } else {
-    tempDiv.innerHTML = doc.body.innerHTML;
+    tempDiv.innerHTML += doc.body.innerHTML;
   }
 
   document.body.appendChild(tempDiv);
