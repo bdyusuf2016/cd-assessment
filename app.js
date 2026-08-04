@@ -1226,6 +1226,7 @@ function generateExportHtml(company, lang) {
       color: #000000 !important;
       background: #ffffff !important;
       background-color: #ffffff !important;
+      background-image: none !important;
       padding: 10px 10px 12px !important;
       font-size: 8.5pt !important;
       line-height: 1.4 !important;
@@ -1234,6 +1235,7 @@ function generateExportHtml(company, lang) {
       width: 100% !important;
       background: #ffffff !important;
       background-color: #ffffff !important;
+      background-image: none !important;
       color: #000000 !important;
     }
     .sheet * {
@@ -1241,6 +1243,7 @@ function generateExportHtml(company, lang) {
       border-color: #000000 !important;
       background-color: #ffffff !important;
       background: #ffffff !important;
+      background-image: none !important;
     }
     /* Elements that must stay visually transparent (no fill) */
     .signature-line,
@@ -1310,10 +1313,12 @@ function generateExportHtml(company, lang) {
     .assessment-table th,
     .assessment-table td {
       border: 1px solid #000 !important;
+      border-radius: 0 !important;
       padding: 5px 3px !important;
       vertical-align: middle !important;
       background-color: #fff !important;
       background: #fff !important;
+      background-image: none !important;
       word-wrap: break-word !important;
       overflow-wrap: break-word !important;
     }
@@ -1410,8 +1415,8 @@ function generateExportHtml(company, lang) {
     tr, td, th { page-break-inside: avoid; page-break-after: auto; }
   </style>
 </head>
-<body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
-  <div class="sheet" style="width: 100% !important; background: #ffffff !important; background-color: #ffffff !important; color: #000000 !important;">
+<body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
+  <div class="sheet" style="width: 100% !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; color: #000000 !important;">
     <div class="header" style="text-align: center !important; margin-bottom: 18px !important; background: #ffffff !important;">
       <div class="office-sub" style="font-size: 14pt !important; font-weight: 700 !important; margin-bottom: 6px !important; text-align: center !important; color: #000000 !important; background: #ffffff !important; letter-spacing: 0.2px !important;">${officeSub}</div>
       <div class="doc-title" style="font-size: 12pt !important; font-weight: 600 !important; display: inline-block !important; border-bottom: 2px solid #000000 !important; padding-bottom: 1px !important; text-decoration: none !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">${docTitle}</div>
