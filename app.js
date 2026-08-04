@@ -1192,12 +1192,12 @@ function generateExportHtml(company, lang) {
   });
 
   const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
-  const currentDate = lang === "bn" 
+  const currentDate = lang === "bn"
     ? toBengaliNumerals(new Date().toLocaleDateString("en-GB", { year: 'numeric', month: 'long', day: 'numeric' }))
     : new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
   const fmtVal = v => v ? escapeHtml(v) : "";
-  const officeSub = lang === "bn" 
-    ? "কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।" 
+  const officeSub = lang === "bn"
+    ? "কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ), ডিইপিজেড বিভাগ, সাভার, ঢাকা।"
     : "Customs Bond Commissionerate, Dhaka (South), DEPZ Division, Savar, Dhaka.";
   const docTitle = lang === "bn" ? "কাস্টমস শুল্কায়ন বিবরণী" : "Customs Assessment Sheet";
   const dateLabel = lang === "bn" ? "তারিখ" : "Date";
@@ -1512,7 +1512,7 @@ function generateExportHtml(company, lang) {
         <tr>
           <th style="border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.sl}</th>
           <th style="border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.approveCode}</th>
-          <th style="border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.description}</th>
+          <th style="border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important; width: 25% !important; min-width: 200px !important;">${dict.description}</th>
           <th style="border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unitPrice}</th>
           <th style="border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unit}</th>
           <th style="border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.qty}</th>
@@ -1534,7 +1534,7 @@ function generateExportHtml(company, lang) {
           <tr>
             <td style="border: 1px solid #000 !important; padding: 6px 2px !important; vertical-align: middle !important; text-align: center !important; font-size: 7.5pt !important; background: #fff !important; color: #000 !important; white-space: nowrap !important;">${lang === "bn" ? toBengaliNumerals(i + 1) : i + 1}</td>
             <td style="border: 1px solid #000 !important; padding: 6px 2px !important; vertical-align: middle !important; text-align: center !important; font-size: 7.5pt !important; background: #fff !important; color: #000 !important; white-space: nowrap !important;">${escapeHtml(r.approveCode)}</td>
-            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: left !important; font-size: 7.5pt !important; word-wrap: break-word !important; overflow-wrap: break-word !important; background: #fff !important; color: #000 !important;">${escapeHtml(r.description)}</td>
+            <td style="border: 1px solid #000 !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: left !important; font-size: 7.5pt !important; width: 25% !important; min-width: 200px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; background: #fff !important; color: #000 !important;">${escapeHtml(r.description)}</td>
             <td style="border: 1px solid #000 !important; padding: 6px 2px !important; vertical-align: middle !important; text-align: right !important; font-size: 7.2pt !important; background: #fff !important; color: #000 !important; white-space: nowrap !important;">${formatCurrency(r.unitPrice, lang)}</td>
             <td style="border: 1px solid #000 !important; padding: 6px 2px !important; vertical-align: middle !important; text-align: center !important; font-size: 7.5pt !important; background: #fff !important; color: #000 !important; white-space: nowrap !important;">${escapeHtml(r.unit)}</td>
             <td style="border: 1px solid #000 !important; padding: 6px 2px !important; vertical-align: middle !important; text-align: right !important; font-size: 7.2pt !important; background: #fff !important; color: #000 !important; white-space: nowrap !important;">${lang === "bn" ? toBengaliNumerals((parseFloat(r.quantity) || 0).toFixed(2)) : (parseFloat(r.quantity) || 0).toFixed(2)}</td>
@@ -1611,7 +1611,7 @@ function generateExportHtml(company, lang) {
       </div>
       <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; font-size: 8pt !important; line-height: 1.35 !important; background: #ffffff !important; color: #000000 !important;">
         <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> কাস্টমস শুল্ক (CD + RD) = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), "bn")}</strong></div>
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + ATD) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "bn")}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + AT) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "bn")}</strong></div>
         <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "bn")}</strong></div>
       </div>
       <div style="margin-top: 4px !important; font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
