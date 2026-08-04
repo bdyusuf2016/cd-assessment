@@ -1724,15 +1724,20 @@ body.light-mode .searchable-select-dropdown {
   .toast-container,
   .modal-overlay { display: none !important; }
 
+  html,
+  body {
+    width: 1122px !important;
+    min-height: 794px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    background-color: #fff !important;
+    overflow: visible !important;
+  }
+
   .main-area { margin-left: 0 !important; }
 
   .print-only { display: block !important; }
-
-  html,
-  body {
-    background: #fff !important;
-    background-color: #fff !important;
-  }
 
   body {
     color: #000 !important;
@@ -1780,23 +1785,23 @@ body.light-mode .searchable-select-dropdown {
   }
 
   /* Aligned Column Widths under print */
-  .assessment-table th:nth-child(1), .assessment-table td:nth-child(1) { width: 3% !important; }
-  .assessment-table th:nth-child(2), .assessment-table td:nth-child(2) { width: 7.5% !important; text-align: center !important; }
-  .assessment-table th:nth-child(3), .assessment-table td:nth-child(3) { width: 14% !important; }
-  .assessment-table th:nth-child(4), .assessment-table td:nth-child(4) { width: 6.5% !important; }
-  .assessment-table th:nth-child(5), .assessment-table td:nth-child(5) { width: 3.5% !important; text-align: center !important; }
-  .assessment-table th:nth-child(6), .assessment-table td:nth-child(6) { width: 5.5% !important; }
-  .assessment-table th:nth-child(7), .assessment-table td:nth-child(7) { width: 7.5% !important; }
-  .assessment-table th:nth-child(8), .assessment-table td:nth-child(8) { width: 5.5% !important; }
-  .assessment-table th:nth-child(9), .assessment-table td:nth-child(9) { width: 5.5% !important; }
-  .assessment-table th:nth-child(10), .assessment-table td:nth-child(10) { width: 7.5% !important; }
-  .assessment-table th:nth-child(11), .assessment-table td:nth-child(11) { width: 5.5% !important; }
-  .assessment-table th:nth-child(12), .assessment-table td:nth-child(12) { width: 5.5% !important; }
-  .assessment-table th:nth-child(13), .assessment-table td:nth-child(13) { width: 5.5% !important; }
-  .assessment-table th:nth-child(14), .assessment-table td:nth-child(14) { width: 5.5% !important; }
-  .assessment-table th:nth-child(15), .assessment-table td:nth-child(15) { width: 5.5% !important; }
-  .assessment-table th:nth-child(16), .assessment-table td:nth-child(16) { width: 5.5% !important; }
-  .assessment-table th:nth-child(17), .assessment-table td:nth-child(17) { width: 7.5% !important; }
+  .assessment-table th:nth-child(1), .assessment-table td:nth-child(1) { width: 2.82% !important; }
+  .assessment-table th:nth-child(2), .assessment-table td:nth-child(2) { width: 4.69% !important; text-align: center !important; }
+  .assessment-table th:nth-child(3), .assessment-table td:nth-child(3) { width: 14.55% !important; }
+  .assessment-table th:nth-child(4), .assessment-table td:nth-child(4) { width: 6.10% !important; }
+  .assessment-table th:nth-child(5), .assessment-table td:nth-child(5) { width: 3.29% !important; text-align: center !important; }
+  .assessment-table th:nth-child(6), .assessment-table td:nth-child(6) { width: 5.16% !important; }
+  .assessment-table th:nth-child(7), .assessment-table td:nth-child(7) { width: 7.04% !important; }
+  .assessment-table th:nth-child(8), .assessment-table td:nth-child(8) { width: 5.16% !important; }
+  .assessment-table th:nth-child(9), .assessment-table td:nth-child(9) { width: 5.16% !important; }
+  .assessment-table th:nth-child(10), .assessment-table td:nth-child(10) { width: 7.04% !important; }
+  .assessment-table th:nth-child(11), .assessment-table td:nth-child(11) { width: 5.16% !important; }
+  .assessment-table th:nth-child(12), .assessment-table td:nth-child(12) { width: 5.16% !important; }
+  .assessment-table th:nth-child(13), .assessment-table td:nth-child(13) { width: 5.16% !important; }
+  .assessment-table th:nth-child(14), .assessment-table td:nth-child(14) { width: 5.16% !important; }
+  .assessment-table th:nth-child(15), .assessment-table td:nth-child(15) { width: 5.16% !important; }
+  .assessment-table th:nth-child(16), .assessment-table td:nth-child(16) { width: 5.16% !important; }
+  .assessment-table th:nth-child(17), .assessment-table td:nth-child(17) { width: 7.98% !important; }
 
   .tab-panel { display: none !important; }
   #assessment-tab { display: block !important; }
@@ -1804,6 +1809,14 @@ body.light-mode .searchable-select-dropdown {
   #settings-tab { display: none !important; }
   .content-area { padding: 0 !important; }
   .table-wrap { border: none !important; box-shadow: none !important; overflow: visible !important; }
+
+  .sheet {
+    width: 1122px !important;
+    max-width: 1122px !important;
+    min-height: 780px !important;
+    box-sizing: border-box !important;
+    padding: 24px 48px 40px 48px !important;
+  }
   .assessment-table .btn-delete-row,
   .assessment-table .col-action,
   .assessment-table .rate-input { display: none !important; }
@@ -1858,7 +1871,7 @@ body.light-mode .searchable-select-dropdown {
 
   @page {
     size: A4 landscape;
-    margin: 0.3in 0.4in;
+    margin: 10mm 12mm !important;
   }
 
   .meta-item {

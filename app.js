@@ -156,13 +156,13 @@ function loadData() {
 }
 
 function saveState() {
-  localStorage.setItem("customs_materials",           JSON.stringify(state.materials));
-  localStorage.setItem("customs_companies",           JSON.stringify(state.companies));
-  localStorage.setItem("customs_default_rates",       JSON.stringify(state.defaultRates));
-  localStorage.setItem("customs_calc_method",         state.calculationMethod);
-  localStorage.setItem("customs_header",              JSON.stringify(state.header));
-  localStorage.setItem("customs_assessment_rows",     JSON.stringify(state.assessmentRows));
-  localStorage.setItem("customs_column_visibility",   JSON.stringify(state.columnVisibility));
+  localStorage.setItem("customs_materials", JSON.stringify(state.materials));
+  localStorage.setItem("customs_companies", JSON.stringify(state.companies));
+  localStorage.setItem("customs_default_rates", JSON.stringify(state.defaultRates));
+  localStorage.setItem("customs_calc_method", state.calculationMethod);
+  localStorage.setItem("customs_header", JSON.stringify(state.header));
+  localStorage.setItem("customs_assessment_rows", JSON.stringify(state.assessmentRows));
+  localStorage.setItem("customs_column_visibility", JSON.stringify(state.columnVisibility));
 }
 
 function clearAllCompanies() {
@@ -183,8 +183,8 @@ function clearAllCompanies() {
 
 // === SIDEBAR ===
 function initSidebar() {
-  const sidebar   = document.getElementById("sidebar");
-  const backdrop  = document.getElementById("sidebarBackdrop");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebarBackdrop");
   const toggleBtn = document.getElementById("sidebarToggle");
 
   if (toggleBtn) {
@@ -255,7 +255,7 @@ function initEventListeners() {
   });
 
   // Default rate inputs
-  const rateKeys = ["cd","rd","sd","vat","ait","at","insurance","landing"];
+  const rateKeys = ["cd", "rd", "sd", "vat", "ait", "at", "insurance", "landing"];
   rateKeys.forEach(key => {
     const el = document.getElementById(`default-${key}`);
     if (!el) return;
@@ -275,12 +275,12 @@ function initEventListeners() {
       ? "আপনি কি বিদ্যমান সকল লাইনে এই ডিফল্ট রেটগুলো প্রয়োগ করতে চান?"
       : "Do you want to apply these default rates to all existing rows?")) {
       state.assessmentRows.forEach(row => {
-        row.cdRate  = state.defaultRates.cd;
-        row.rdRate  = state.defaultRates.rd;
-        row.sdRate  = state.defaultRates.sd;
+        row.cdRate = state.defaultRates.cd;
+        row.rdRate = state.defaultRates.rd;
+        row.sdRate = state.defaultRates.sd;
         row.vatRate = state.defaultRates.vat;
         row.aitRate = state.defaultRates.ait;
-        row.atRate  = state.defaultRates.at;
+        row.atRate = state.defaultRates.at;
       });
       saveState();
       recalculateAllRows();
@@ -304,7 +304,7 @@ function initEventListeners() {
         renderCompanyOptions();
       }
     };
-    el.addEventListener("input",  sync);
+    el.addEventListener("input", sync);
     el.addEventListener("change", sync);
   });
 
@@ -455,9 +455,9 @@ function switchTab(tabId) {
 
   // Topbar action groups
   document.getElementById("assessmentActions").style.display = tabId === "assessment" ? "" : "none";
-  document.getElementById("materialsActions").style.display  = tabId === "materials"  ? "" : "none";
-  document.getElementById("companiesActions").style.display  = tabId === "companies"  ? "" : "none";
-  document.getElementById("settingsActions").style.display   = tabId === "settings"   ? "" : "none";
+  document.getElementById("materialsActions").style.display = tabId === "materials" ? "" : "none";
+  document.getElementById("companiesActions").style.display = tabId === "companies" ? "" : "none";
+  document.getElementById("settingsActions").style.display = tabId === "settings" ? "" : "none";
 
   // Update page name
   const dict = TRANSLATIONS[state.language];
@@ -506,10 +506,10 @@ function updateUI() {
   document.title = dict.title;
 
   // Sidebar labels
-  document.getElementById("sidebarTitle").textContent     = dict.title;
+  document.getElementById("sidebarTitle").textContent = dict.title;
   document.getElementById("navLabelAssessment").textContent = dict.assessment;
-  document.getElementById("navLabelMaterials").textContent  = dict.materials;
-  document.getElementById("navLabelSettings").textContent   = dict.settings;
+  document.getElementById("navLabelMaterials").textContent = dict.materials;
+  document.getElementById("navLabelSettings").textContent = dict.settings;
 
   // Topbar page name (based on active tab)
   const activeTab = document.querySelector(".nav-item.active[data-tab]");
@@ -522,39 +522,39 @@ function updateUI() {
   // Action bar labels
   document.getElementById("lblAddRow").textContent = dict.addNewItem;
   if (document.getElementById("lblSaveAssessment")) document.getElementById("lblSaveAssessment").textContent = dict.saveAssessment;
-  if (document.getElementById("lblSavedHistory"))    document.getElementById("lblSavedHistory").textContent    = dict.saveHistory;
-  if (document.getElementById("lblWhatsappShare"))   document.getElementById("lblWhatsappShare").textContent   = dict.whatsappShare;
-  document.getElementById("lblPrint").textContent  = dict.printBtn;
-  if (document.getElementById("lblExportPdf"))  document.getElementById("lblExportPdf").textContent  = dict.exportPdf;
+  if (document.getElementById("lblSavedHistory")) document.getElementById("lblSavedHistory").textContent = dict.saveHistory;
+  if (document.getElementById("lblWhatsappShare")) document.getElementById("lblWhatsappShare").textContent = dict.whatsappShare;
+  document.getElementById("lblPrint").textContent = dict.printBtn;
+  if (document.getElementById("lblExportPdf")) document.getElementById("lblExportPdf").textContent = dict.exportPdf;
   if (document.getElementById("lblExportHtml")) document.getElementById("lblExportHtml").textContent = dict.exportHtml;
   document.getElementById("lblExport").textContent = dict.exportBtn;
   document.getElementById("lblImport").textContent = dict.importBtn;
-  document.getElementById("lblReset").textContent  = dict.resetBtn;
+  document.getElementById("lblReset").textContent = dict.resetBtn;
 
   // Dashboard labels
-  document.getElementById("dashLabelItems").textContent   = dict.totalItems;
-  document.getElementById("dashLabelVal").textContent     = dict.totalAssessableVal;
-  document.getElementById("dashLabelTax").textContent     = dict.totalDutyTax;
+  document.getElementById("dashLabelItems").textContent = dict.totalItems;
+  document.getElementById("dashLabelVal").textContent = dict.totalAssessableVal;
+  document.getElementById("dashLabelTax").textContent = dict.totalDutyTax;
 
   // Form labels
-  if (document.getElementById("lblCompanyName")) document.getElementById("lblCompanyName").textContent   = dict.companyName;
-  if (document.getElementById("lblPermissionNo"))  document.getElementById("lblPermissionNo").textContent   = dict.permissionNo;
-  if (document.getElementById("lblHasFile"))       document.getElementById("lblHasFile").textContent       = dict.hasFileNo;
-  if (document.getElementById("lblFilePage"))      document.getElementById("lblFilePage").textContent      = dict.filePageNo;
-  if (document.getElementById("lblNotePara"))      document.getElementById("lblNotePara").textContent      = dict.noteParaNo;
-  if (document.getElementById("lblLetterPage"))    document.getElementById("lblLetterPage").textContent    = dict.letterPageNo;
-  if (document.getElementById("lblBepza"))         document.getElementById("lblBepza").textContent         = dict.bepzaRecNo;
+  if (document.getElementById("lblCompanyName")) document.getElementById("lblCompanyName").textContent = dict.companyName;
+  if (document.getElementById("lblPermissionNo")) document.getElementById("lblPermissionNo").textContent = dict.permissionNo;
+  if (document.getElementById("lblHasFile")) document.getElementById("lblHasFile").textContent = dict.hasFileNo;
+  if (document.getElementById("lblFilePage")) document.getElementById("lblFilePage").textContent = dict.filePageNo;
+  if (document.getElementById("lblNotePara")) document.getElementById("lblNotePara").textContent = dict.noteParaNo;
+  if (document.getElementById("lblLetterPage")) document.getElementById("lblLetterPage").textContent = dict.letterPageNo;
+  if (document.getElementById("lblBepza")) document.getElementById("lblBepza").textContent = dict.bepzaRecNo;
 
   // Excel Paste elements
-  if (document.getElementById("lblPasteExcel"))            document.getElementById("lblPasteExcel").textContent = dict.pasteExcelBtn;
-  if (document.getElementById("lblPasteExcelModalTitle"))  document.getElementById("lblPasteExcelModalTitle").textContent = dict.pasteExcelModalTitle;
-  if (document.getElementById("lblPasteExcelLabel"))       document.getElementById("lblPasteExcelLabel").textContent = dict.pasteExcelLabel;
-  if (document.getElementById("excelPasteArea"))           document.getElementById("excelPasteArea").placeholder = dict.pasteExcelPlaceholder;
-  if (document.getElementById("processPasteExcelBtn"))     document.getElementById("processPasteExcelBtn").innerHTML = `<span>📋</span> ${dict.importDataBtn}`;
-  if (document.getElementById("cancelPasteExcelBtn"))      document.getElementById("cancelPasteExcelBtn").textContent = dict.cancelBtn;
+  if (document.getElementById("lblPasteExcel")) document.getElementById("lblPasteExcel").textContent = dict.pasteExcelBtn;
+  if (document.getElementById("lblPasteExcelModalTitle")) document.getElementById("lblPasteExcelModalTitle").textContent = dict.pasteExcelModalTitle;
+  if (document.getElementById("lblPasteExcelLabel")) document.getElementById("lblPasteExcelLabel").textContent = dict.pasteExcelLabel;
+  if (document.getElementById("excelPasteArea")) document.getElementById("excelPasteArea").placeholder = dict.pasteExcelPlaceholder;
+  if (document.getElementById("processPasteExcelBtn")) document.getElementById("processPasteExcelBtn").innerHTML = `<span>📋</span> ${dict.importDataBtn}`;
+  if (document.getElementById("cancelPasteExcelBtn")) document.getElementById("cancelPasteExcelBtn").textContent = dict.cancelBtn;
 
   // Settings
-  document.getElementById("lblFormulaTitle").textContent  = dict.formulaSettings;
+  document.getElementById("lblFormulaTitle").textContent = dict.formulaSettings;
   document.getElementById("lblTaxRatesTitle").textContent = dict.taxRates;
   document.getElementById("calcMethodSelect").options[0].text = dict.standardBDFormula;
   document.getElementById("calcMethodSelect").options[1].text = dict.simplePercentFormula;
@@ -578,16 +578,16 @@ function updateUI() {
 function addRow(data = {}) {
   const rowId = "row_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
   const newRow = {
-    id:          rowId,
+    id: rowId,
     approveCode: data.approveCode || "",
     description: data.description || "",
-    unitPrice:   data.price !== undefined ? data.price : 0,
-    unit:        data.unit || "kg",
-    quantity:    data.quantity !== undefined ? data.quantity : 0,
+    unitPrice: data.price !== undefined ? data.price : 0,
+    unit: data.unit || "kg",
+    quantity: data.quantity !== undefined ? data.quantity : 0,
     totalPrice: 0, insurance: 0, landing: 0, assessableValue: 0,
-    cdRate:  state.defaultRates.cd,  rdRate:  state.defaultRates.rd,
-    sdRate:  state.defaultRates.sd,  vatRate: state.defaultRates.vat,
-    aitRate: state.defaultRates.ait, atRate:  state.defaultRates.at,
+    cdRate: state.defaultRates.cd, rdRate: state.defaultRates.rd,
+    sdRate: state.defaultRates.sd, vatRate: state.defaultRates.vat,
+    aitRate: state.defaultRates.ait, atRate: state.defaultRates.at,
     cd: 0, rd: 0, sd: 0, vat: 0, ait: 0, at: 0, totalDutyTax: 0
   };
   state.assessmentRows.push(newRow);
@@ -599,30 +599,30 @@ function addRow(data = {}) {
 }
 
 function calculateRow(row) {
-  const qty   = parseFloat(row.quantity)  || 0;
+  const qty = parseFloat(row.quantity) || 0;
   const price = parseFloat(row.unitPrice) || 0;
-  row.totalPrice     = qty * price;
-  row.insurance      = row.totalPrice * (state.defaultRates.insurance / 100);
-  row.landing        = (row.totalPrice + row.insurance) * (state.defaultRates.landing / 100);
-  
+  row.totalPrice = qty * price;
+  row.insurance = row.totalPrice * (state.defaultRates.insurance / 100);
+  row.landing = (row.totalPrice + row.insurance) * (state.defaultRates.landing / 100);
+
   // Assessable Value rounded up to next integer
   row.assessableValue = Math.ceil(row.totalPrice + row.insurance + row.landing);
   const av = row.assessableValue;
 
   if (state.calculationMethod === "bd") {
-    row.cd  = Math.ceil(av * (row.cdRate / 100));
-    row.rd  = Math.ceil(av * (row.rdRate / 100));
-    row.sd  = Math.ceil((av + row.cd + row.rd) * (row.sdRate / 100));
+    row.cd = Math.ceil(av * (row.cdRate / 100));
+    row.rd = Math.ceil(av * (row.rdRate / 100));
+    row.sd = Math.ceil((av + row.cd + row.rd) * (row.sdRate / 100));
     row.vat = Math.ceil((av + row.cd + row.rd + row.sd) * (row.vatRate / 100));
     row.ait = Math.ceil(av * (row.aitRate / 100));
-    row.at  = Math.ceil((av + row.cd + row.rd + row.sd) * (row.atRate / 100));
+    row.at = Math.ceil((av + row.cd + row.rd + row.sd) * (row.atRate / 100));
   } else {
-    row.cd  = Math.ceil(av * (row.cdRate  / 100));
-    row.rd  = Math.ceil(av * (row.rdRate  / 100));
-    row.sd  = Math.ceil(av * (row.sdRate  / 100));
+    row.cd = Math.ceil(av * (row.cdRate / 100));
+    row.rd = Math.ceil(av * (row.rdRate / 100));
+    row.sd = Math.ceil(av * (row.sdRate / 100));
     row.vat = Math.ceil(av * (row.vatRate / 100));
     row.ait = Math.ceil(av * (row.aitRate / 100));
-    row.at  = Math.ceil(av * (row.atRate  / 100));
+    row.at = Math.ceil(av * (row.atRate / 100));
   }
   row.totalDutyTax = Math.ceil(row.cd + row.rd + row.sd + row.vat + row.ait + row.at);
 }
@@ -635,9 +635,9 @@ function recalculateAllRows() {
 // Update only the readonly-val spans in a single row (no full re-render)
 // Span order must match the row template in renderAssessmentTable()
 function updateRowInPlace(row, tr) {
-  const lang  = state.language;
+  const lang = state.language;
   const spans = tr.querySelectorAll("span.readonly-val");
-  const vals  = [
+  const vals = [
     row.description,                             // [0] desc
     formatCurrency(row.unitPrice, lang),         // [1] unit price
     row.unit,                                    // [2] unit
@@ -665,16 +665,16 @@ function refreshTotals() {
   const lang = state.language;
   const dict = TRANSLATIONS[lang];
 
-  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
+  let totQty = 0, totVal = 0, totIns = 0, totLand = 0, totAv = 0;
+  let totCd = 0, totRd = 0, totSd = 0, totVat = 0, totAit = 0, totAt = 0, totDt = 0;
 
   state.assessmentRows.forEach(r => {
-    totQty  += parseFloat(r.quantity) || 0;
-    totVal  += r.totalPrice;  totIns  += r.insurance; totLand += r.landing;
-    totAv   += r.assessableValue;
-    totCd   += r.cd; totRd += r.rd; totSd += r.sd;
-    totVat  += r.vat; totAit += r.ait; totAt += r.at;
-    totDt   += r.totalDutyTax;
+    totQty += parseFloat(r.quantity) || 0;
+    totVal += r.totalPrice; totIns += r.insurance; totLand += r.landing;
+    totAv += r.assessableValue;
+    totCd += r.cd; totRd += r.rd; totSd += r.sd;
+    totVat += r.vat; totAit += r.ait; totAt += r.at;
+    totDt += r.totalDutyTax;
   });
 
   const qtyDisplay = totQty.toFixed(2);
@@ -683,16 +683,16 @@ function refreshTotals() {
     <tr class="total-row">
       <td colspan="5" class="text-right font-bold" style="padding-right:12px;">${dict.total}:</td>
       <td class="cell-num font-bold">${qtyDisplay}</td>
-      <td class="cell-num font-bold">${formatCurrency(totVal,  lang)}</td>
-      <td class="cell-num font-bold">${formatCurrency(totIns,  lang)}</td>
+      <td class="cell-num font-bold">${formatCurrency(totVal, lang)}</td>
+      <td class="cell-num font-bold">${formatCurrency(totIns, lang)}</td>
       <td class="cell-num font-bold">${formatCurrency(totLand, lang)}</td>
-      <td class="cell-num font-bold highlight-val">${formatCurrency(totAv,  lang)}</td>
-      ${cv.cd  ? `<td class="cell-num font-bold">${formatCurrency(totCd,  lang)}</td>` : ''}
-      ${cv.rd  ? `<td class="cell-num font-bold">${formatCurrency(totRd,  lang)}</td>` : ''}
-      ${cv.sd  ? `<td class="cell-num font-bold">${formatCurrency(totSd,  lang)}</td>` : ''}
+      <td class="cell-num font-bold highlight-val">${formatCurrency(totAv, lang)}</td>
+      ${cv.cd ? `<td class="cell-num font-bold">${formatCurrency(totCd, lang)}</td>` : ''}
+      ${cv.rd ? `<td class="cell-num font-bold">${formatCurrency(totRd, lang)}</td>` : ''}
+      ${cv.sd ? `<td class="cell-num font-bold">${formatCurrency(totSd, lang)}</td>` : ''}
       ${cv.vat ? `<td class="cell-num font-bold">${formatCurrency(totVat, lang)}</td>` : ''}
       ${cv.ait ? `<td class="cell-num font-bold">${formatCurrency(totAit, lang)}</td>` : ''}
-      ${cv.at  ? `<td class="cell-num font-bold">${formatCurrency(totAt,  lang)}</td>` : ''}
+      ${cv.at ? `<td class="cell-num font-bold">${formatCurrency(totAt, lang)}</td>` : ''}
       <td class="cell-num font-bold highlight-val sticky-right-2">${formatCurrency(totDt, lang)}</td>
       <td class="print-hidden cell-action sticky-right"></td>
     </tr>
@@ -724,7 +724,7 @@ function renderAssessmentTable() {
   if (!tbody || !thead || !tfoot) return;
 
   const dict = TRANSLATIONS[state.language];
-  const dr   = state.defaultRates;
+  const dr = state.defaultRates;
 
   // Build header — no input boxes in CD/RD/SD/VAT/AIT/AT, column visibility applied
   const cv = state.columnVisibility;
@@ -744,12 +744,12 @@ function renderAssessmentTable() {
         ${dict.landing}<br><small style="font-weight:400; opacity:0.8;">(${dr.landing}%)</small>
       </th>
       <th class="cell-num" style="min-width:110px; text-align:center;">${dict.assessableVal}</th>
-      ${cv.cd  ? `<th class="cell-num" style="text-align:center;">${dict.cd}<br><small style="font-weight:400; opacity:0.8;">(${dr.cd}%)</small></th>` : ''}
-      ${cv.rd  ? `<th class="cell-num" style="text-align:center;">${dict.rd}<br><small style="font-weight:400; opacity:0.8;">(${dr.rd}%)</small></th>` : ''}
-      ${cv.sd  ? `<th class="cell-num" style="text-align:center;">SD<br><small style="font-weight:400; opacity:0.8;">(${dr.sd}%)</small></th>` : ''}
+      ${cv.cd ? `<th class="cell-num" style="text-align:center;">${dict.cd}<br><small style="font-weight:400; opacity:0.8;">(${dr.cd}%)</small></th>` : ''}
+      ${cv.rd ? `<th class="cell-num" style="text-align:center;">${dict.rd}<br><small style="font-weight:400; opacity:0.8;">(${dr.rd}%)</small></th>` : ''}
+      ${cv.sd ? `<th class="cell-num" style="text-align:center;">SD<br><small style="font-weight:400; opacity:0.8;">(${dr.sd}%)</small></th>` : ''}
       ${cv.vat ? `<th class="cell-num" style="text-align:center;">${dict.vat}<br><small style="font-weight:400; opacity:0.8;">(${dr.vat}%)</small></th>` : ''}
       ${cv.ait ? `<th class="cell-num" style="text-align:center;">${dict.ait}<br><small style="font-weight:400; opacity:0.8;">(${dr.ait}%)</small></th>` : ''}
-      ${cv.at  ? `<th class="cell-num" style="text-align:center;">${dict.at}<br><small style="font-weight:400; opacity:0.8;">(${dr.at}%)</small></th>` : ''}
+      ${cv.at ? `<th class="cell-num" style="text-align:center;">${dict.at}<br><small style="font-weight:400; opacity:0.8;">(${dr.at}%)</small></th>` : ''}
       <th class="cell-num sticky-right-2" style="text-align:center;">${dict.dutyTax}</th>
       <th class="cell-action print-hidden sticky-right" style="text-align:center;">${dict.action}</th>
     </tr>
@@ -757,18 +757,18 @@ function renderAssessmentTable() {
 
   tbody.innerHTML = "";
 
-  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
+  let totQty = 0, totVal = 0, totIns = 0, totLand = 0, totAv = 0;
+  let totCd = 0, totRd = 0, totSd = 0, totVat = 0, totAit = 0, totAt = 0, totDt = 0;
 
   state.assessmentRows.forEach((row, idx) => {
-    totQty  += parseFloat(row.quantity) || 0;
-    totVal  += row.totalPrice;
-    totIns  += row.insurance;
+    totQty += parseFloat(row.quantity) || 0;
+    totVal += row.totalPrice;
+    totIns += row.insurance;
     totLand += row.landing;
-    totAv   += row.assessableValue;
-    totCd   += row.cd;  totRd  += row.rd;  totSd  += row.sd;
-    totVat  += row.vat; totAit += row.ait; totAt  += row.at;
-    totDt   += row.totalDutyTax;
+    totAv += row.assessableValue;
+    totCd += row.cd; totRd += row.rd; totSd += row.sd;
+    totVat += row.vat; totAit += row.ait; totAt += row.at;
+    totDt += row.totalDutyTax;
 
     const slNo = idx + 1;
     const tr = document.createElement("tr");
@@ -789,12 +789,12 @@ function renderAssessmentTable() {
       <td class="cell-num"><span class="readonly-val">${formatCurrency(row.insurance, state.language)}</span></td>
       <td class="cell-num"><span class="readonly-val">${formatCurrency(row.landing, state.language)}</span></td>
       <td class="cell-num"><span class="readonly-val av-val">${formatCurrency(row.assessableValue, state.language)}</span></td>
-      ${cv.cd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.cd,  state.language)}</span></td>` : ''}
-      ${cv.rd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.rd,  state.language)}</span></td>` : ''}
-      ${cv.sd  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.sd,  state.language)}</span></td>` : ''}
+      ${cv.cd ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.cd, state.language)}</span></td>` : ''}
+      ${cv.rd ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.rd, state.language)}</span></td>` : ''}
+      ${cv.sd ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.sd, state.language)}</span></td>` : ''}
       ${cv.vat ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.vat, state.language)}</span></td>` : ''}
       ${cv.ait ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.ait, state.language)}</span></td>` : ''}
-      ${cv.at  ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.at,  state.language)}</span></td>` : ''}
+      ${cv.at ? `<td class="cell-num"><span class="readonly-val">${formatCurrency(row.at, state.language)}</span></td>` : ''}
       <td class="cell-num sticky-right-2"><span class="readonly-val dt-val">${formatCurrency(row.totalDutyTax, state.language)}</span></td>
       <td class="cell-action print-hidden sticky-right">
         <button class="btn-delete-row" title="${dict.delete}">✕</button>
@@ -804,8 +804,8 @@ function renderAssessmentTable() {
     tbody.appendChild(tr);
 
     const codeInput = tr.querySelector(".code-input");
-    const qtyInput  = tr.querySelector(".qty-input");
-    const delBtn    = tr.querySelector(".btn-delete-row");
+    const qtyInput = tr.querySelector(".qty-input");
+    const delBtn = tr.querySelector(".btn-delete-row");
 
     setupAutocomplete(codeInput, row, tr);
 
@@ -865,7 +865,7 @@ function bindDefaultRateHeaderInputs(thead) {
     input.addEventListener("change", () => {
       const key = input.dataset.rateKey;
       state.defaultRates[key] = parseFloat(input.value) || 0;
-      if (["cd","rd","sd","vat","ait","at"].includes(key)) {
+      if (["cd", "rd", "sd", "vat", "ait", "at"].includes(key)) {
         state.assessmentRows.forEach(row => { row[`${key}Rate`] = state.defaultRates[key]; });
       }
       // Sync settings panel inputs
@@ -888,12 +888,12 @@ function updateDashboardMetrics() {
 
   const lang = state.language;
   const countEl = document.getElementById("dashValItems");
-  const avEl    = document.getElementById("dashValTotalVal");
-  const dtEl    = document.getElementById("dashValTotalTax");
+  const avEl = document.getElementById("dashValTotalVal");
+  const dtEl = document.getElementById("dashValTotalTax");
 
   if (countEl) countEl.textContent = lang === "bn" ? toBengaliNumerals(state.assessmentRows.length) : state.assessmentRows.length;
-  if (avEl)    avEl.textContent    = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalAv, lang);
-  if (dtEl)    dtEl.textContent    = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalDt, lang);
+  if (avEl) avEl.textContent = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalAv, lang);
+  if (dtEl) dtEl.textContent = (lang === "bn" ? "৳" : "৳") + formatCurrency(totalDt, lang);
 }
 
 // === PRINT HEADER ===
@@ -932,19 +932,19 @@ function resetAllData() {
   if (confirm(msg)) {
     state.assessmentRows = [];
     localStorage.removeItem("customs_assessment_rows");
-    
+
     state.header.companyName = "";
     state.header.permissionNo = "";
-    
+
     addRow();
-    
+
     // Update the UI controls
     renderCompanyOptions();
     const permInput = document.getElementById("header-permissionNo");
     if (permInput) permInput.value = "";
-    
+
     updatePrintHeader();
-    
+
     showToast(state.language === "bn" ? "সব তথ্য মুছে ফেলা হয়েছে।" : "All data has been reset.", "warning");
   }
 }
@@ -1109,14 +1109,14 @@ function deleteSavedAssessment(id) {
 
 function shareToWhatsApp(savedItem = null) {
   const header = savedItem ? savedItem.header : state.header;
-  const rows   = savedItem ? savedItem.assessmentRows : state.assessmentRows;
-  const lang   = state.language;
+  const rows = savedItem ? savedItem.assessmentRows : state.assessmentRows;
+  const lang = state.language;
 
   let totAv = 0, totDt = 0, totQty = 0;
   rows.forEach(r => {
     totQty += parseFloat(r.quantity) || 0;
-    totAv  += r.assessableValue || 0;
-    totDt  += r.totalDutyTax || 0;
+    totAv += r.assessableValue || 0;
+    totDt += r.totalDutyTax || 0;
   });
 
   const inWordsValue = lang === "bn" ? numberToBengaliWords(totDt) : numberToEnglishWords(totDt);
@@ -1132,7 +1132,7 @@ function shareToWhatsApp(savedItem = null) {
   msg += `📦 *পণ্য বিবরণ সংক্ষেপ:*\n`;
 
   rows.forEach((r, idx) => {
-    msg += `${idx + 1}. ${r.approveCode ? "["+r.approveCode+"] " : ""}${r.description} (${r.quantity} ${r.unit})\n`;
+    msg += `${idx + 1}. ${r.approveCode ? "[" + r.approveCode + "] " : ""}${r.description} (${r.quantity} ${r.unit})\n`;
     msg += `   • শুল্কায়ন মূল্য: ৳${formatCurrency(r.assessableValue, lang)}\n`;
     msg += `   • শুল্ক-করাদি: ৳${formatCurrency(r.totalDutyTax, lang)}\n`;
   });
@@ -1173,8 +1173,8 @@ function generateExportHtml(company, lang) {
   const dr = state.defaultRates;
   const h = state.header;
 
-  let totQty=0, totVal=0, totIns=0, totLand=0, totAv=0;
-  let totCd=0, totRd=0, totSd=0, totVat=0, totAit=0, totAt=0, totDt=0;
+  let totQty = 0, totVal = 0, totIns = 0, totLand = 0, totAv = 0;
+  let totCd = 0, totRd = 0, totSd = 0, totVat = 0, totAit = 0, totAt = 0, totDt = 0;
 
   state.assessmentRows.forEach(r => {
     totQty += parseFloat(r.quantity) || 0;
@@ -1211,8 +1211,7 @@ function generateExportHtml(company, lang) {
   <style>
     @page {
       size: A4 landscape;
-      margin: 0.3in 0.4in;
-      background: #ffffff !important;
+      margin: 0 !important;
     }
     * {
       box-sizing: border-box;
@@ -1243,16 +1242,65 @@ function generateExportHtml(company, lang) {
       background: #ffffff !important;
       background-color: #ffffff !important;
       background-image: none !important;
-      padding: 10px 10px 12px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 1122px !important;
+      height: 794px !important;
+      overflow: hidden !important;
       font-size: 8.5pt !important;
       line-height: 1.4 !important;
     }
     .sheet {
-      width: 100% !important;
+      position: relative !important;
+      width: 1122px !important;
+      max-width: 1122px !important;
+      height: 794px !important;
+      min-height: 794px !important;
       background: #ffffff !important;
       background-color: #ffffff !important;
       background-image: none !important;
       color: #000000 !important;
+      box-sizing: border-box !important;
+      padding: 24px 48px 60px 48px !important;
+    }
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0 !important;
+      }
+      html, body {
+        width: 297mm !important;
+        height: 210mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        overflow: hidden !important;
+      }
+      .sheet {
+        position: relative !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        max-width: 297mm !important;
+        max-height: 210mm !important;
+        box-sizing: border-box !important;
+        padding: 8mm 12mm 14mm 12mm !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+      }
+      .export-footer-credit {
+        position: absolute !important;
+        bottom: 5mm !important;
+        left: 12mm !important;
+        right: 12mm !important;
+        border-top: 1px solid #b0b0b0 !important;
+        padding-top: 2mm !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 8pt !important;
+        color: #505050 !important;
+        background: #ffffff !important;
+      }
     }
     .sheet * {
       color: #000000 !important;
@@ -1407,23 +1455,23 @@ function generateExportHtml(company, lang) {
     }
     
     /* Column Widths to match screenshot ratio precisely */
-    .assessment-table th:nth-child(1), .assessment-table td:nth-child(1) { width: 3% !important; }
-    .assessment-table th:nth-child(2), .assessment-table td:nth-child(2) { width: 5% !important; text-align: center !important; }
-    .assessment-table th:nth-child(3), .assessment-table td:nth-child(3) { width: 15.5% !important; }
-    .assessment-table th:nth-child(4), .assessment-table td:nth-child(4) { width: 6.5% !important; }
-    .assessment-table th:nth-child(5), .assessment-table td:nth-child(5) { width: 3.5% !important; text-align: center !important; }
-    .assessment-table th:nth-child(6), .assessment-table td:nth-child(6) { width: 5.5% !important; }
-    .assessment-table th:nth-child(7), .assessment-table td:nth-child(7) { width: 7.5% !important; }
-    .assessment-table th:nth-child(8), .assessment-table td:nth-child(8) { width: 5.5% !important; }
-    .assessment-table th:nth-child(9), .assessment-table td:nth-child(9) { width: 5.5% !important; }
-    .assessment-table th:nth-child(10), .assessment-table td:nth-child(10) { width: 7.5% !important; }
-    .assessment-table th:nth-child(11), .assessment-table td:nth-child(11) { width: 5.5% !important; }
-    .assessment-table th:nth-child(12), .assessment-table td:nth-child(12) { width: 5.5% !important; }
-    .assessment-table th:nth-child(13), .assessment-table td:nth-child(13) { width: 5.5% !important; }
-    .assessment-table th:nth-child(14), .assessment-table td:nth-child(14) { width: 5.5% !important; }
-    .assessment-table th:nth-child(15), .assessment-table td:nth-child(15) { width: 5.5% !important; }
-    .assessment-table th:nth-child(16), .assessment-table td:nth-child(16) { width: 5.5% !important; }
-    .assessment-table th:nth-child(17), .assessment-table td:nth-child(17) { width: 8.5% !important; }
+    .assessment-table th:nth-child(1), .assessment-table td:nth-child(1) { width: 2.82% !important; }
+    .assessment-table th:nth-child(2), .assessment-table td:nth-child(2) { width: 4.69% !important; text-align: center !important; }
+    .assessment-table th:nth-child(3), .assessment-table td:nth-child(3) { width: 14.55% !important; }
+    .assessment-table th:nth-child(4), .assessment-table td:nth-child(4) { width: 6.10% !important; }
+    .assessment-table th:nth-child(5), .assessment-table td:nth-child(5) { width: 3.29% !important; text-align: center !important; }
+    .assessment-table th:nth-child(6), .assessment-table td:nth-child(6) { width: 5.16% !important; }
+    .assessment-table th:nth-child(7), .assessment-table td:nth-child(7) { width: 7.04% !important; }
+    .assessment-table th:nth-child(8), .assessment-table td:nth-child(8) { width: 5.16% !important; }
+    .assessment-table th:nth-child(9), .assessment-table td:nth-child(9) { width: 5.16% !important; }
+    .assessment-table th:nth-child(10), .assessment-table td:nth-child(10) { width: 7.04% !important; }
+    .assessment-table th:nth-child(11), .assessment-table td:nth-child(11) { width: 5.16% !important; }
+    .assessment-table th:nth-child(12), .assessment-table td:nth-child(12) { width: 5.16% !important; }
+    .assessment-table th:nth-child(13), .assessment-table td:nth-child(13) { width: 5.16% !important; }
+    .assessment-table th:nth-child(14), .assessment-table td:nth-child(14) { width: 5.16% !important; }
+    .assessment-table th:nth-child(15), .assessment-table td:nth-child(15) { width: 5.16% !important; }
+    .assessment-table th:nth-child(16), .assessment-table td:nth-child(16) { width: 5.16% !important; }
+    .assessment-table th:nth-child(17), .assessment-table td:nth-child(17) { width: 7.98% !important; }
 
     table { page-break-inside: auto; }
     thead { display: table-header-group; }
@@ -1431,8 +1479,8 @@ function generateExportHtml(company, lang) {
     tr, td, th { page-break-inside: avoid; page-break-after: auto; }
   </style>
 </head>
-<body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; padding: 10px 10px 12px !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
-  <div class="sheet" style="width: 100% !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; color: #000000 !important;">
+<body style="font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important; color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; padding: 0 !important; margin: 0 !important; width: 1122px !important; min-height: 794px !important; overflow: visible !important; font-size: 9.5pt !important; line-height: 1.4 !important;">
+  <div class="sheet" style="width: 1122px !important; max-width: 1122px !important; min-height: 794px !important; background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; color: #000000 !important;">
     <div class="header" style="text-align: center !important; margin-bottom: 18px !important; background: #ffffff !important;">
       <div class="office-sub" style="font-size: 14pt !important; font-weight: 700 !important; margin-bottom: 6px !important; text-align: center !important; color: #000000 !important; background: #ffffff !important; letter-spacing: 0.2px !important;">${officeSub}</div>
       <div class="doc-title" style="font-size: 12pt !important; font-weight: 600 !important; display: inline-block !important; border-bottom: 2px solid #000000 !important; padding-bottom: 1px !important; text-decoration: none !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">${docTitle}</div>
@@ -1458,13 +1506,13 @@ function generateExportHtml(company, lang) {
     <table class="assessment-table" style="width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; margin-bottom: 14px !important; font-size: 9pt !important; background: #fff !important; background-color: #fff !important; border: 1px solid #000 !important;">
       <thead>
         <tr>
-          <th style="width: 3% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.sl}</th>
-          <th style="width: 5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.approveCode}</th>
-          <th style="width: 15.5% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.description}</th>
-          <th style="width: 6.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unitPrice}</th>
-          <th style="width: 3.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unit}</th>
-          <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.qty}</th>
-          <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.totalPrice}</th>
+          <th style="width: 2.82% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.sl}</th>
+          <th style="width: 4.69% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.approveCode}</th>
+          <th style="width: 14.55% !important; border: 1px solid #000 !important; padding: 6px 4px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.description}</th>
+          <th style="width: 6.10% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unitPrice}</th>
+          <th style="width: 3.29% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.5pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.unit}</th>
+          <th style="width: 5.16% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.qty}</th>
+          <th style="width: 7.04% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.totalPrice}</th>
           <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.insurance}</th>
           <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.landing}</th>
           <th style="width: 7.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.assessableVal}</th>
@@ -1474,7 +1522,7 @@ function generateExportHtml(company, lang) {
           <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.vat} (${lang === "bn" ? toBengaliNumerals(dr.vat) : dr.vat}%)</th>
           <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">AIT (${lang === "bn" ? toBengaliNumerals(dr.ait) : dr.ait}%)</th>
           <th style="width: 5.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">AT (${lang === "bn" ? toBengaliNumerals(dr.at) : dr.at}%)</th>
-          <th style="width: 8.5% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.dutyTax}</th>
+          <th style="width: 7.98% !important; border: 1px solid #000 !important; padding: 6px 2px !important; font-weight: 700 !important; text-align: center !important; font-size: 7.2pt !important; height: 42px !important; line-height: 1.25 !important; background: #fff !important; color: #000 !important;">${dict.dutyTax}</th>
         </tr>
       </thead>
       <tbody>
@@ -1524,25 +1572,34 @@ function generateExportHtml(company, lang) {
       <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${inWordsValue}${dict.takaOnly}</span>
     </div>
 
-    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 65px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
+    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 55px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.preparedBy}</div>
       </div>
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.checkedBy}</div>
       </div>
       <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+        <div class="signature-space" style="height: 45px !important; width: 100% !important; background: #ffffff !important;"></div>
         <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
           <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
         </div>
         <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.approvedBy}</div>
       </div>
+    </div>
+
+    <div class="export-footer-credit" style="position: absolute !important; bottom: 18px !important; left: 48px !important; right: 48px !important; border-top: 1px solid #b0b0b0 !important; padding-top: 6px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; font-size: 8pt !important; color: #505050 !important; font-family: 'Inter', 'Segoe UI', sans-serif !important; background: #ffffff !important;">
+      <div style="background: #ffffff !important; color: #505050 !important;">Customs Assessment Manager v2.0</div>
+      <div style="background: #ffffff !important; color: #505050 !important;">Developed by: <strong>Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong>+8801933814200</strong></div>
+      <div style="background: #ffffff !important; color: #505050 !important;">Page 1 of 1</div>
     </div>
   </div>
 </body>
@@ -1551,14 +1608,17 @@ function generateExportHtml(company, lang) {
 async function createExportRenderFrame(htmlContent) {
   const iframe = document.createElement("iframe");
   iframe.style.position = "fixed";
-  iframe.style.left = "-10000px";
+  iframe.style.left = "0";
   iframe.style.top = "0";
-  iframe.style.width = "11.69in";
-  iframe.style.height = "8.27in";
+  iframe.style.width = "1122px";
+  iframe.style.height = "794px";
   iframe.style.border = "0";
-  iframe.style.visibility = "hidden";
+  iframe.style.zIndex = "-99999";
+  iframe.style.opacity = "1";
+  iframe.style.visibility = "visible";
   iframe.style.pointerEvents = "none";
   iframe.style.background = "#ffffff";
+  iframe.style.overflow = "visible";
   iframe.setAttribute("aria-hidden", "true");
   document.body.appendChild(iframe);
 
@@ -1610,16 +1670,20 @@ async function printFromExportTemplate() {
 
   const iframe = document.createElement("iframe");
   iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
+  iframe.style.top = "0";
+  iframe.style.left = "0";
+  iframe.style.width = "1122px";
+  iframe.style.height = "794px";
   iframe.style.border = "0";
-  iframe.style.visibility = "hidden";
+  iframe.style.zIndex = "-99999";
+  iframe.style.opacity = "1";
+  iframe.style.visibility = "visible";
+  iframe.style.pointerEvents = "none";
+  iframe.style.background = "#ffffff";
   document.body.appendChild(iframe);
 
   const cleanup = () => {
-    setTimeout(() => iframe.remove(), 400);
+    setTimeout(() => iframe.remove(), 1000);
   };
 
   const printWindow = iframe.contentWindow;
@@ -1648,16 +1712,18 @@ async function printFromExportTemplate() {
     console.warn("Print fonts could not be fully loaded.", error);
   }
 
+  await new Promise(resolve => setTimeout(resolve, 200));
+
   printWindow.focus();
   printWindow.onafterprint = () => cleanup();
 
   try {
     printWindow.print();
   } catch (error) {
-    console.error(error);
-    cleanup();
-    window.print();
+    console.error("Window print error:", error);
   }
+
+  cleanup();
 }
 
 // Ensure Bengali glyphs are available before html2canvas captures the PDF content.
@@ -1671,6 +1737,67 @@ async function ensurePdfFontReady() {
   }
 }
 
+function buildPdfExportOptions(filename) {
+  return {
+    margin: [0, 0, 0, 0],
+    filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 1,
+      useCORS: true,
+      logging: false,
+      letterRendering: true,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 1122,
+      windowHeight: 794,
+      width: 1122,
+      height: 794,
+      allowTaint: true,
+      removeContainer: false,
+      captureBeyondView: true
+    },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+    pagebreak: { mode: ['css', 'legacy'] }
+  };
+}
+
+async function generatePdfBlobFromExportRoot(exportRoot, filename) {
+  if (typeof html2canvas === "undefined") {
+    throw new Error("html2canvas is not available.");
+  }
+
+  const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  if (!jsPdfCtor) {
+    throw new Error("jsPDF is not available.");
+  }
+
+  const canvas = await html2canvas(exportRoot, {
+    scale: 1,
+    useCORS: true,
+    logging: false,
+    letterRendering: true,
+    backgroundColor: '#ffffff',
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: 1122,
+    windowHeight: 794,
+    width: 1122,
+    height: 794,
+    allowTaint: true,
+    removeContainer: false,
+    captureBeyondView: true
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.98);
+  const pdf = new jsPdfCtor({ orientation: 'landscape', unit: 'px', format: [1122, 794] });
+  pdf.addImage(imgData, 'JPEG', 0, 0, 1122, 794);
+  addPageNumbersToPdf(pdf);
+
+  return pdf.output('blob');
+}
+
 // === EXPORT PDF DOCUMENT ===
 function addPageNumbersToPdf(pdf) {
   if (!pdf || typeof pdf.getNumberOfPages !== 'function') return;
@@ -1680,27 +1807,34 @@ function addPageNumbersToPdf(pdf) {
   const pageWidth = typeof pageSize.getWidth === 'function' ? pageSize.getWidth() : pageSize.width;
   const pageHeight = typeof pageSize.getHeight === 'function' ? pageSize.getHeight() : pageSize.height;
 
+  const isMm = pageWidth < 500;
+  const marginX = isMm ? 12 : 48;
+  const lineY = isMm ? pageHeight - 10 : pageHeight - 36;
+  const textY = isMm ? pageHeight - 5 : pageHeight - 18;
+  const fontSize = isMm ? 8 : 8.5;
+  const lineWidth = isMm ? 0.2 : 0.75;
+
   for (let page = 1; page <= pageCount; page++) {
     pdf.setPage(page);
 
     // Draw thin separator line
     pdf.setDrawColor(180, 180, 180);
-    pdf.setLineWidth(0.008);
-    pdf.line(0.4, pageHeight - 0.35, pageWidth - 0.4, pageHeight - 0.35);
+    pdf.setLineWidth(lineWidth);
+    pdf.line(marginX, lineY, pageWidth - marginX, lineY);
 
     // Set font size and color for the footer text
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7.5);
-    pdf.setTextColor(100, 100, 100);
+    pdf.setFontSize(fontSize);
+    pdf.setTextColor(80, 80, 80);
 
     // Left side: Version
-    pdf.text("Customs Assessment Manager v2.0", 0.4, pageHeight - 0.22, { align: 'left' });
+    pdf.text("Customs Assessment Manager v2.0", marginX, textY, { align: 'left' });
 
     // Center: Developer Credit
-    pdf.text("Developed by: Md. Yusuf Ali  |  Mobile: +8801933814200", pageWidth / 2, pageHeight - 0.22, { align: 'center' });
+    pdf.text("Developed by: Md. Yusuf Ali  |  Mobile: +8801933814200", pageWidth / 2, textY, { align: 'center' });
 
     // Right side: Page Numbers
-    pdf.text(`Page ${page} of ${pageCount}`, pageWidth - 0.4, pageHeight - 0.22, { align: 'right' });
+    pdf.text(`Page ${page} of ${pageCount}`, pageWidth - marginX, textY, { align: 'right' });
   }
 }
 
@@ -1716,65 +1850,136 @@ function _removePdfBgOverride() {
   if (s) s.remove();
 }
 
-async function exportToPDF() {
-  const company = state.header.companyName || "Customs_Assessment";
-  const lang = state.language;
+async function generatePdfBlobFromExportHtml(company, lang) {
   await ensurePdfFontReady();
 
-  if (typeof html2pdf !== "undefined") {
-    const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
+  const fullHtml = generateExportHtml(company, lang);
 
-    _injectPdfBgOverride();
+  // Create temporary visible iframe at high z-index for 100% un-obscured rendering
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.top = "0";
+  iframe.style.left = "0";
+  iframe.style.width = "1122px";
+  iframe.style.height = "794px";
+  iframe.style.border = "0";
+  iframe.style.zIndex = "999999";
+  iframe.style.opacity = "1";
+  iframe.style.visibility = "visible";
+  iframe.style.background = "#ffffff";
+  document.body.appendChild(iframe);
 
-    const opt = {
-      margin:       [0.2, 0.3, 0.45, 0.3],
-      filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  {
+  const frameDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!frameDoc) {
+    iframe.remove();
+    throw new Error("Unable to create PDF render frame.");
+  }
+
+  frameDoc.open();
+  frameDoc.write(fullHtml);
+  frameDoc.close();
+
+  await new Promise(resolve => {
+    iframe.onload = () => resolve();
+    setTimeout(resolve, 250);
+  });
+
+  if (frameDoc.fonts && frameDoc.fonts.ready) {
+    try { await frameDoc.fonts.ready; } catch (e) {}
+  }
+  await new Promise(resolve => setTimeout(resolve, 150));
+
+  try {
+    const h2c = window.html2canvas;
+    const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+
+    const targetEl = frameDoc.querySelector('.sheet') || frameDoc.body;
+
+    let canvas;
+    if (h2c) {
+      canvas = await h2c(targetEl, {
         scale: 2,
         useCORS: true,
         logging: false,
-        letterRendering: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
-        windowWidth: 1122
-      },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['css', 'legacy'] }
-    };
+        x: 0,
+        y: 0,
+        windowWidth: 1122,
+        width: 1122
+      });
+    } else if (typeof html2pdf !== "undefined") {
+      const opt = {
+        margin: 0,
+        filename: `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 1122 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
 
-    const exportRoot = exportFrame.contentDocument?.body;
-    if (!exportRoot) throw new Error("Export frame body not available.");
-    await new Promise(resolve => setTimeout(resolve, 180));
-    showToast("Generating PDF...", "info");
-    try {
-      const worker = html2pdf().set(opt).from(exportRoot);
-      const pdfDoc = await worker.toPdf().get('pdf');
-      addPageNumbersToPdf(pdfDoc);
-      const pdfBlob = await worker.output('blob');
-      if (!pdfBlob || pdfBlob.size < 1024) {
-        throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
-      }
-
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("PDF downloaded!", "success");
-    } catch (error) {
-      console.error(error);
-      window.print();
-    } finally {
-      exportFrame.remove();
-      _removePdfBgOverride();
+      const worker = html2pdf().set(opt).from(targetEl);
+      const pdfObj = await worker.toPdf().get('pdf');
+      addPageNumbersToPdf(pdfObj);
+      return await worker.output('blob');
+    } else {
+      throw new Error("PDF rendering libraries (html2canvas/jsPDF) not loaded.");
     }
-  } else {
-    window.print();
+
+    if (!jsPdfCtor) throw new Error("jsPDF library not available.");
+
+    const imgWidth = 297; // mm
+    const pageHeight = 210; // mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    const pdf = new jsPdfCtor({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Add extra pages if content naturally exceeds 1 page
+    while (heightLeft >= 10) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    addPageNumbersToPdf(pdf);
+    return pdf.output('blob');
+  } finally {
+    iframe.remove();
+  }
+}
+
+async function exportToPDF() {
+  const company = state.header.companyName || "Customs_Assessment";
+  const lang = state.language;
+  showToast("Generating PDF...", "info");
+
+  try {
+    const pdfBlob = await generatePdfBlobFromExportHtml(company, lang);
+    if (!pdfBlob || pdfBlob.size < 1024) {
+      throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
+    }
+
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("PDF downloaded!", "success");
+  } catch (error) {
+    console.error("PDF Export Error:", error);
+    showToast("PDF জেনারেট হচ্ছে না, প্রিন্ট ফরম্যাটে পাঠানো হচ্ছে...", "warning");
+    printFromExportTemplate();
   }
 }
 
@@ -1782,10 +1987,8 @@ async function exportToPDF() {
 async function sharePdfToWhatsApp() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
-  const dict = TRANSLATIONS[lang];
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
 
-  // Open blank window immediately to bypass desktop browser popup blocker
   let waWindow = null;
   const canShare = navigator.canShare && navigator.canShare({ files: [new File([], filename, { type: "application/pdf" })] });
   if (!canShare) {
@@ -1793,57 +1996,14 @@ async function sharePdfToWhatsApp() {
   }
 
   try {
-    await ensurePdfFontReady();
-
-    if (typeof html2pdf === "undefined") {
-      if (waWindow) waWindow.close();
-      exportToPDF();
-      return;
-    }
-
     showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
 
-    const exportFrame = await createExportRenderFrame(generateExportHtml(company, lang));
-
-    _injectPdfBgOverride();
-
-    const opt = {
-      margin:       [0.2, 0.3, 0.45, 0.3],
-      filename:     filename,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        letterRendering: true,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 1122
-      },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: ['css', 'legacy'] }
-    };
-
-    const exportRoot = exportFrame.contentDocument?.body;
-    if (!exportRoot) {
-      if (waWindow) waWindow.close();
-      _removePdfBgOverride();
-      throw new Error("Export frame body not available.");
-    }
-    await new Promise(resolve => setTimeout(resolve, 180));
-
-    const worker = html2pdf().set(opt).from(exportRoot);
-    const pdfDoc = await worker.toPdf().get('pdf');
-    addPageNumbersToPdf(pdfDoc);
-    const pdfBlob = await worker.output('blob');
-    exportFrame.remove();
-    _removePdfBgOverride();
-
+    const pdfBlob = await generatePdfBlobFromExportHtml(company, lang);
     if (!pdfBlob || pdfBlob.size < 1024) {
-      if (waWindow) waWindow.close();
+      if (waWindow && !waWindow.closed) waWindow.close();
       throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
     }
+
     const file = new File([pdfBlob], filename, { type: "application/pdf" });
 
     if (canShare) {
@@ -1866,7 +2026,7 @@ async function sharePdfToWhatsApp() {
       const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
       const whatsappUrl = `https://api.whatsapp.com/send?text=${msgText}`;
 
-      if (waWindow) {
+      if (waWindow && !waWindow.closed) {
         waWindow.location.href = whatsappUrl;
       } else {
         window.open(whatsappUrl, "_blank");
@@ -1874,24 +2034,24 @@ async function sharePdfToWhatsApp() {
       showToast(lang === "bn" ? "PDF ডাউনলোড করা হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
     }
   } catch (err) {
-    console.error(err);
-    if (waWindow) waWindow.close();
-    exportToPDF();
+    console.error("WhatsApp Share Error:", err);
+    if (waWindow && !waWindow.closed) waWindow.close();
+    showToast((lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err), "error");
   }
 }
 
 function applyMaterialSelection(row, match) {
   row.approveCode = match.code;
   row.description = match.description;
-  row.unitPrice   = match.price;
-  row.unit        = match.unit;
+  row.unitPrice = match.price;
+  row.unit = match.unit;
   calculateRow(row);
   saveState();
 }
 
 function setupAutocomplete(inputEl, row, tr) {
   const container = inputEl.parentElement;
-  const listEl    = container.querySelector(".autocomplete-list");
+  const listEl = container.querySelector(".autocomplete-list");
 
   const showList = () => {
     const val = inputEl.value.trim().toLowerCase();
@@ -1975,7 +2135,7 @@ function setupAutocomplete(inputEl, row, tr) {
 // === MATERIALS LIST ===
 function renderMaterialsList() {
   const tableHead = document.getElementById("materialsTableHead");
-  const grid      = document.getElementById("materialsGrid");
+  const grid = document.getElementById("materialsGrid");
   const searchVal = document.getElementById("searchMaterialInput").value.trim().toLowerCase();
   if (!grid || !tableHead) return;
 
@@ -2019,10 +2179,10 @@ function renderMaterialsList() {
     grid.appendChild(row);
 
     row.querySelector(".btn-mat-edit").addEventListener("click", () => {
-      document.getElementById("mat-code").value  = m.code;
-      document.getElementById("mat-desc").value  = m.description;
+      document.getElementById("mat-code").value = m.code;
+      document.getElementById("mat-desc").value = m.description;
       document.getElementById("mat-price").value = m.price;
-      document.getElementById("mat-unit").value  = m.unit;
+      document.getElementById("mat-unit").value = m.unit;
       document.getElementById("materialModalTitle").textContent =
         state.language === "bn" ? "মালামালের তথ্য সম্পাদনা" : "Edit Material Details";
       openMaterialModal();
@@ -2045,7 +2205,7 @@ function renderMaterialsList() {
 function importMaterialsFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const ext    = file.name.split(".").pop().toLowerCase();
+  const ext = file.name.split(".").pop().toLowerCase();
   const useCsv = ext === "csv";
 
   if (!useCsv && typeof XLSX === "undefined") {
@@ -2055,7 +2215,7 @@ function importMaterialsFromFile(e) {
   }
 
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     try {
       let rows = [];
       if (useCsv) {
@@ -2144,7 +2304,7 @@ function downloadSampleMaterialTemplate() {
 function renderCompanyOptions() {
   const select = document.getElementById("header-companyName");
   if (!select) return;
-  const active  = state.companies.filter(c => c.status !== "Inactive");
+  const active = state.companies.filter(c => c.status !== "Inactive");
   const options = [...active];
 
   if (state.header.companyName && !options.some(c => c.name === state.header.companyName)) {
@@ -2153,7 +2313,7 @@ function renderCompanyOptions() {
 
   const selectHtml = options.length
     ? `<option value="">Select Organization...</option>` +
-      options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
+    options.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}${c.circle ? ` (${escapeHtml(c.circle)})` : ""}</option>`).join("")
     : `<option value="">No active companies</option>`;
 
   select.innerHTML = selectHtml;
@@ -2166,8 +2326,8 @@ function renderCompanyOptions() {
 // === SEARCHABLE COMPANY DROPDOWN IMPLEMENTATION ===
 function initCompanySearch() {
   const container = document.getElementById("company-search-container");
-  const input     = document.getElementById("company-search-input");
-  const dropdown  = document.getElementById("company-search-dropdown");
+  const input = document.getElementById("company-search-input");
+  const dropdown = document.getElementById("company-search-dropdown");
   const filterInput = document.getElementById("company-search-filter");
 
   if (!container || !input || !dropdown || !filterInput) return;
@@ -2219,17 +2379,17 @@ function initCompanySearch() {
 }
 
 function positionCompanyDropdown() {
-  const input    = document.getElementById("company-search-input");
+  const input = document.getElementById("company-search-input");
   const dropdown = document.getElementById("company-search-dropdown");
   if (!input || !dropdown || dropdown.style.display === "none") return;
   const rect = input.getBoundingClientRect();
-  dropdown.style.top   = (rect.bottom + 4) + "px";
-  dropdown.style.left  = rect.left + "px";
+  dropdown.style.top = (rect.bottom + 4) + "px";
+  dropdown.style.left = rect.left + "px";
   dropdown.style.width = rect.width + "px";
 }
 
 function openCompanySearchDropdown() {
-  const dropdown    = document.getElementById("company-search-dropdown");
+  const dropdown = document.getElementById("company-search-dropdown");
   const filterInput = document.getElementById("company-search-filter");
   if (!dropdown) return;
   // Position BEFORE showing to avoid flash
@@ -2394,7 +2554,7 @@ function openAddCompanyModal() {
   const modal = document.getElementById("addCompanyModal");
   if (!modal) return;
   // Clear fields
-  document.getElementById("newCompanyName").value  = "";
+  document.getElementById("newCompanyName").value = "";
   document.getElementById("newCompanyCircle").value = "";
   document.getElementById("newCompanyStatus").value = "Active";
   const errEl = document.getElementById("addCompanyError");
@@ -2430,10 +2590,10 @@ function closeEditCompanyModal() {
 
 function saveEditCompany() {
   const originalName = (document.getElementById("editCompanyOriginalName")?.value || "").trim();
-  const name         = (document.getElementById("editCompanyName")?.value || "").trim();
-  const circle       = (document.getElementById("editCompanyCircle")?.value || "").trim();
-  const status       = document.getElementById("editCompanyStatus")?.value || "Active";
-  const errEl        = document.getElementById("editCompanyError");
+  const name = (document.getElementById("editCompanyName")?.value || "").trim();
+  const circle = (document.getElementById("editCompanyCircle")?.value || "").trim();
+  const status = document.getElementById("editCompanyStatus")?.value || "Active";
+  const errEl = document.getElementById("editCompanyError");
 
   if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
 
@@ -2444,7 +2604,7 @@ function saveEditCompany() {
 
   // Check for duplicate name (excluding own entry)
   if (name.toLowerCase() !== originalName.toLowerCase() &&
-      state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+    state.companies.some(c => c.name.toLowerCase() === name.toLowerCase())) {
     if (errEl) { errEl.textContent = "এই নামের কোম্পানি ইতিমধ্যে তালিকায় আছে।"; errEl.style.display = "block"; }
     return;
   }
@@ -2485,10 +2645,10 @@ function toggleCompanyStatus(companyName) {
 }
 
 function saveNewCompany() {
-  const name   = (document.getElementById("newCompanyName")?.value || "").trim();
+  const name = (document.getElementById("newCompanyName")?.value || "").trim();
   const circle = (document.getElementById("newCompanyCircle")?.value || "").trim();
   const status = document.getElementById("newCompanyStatus")?.value || "Active";
-  const errEl  = document.getElementById("addCompanyError");
+  const errEl = document.getElementById("addCompanyError");
 
   if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
 
@@ -2529,7 +2689,7 @@ M/s Square Fashions Ltd.,Circle-1 (Dhaka),Active`;
 function importCompaniesFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const ext    = file.name.split(".").pop().toLowerCase();
+  const ext = file.name.split(".").pop().toLowerCase();
   const useCsv = ext === "csv";
   if (!useCsv && typeof XLSX === "undefined") {
     showToast("Excel parser not loaded. Please use CSV.", "error");
@@ -2537,7 +2697,7 @@ function importCompaniesFromFile(e) {
     return;
   }
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     try {
       let rows = [];
       if (useCsv) {
@@ -2692,12 +2852,12 @@ function isHeaderRow(cols) {
   if (cols.length === 0) return false;
   const col0 = cols[0].toLowerCase().trim();
   const col1 = cols[1] ? cols[1].toLowerCase().trim() : "";
-  
+
   const headerKeywords = [
     "approve code", "code", "নথির", "ক্রমিক", "approve_code", "approve-code",
     "description", "বিবরণ", "particulars", "item name", "items"
   ];
-  
+
   return headerKeywords.some(keyword => col0.includes(keyword) || col1.includes(keyword));
 }
 
@@ -2799,16 +2959,16 @@ function handleExcelPaste(text, startRowId) {
     } else {
       const rowId = "row_" + Date.now() + "_" + Math.floor(Math.random() * 1000) + "_" + currentIdx;
       row = {
-        id:          rowId,
+        id: rowId,
         approveCode: code,
         description: desc,
-        unitPrice:   price,
-        unit:        unit || "kg",
-        quantity:    qty,
+        unitPrice: price,
+        unit: unit || "kg",
+        quantity: qty,
         totalPrice: 0, insurance: 0, landing: 0, assessableValue: 0,
-        cdRate:  state.defaultRates.cd,  rdRate:  state.defaultRates.rd,
-        sdRate:  state.defaultRates.sd,  vatRate: state.defaultRates.vat,
-        aitRate: state.defaultRates.ait, atRate:  state.defaultRates.at,
+        cdRate: state.defaultRates.cd, rdRate: state.defaultRates.rd,
+        sdRate: state.defaultRates.sd, vatRate: state.defaultRates.vat,
+        aitRate: state.defaultRates.ait, atRate: state.defaultRates.at,
         cd: 0, rd: 0, sd: 0, vat: 0, ait: 0, at: 0, totalDutyTax: 0
       };
       state.assessmentRows.push(row);
@@ -2836,19 +2996,19 @@ function openMaterialModal() {
 
 function closeMaterialModal() {
   document.getElementById("materialModal").classList.remove("active");
-  document.getElementById("mat-code").value  = "";
-  document.getElementById("mat-desc").value  = "";
+  document.getElementById("mat-code").value = "";
+  document.getElementById("mat-desc").value = "";
   document.getElementById("mat-price").value = "";
-  document.getElementById("mat-unit").value  = "kg";
+  document.getElementById("mat-unit").value = "kg";
   document.getElementById("materialModalTitle").textContent =
     state.language === "bn" ? "নতুন মালামাল যোগ" : "Add New Material";
 }
 
 function saveMaterial() {
-  const code  = document.getElementById("mat-code").value.trim();
-  const desc  = document.getElementById("mat-desc").value.trim();
+  const code = document.getElementById("mat-code").value.trim();
+  const desc = document.getElementById("mat-desc").value.trim();
   const price = parseFloat(document.getElementById("mat-price").value) || 0;
-  const unit  = document.getElementById("mat-unit").value.trim();
+  const unit = document.getElementById("mat-unit").value.trim();
 
   if (!code || !desc) {
     showToast(state.language === "bn" ? "কোড এবং বিবরণী পূরণ করা আবশ্যক।" : "Code and Description are required.", "error");
@@ -2905,8 +3065,8 @@ function importFromCSV(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(evt) {
-    const text  = evt.target.result;
+  reader.onload = function (evt) {
+    const text = evt.target.result;
     const lines = text.split("\n");
     if (lines.length < 3) {
       showToast(state.language === "bn" ? "ভুল ফাইল ফরম্যাট।" : "Invalid CSV format.", "error");
@@ -2922,8 +3082,8 @@ function importFromCSV(e) {
         const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, "").trim());
 
         if (cols[0] === "Customs Assessment Export") { state.header.companyName = cols[1] || ""; parsedHeader = true; continue; }
-        if (cols[0] === "File No. Exist")            { state.header.hasFileNo = cols[1] || "Yes"; continue; }
-        if (cols[0] === "Note Para")                 { state.header.noteParaNo = cols[1] || ""; state.header.letterPageNo = cols[3] || ""; state.header.bepzaRecNo = cols[5] || ""; continue; }
+        if (cols[0] === "File No. Exist") { state.header.hasFileNo = cols[1] || "Yes"; continue; }
+        if (cols[0] === "Note Para") { state.header.noteParaNo = cols[1] || ""; state.header.letterPageNo = cols[3] || ""; state.header.bepzaRecNo = cols[5] || ""; continue; }
         if (cols[0] === "Sl. No" || cols[0] === "ক্র. নং" || (parsedHeader && isNaN(parseInt(cols[0])))) continue;
 
         if (cols.length >= 10 && !isNaN(parseInt(cols[0]))) {
@@ -2948,11 +3108,11 @@ function importFromCSV(e) {
         state.assessmentRows = newRows;
         saveState();
         renderCompanyOptions();
-        if (document.getElementById("header-hasFileNo"))   document.getElementById("header-hasFileNo").value   = state.header.hasFileNo;
-        if (document.getElementById("header-filePageNo"))  document.getElementById("header-filePageNo").value  = state.header.filePageNo  || "";
-        if (document.getElementById("header-noteParaNo"))  document.getElementById("header-noteParaNo").value  = state.header.noteParaNo  || "";
+        if (document.getElementById("header-hasFileNo")) document.getElementById("header-hasFileNo").value = state.header.hasFileNo;
+        if (document.getElementById("header-filePageNo")) document.getElementById("header-filePageNo").value = state.header.filePageNo || "";
+        if (document.getElementById("header-noteParaNo")) document.getElementById("header-noteParaNo").value = state.header.noteParaNo || "";
         if (document.getElementById("header-letterPageNo")) document.getElementById("header-letterPageNo").value = state.header.letterPageNo || "";
-        if (document.getElementById("header-bepzaRecNo"))  document.getElementById("header-bepzaRecNo").value  = state.header.bepzaRecNo  || "";
+        if (document.getElementById("header-bepzaRecNo")) document.getElementById("header-bepzaRecNo").value = state.header.bepzaRecNo || "";
         updateUI();
         showToast(state.language === "bn" ? "সফলভাবে ডাটা ইমপোর্ট করা হয়েছে!" : "Data imported successfully!", "success");
       } else {
@@ -3071,7 +3231,7 @@ async function handleSyncAllToCloud() {
 
   try {
     let compRes = await syncCompaniesToSupabaseCloud(state.companies);
-    let matRes  = await syncMaterialsToSupabaseCloud(state.materials);
+    let matRes = await syncMaterialsToSupabaseCloud(state.materials);
 
     if (compRes.success && matRes.success) {
       showToast(state.language === "bn" ? "কোম্পানি ও মালামালের ডেটা Supabase ক্লাউডে সিঙ্ক হয়েছে! ☁️" : "Companies & Materials synced to Supabase Cloud!", "success");
@@ -3120,12 +3280,12 @@ async function pullAllDataFromCloud(silent = true) {
     if (compRes.success && Array.isArray(compRes.data)) {
       const cloudCompanies = compRes.data;
       const mergedMap = new Map();
-      
+
       // Preserve local ones first
       state.companies.forEach(c => {
         if (c && c.name) mergedMap.set(c.name.trim().toLowerCase(), c);
       });
-      
+
       // Merge cloud ones
       cloudCompanies.forEach(c => {
         if (c && c.name) {
@@ -3137,7 +3297,7 @@ async function pullAllDataFromCloud(silent = true) {
           });
         }
       });
-      
+
       const newCompanies = Array.from(mergedMap.values());
       if (JSON.stringify(state.companies) !== JSON.stringify(newCompanies)) {
         state.companies = newCompanies;
@@ -3150,11 +3310,11 @@ async function pullAllDataFromCloud(silent = true) {
     if (matRes.success && Array.isArray(matRes.data)) {
       const cloudMaterials = matRes.data;
       const mergedMap = new Map();
-      
+
       state.materials.forEach(m => {
         if (m && m.code) mergedMap.set(m.code.trim().toLowerCase(), m);
       });
-      
+
       cloudMaterials.forEach(m => {
         if (m && m.code) {
           const key = m.code.trim().toLowerCase();
@@ -3166,7 +3326,7 @@ async function pullAllDataFromCloud(silent = true) {
           });
         }
       });
-      
+
       const newMaterials = Array.from(mergedMap.values());
       if (JSON.stringify(state.materials) !== JSON.stringify(newMaterials)) {
         state.materials = newMaterials;
@@ -3179,11 +3339,11 @@ async function pullAllDataFromCloud(silent = true) {
     if (assessRes.success && Array.isArray(assessRes.data)) {
       const cloudAssessments = assessRes.data;
       const mergedMap = new Map();
-      
+
       state.savedAssessments.forEach(a => {
         if (a && a.id) mergedMap.set(a.id, a);
       });
-      
+
       cloudAssessments.forEach(a => {
         if (a && a.id) {
           mergedMap.set(a.id, {
@@ -3195,7 +3355,7 @@ async function pullAllDataFromCloud(silent = true) {
           });
         }
       });
-      
+
       const newAssessments = Array.from(mergedMap.values());
       if (JSON.stringify(state.savedAssessments) !== JSON.stringify(newAssessments)) {
         state.savedAssessments = newAssessments;
@@ -3274,7 +3434,7 @@ function togglePasswordVisibility() {
 }
 
 async function handleAuthSubmit() {
-  const email    = (document.getElementById("authEmailInput")?.value || "").trim();
+  const email = (document.getElementById("authEmailInput")?.value || "").trim();
   const password = document.getElementById("authPasswordInput")?.value || "";
   clearAuthError();
 
@@ -3353,11 +3513,11 @@ function updateAuthUI() {
   const cloudUser = typeof getCurrentUser === "function" ? getCurrentUser() : null;
   const localUser = typeof authCurrentUser === "function" ? authCurrentUser() : null;
   const user = cloudUser || localUser;
-  const btn  = document.getElementById("authBtn");
+  const btn = document.getElementById("authBtn");
   const lblBtn = document.getElementById("authBtnLabel");
   const loggedOutView = document.getElementById("authLoggedOutView");
-  const loggedInView  = document.getElementById("authLoggedInView");
-  const userEmailEl   = document.getElementById("authUserEmail");
+  const loggedInView = document.getElementById("authLoggedInView");
+  const userEmailEl = document.getElementById("authUserEmail");
 
   if (user) {
     // Logged in
@@ -3366,8 +3526,8 @@ function updateAuthUI() {
       if (lblBtn) lblBtn.textContent = user.email ? user.email.split("@")[0] : "লগড ইন";
     }
     if (loggedOutView) loggedOutView.style.display = "none";
-    if (loggedInView)  loggedInView.style.display  = "block";
-    if (userEmailEl)   userEmailEl.textContent = user.email || "—";
+    if (loggedInView) loggedInView.style.display = "block";
+    if (userEmailEl) userEmailEl.textContent = user.email || "—";
   } else {
     // Guest
     if (btn) {
@@ -3375,7 +3535,7 @@ function updateAuthUI() {
       if (lblBtn) lblBtn.textContent = "লগইন";
     }
     if (loggedOutView) loggedOutView.style.display = "block";
-    if (loggedInView)  loggedInView.style.display  = "none";
+    if (loggedInView) loggedInView.style.display = "none";
   }
 
   // Also update supabase settings badge if present
@@ -3424,10 +3584,10 @@ if (typeof window !== 'undefined') window.resetLocalLogin = resetLocalLogin;
 
 function handleLoginGate() {
   const username = (document.getElementById("lgUsername")?.value || "").trim();
-  const password  = document.getElementById("lgPassword")?.value || "";
-  const remember  = document.getElementById("lgRemember")?.checked || false;
-  const errorEl   = document.getElementById("lgError");
-  const btn       = document.getElementById("lgSubmitBtn");
+  const password = document.getElementById("lgPassword")?.value || "";
+  const remember = document.getElementById("lgRemember")?.checked || false;
+  const errorEl = document.getElementById("lgError");
+  const btn = document.getElementById("lgSubmitBtn");
 
   errorEl.style.display = "none";
 
@@ -3460,9 +3620,9 @@ function handleLoginGate() {
 if (typeof window !== 'undefined') window.handleLoginGate = handleLoginGate;
 
 function updateTopbarUser() {
-  const user   = authCurrentUser();
-  const btn    = document.getElementById("authBtn");
-  const lbl    = document.getElementById("authBtnLabel");
+  const user = authCurrentUser();
+  const btn = document.getElementById("authBtn");
+  const lbl = document.getElementById("authBtnLabel");
   if (!btn || !lbl) return;
 
   if (user) {
@@ -3503,7 +3663,7 @@ function handleManualLogout() {
 }
 
 function handleChangePwd() {
-  const user   = authCurrentUser();
+  const user = authCurrentUser();
   const oldPwd = document.getElementById("oldPwdInput")?.value || "";
   const newPwd = document.getElementById("newPwdInput")?.value || "";
 
