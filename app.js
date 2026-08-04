@@ -1610,9 +1610,9 @@ function generateExportHtml(company, lang) {
         </div>
       </div>
       <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; font-size: 8pt !important; line-height: 1.35 !important; background: #ffffff !important; color: #000000 !important;">
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> কাস্টমস শুল্ক (CD + RD) = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), "bn")}</strong></div>
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + AT) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "bn")}</strong></div>
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "bn")}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> কাস্টমস শুল্ক (CD + RD) = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), "en")}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + AT) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "en")}</strong></div>
+        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "en")}</strong></div>
       </div>
       <div style="margin-top: 4px !important; font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
         * এ-চালানে অবশ্যই প্রতিষ্ঠানের ই-বিন নং ও নাম উল্লেখ থাকতে হবে।
