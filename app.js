@@ -1699,7 +1699,7 @@ async function exportToPDF() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
+      image:        { type: 'png' },
       html2canvas:  {
         scale: 2,
         useCORS: true,
@@ -1776,7 +1776,7 @@ async function sharePdfToWhatsApp() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     filename,
-      image:        { type: 'jpeg', quality: 0.98 },
+      image:        { type: 'png' },
       html2canvas:  {
         scale: 2,
         useCORS: true,
