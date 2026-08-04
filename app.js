@@ -1571,51 +1571,53 @@ function generateExportHtml(company, lang) {
       </tfoot>
     </table>
 
-    <div class="note-box" style="border: 1px solid #000000 !important; padding: 6px 10px !important; margin-top: 8px !important; font-size: 10pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
-      <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">কথায় :</span>
-      <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${numberToBengaliWords(totDt)} টাকা মাত্র।</span>
-    </div>
+    <div class="export-footer-block" style="page-break-inside: avoid !important; break-inside: avoid !important; margin-top: 6px !important; width: 100% !important; background: #ffffff !important;">
+      <div class="note-box" style="border: 1px solid #000000 !important; padding: 4px 8px !important; margin-top: 4px !important; font-size: 9.5pt !important; display: flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; background: #ffffff !important; color: #000000 !important;">
+        <span class="note-label" style="font-weight: 700 !important; white-space: nowrap !important; color: #000000 !important; background: #ffffff !important;">কথায় :</span>
+        <span class="note-value" style="font-weight: normal !important; color: #000000 !important; background: #ffffff !important;">${numberToBengaliWords(totDt)} টাকা মাত্র।</span>
+      </div>
 
-    <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 40px !important; margin-top: 24px !important; align-items: end !important; width: 100% !important; background: #ffffff !important;">
-      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
-        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
-          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+      <div class="code-instruction-box" style="margin-top: 6px !important; border: 1px solid #000000 !important; padding: 4px 8px !important; font-size: 8pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important; page-break-inside: avoid !important; break-inside: avoid !important;">
+        <div style="display: flex !important; justify-content: flex-start !important; align-items: center !important; gap: 10px !important; margin-bottom: 2px !important; background: #ffffff !important; color: #000000 !important;">
+          <div style="font-weight: 700 !important; text-decoration: underline !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important; white-space: nowrap !important;">
+            চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা :
+          </div>
+          <div style="font-weight: 700 !important; font-size: 7.5pt !important; color: #000000 !important; background: #ffffff !important;">
+            কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ) এর অফিস কোড : <strong>1110208102384</strong>
+          </div>
         </div>
-        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.preparedBy}</div>
-      </div>
-      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
-        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
-          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+        <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; font-size: 7.5pt !important; line-height: 1.25 !important; background: #ffffff !important; color: #000000 !important;">
+          <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> কাস্টমস শুল্ক (CD + RD) = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), "en")}</strong></div>
+          <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + AT) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "en")}</strong></div>
+          <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "en")}</strong></div>
         </div>
-        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.checkedBy}</div>
-      </div>
-      <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
-        <div class="signature-space" style="height: 28px !important; width: 100% !important; background: #ffffff !important;"></div>
-        <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
-          <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 8px !important; height: 0 !important; background: #ffffff !important;"></div>
+        <div style="margin-top: 2px !important; font-weight: 700 !important; font-size: 7.5pt !important; color: #000000 !important; background: #ffffff !important;">
+          * এ-চালানে অবশ্যই প্রতিষ্ঠানের ই-বিন নং ও নাম উল্লেখ থাকতে হবে।
         </div>
-        <div class="signature-label" style="font-size: 10.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.approvedBy}</div>
       </div>
-    </div>
 
-    <div class="code-instruction-box" style="margin-top: 10px !important; border: 1px solid #000000 !important; padding: 6px 12px !important; font-size: 8.5pt !important; background: #ffffff !important; color: #000000 !important; width: 100% !important;">
-      <div style="display: flex !important; justify-content: flex-start !important; align-items: center !important; gap: 12px !important; margin-bottom: 4px !important; background: #ffffff !important; color: #000000 !important;">
-        <div style="font-weight: 700 !important; text-decoration: underline !important; font-size: 8.5pt !important; color: #000000 !important; background: #ffffff !important; white-space: nowrap !important;">
-          চালান কোড অনুযায়ী শুল্ক-কর জমা নির্দেশনা :
+      <div class="signatures" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 30px !important; margin-top: 14px !important; align-items: end !important; width: 100% !important; background: #ffffff !important; page-break-inside: avoid !important; break-inside: avoid !important;">
+        <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+          <div class="signature-space" style="height: 20px !important; width: 100% !important; background: #ffffff !important;"></div>
+          <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+            <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 6px !important; height: 0 !important; background: #ffffff !important;"></div>
+          </div>
+          <div class="signature-label" style="font-size: 9.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.preparedBy}</div>
         </div>
-        <div style="font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
-          কাস্টমস বন্ড কমিশনারেট, ঢাকা (দক্ষিণ) এর অফিস কোড : <strong>1110208102384</strong>
+        <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+          <div class="signature-space" style="height: 20px !important; width: 100% !important; background: #ffffff !important;"></div>
+          <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+            <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 6px !important; height: 0 !important; background: #ffffff !important;"></div>
+          </div>
+          <div class="signature-label" style="font-size: 9.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.checkedBy}</div>
         </div>
-      </div>
-      <div style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; font-size: 8pt !important; line-height: 1.35 !important; background: #ffffff !important; color: #000000 !important;">
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1151101 :</strong> কাস্টমস শুল্ক (CD + RD) = <strong>${formatCurrency((cv.cd ? totCd : 0) + (cv.rd ? totRd : 0), "en")}</strong></div>
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1141104 :</strong> আমদানি পণ্যের উপর মূসক (VAT + AT) = <strong>${formatCurrency((cv.vat ? totVat : 0) + (cv.sd ? totSd : 0) + (cv.at ? totAt : 0), "en")}</strong></div>
-        <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "en")}</strong></div>
-      </div>
-      <div style="margin-top: 4px !important; font-weight: 700 !important; font-size: 8pt !important; color: #000000 !important; background: #ffffff !important;">
-        * এ-চালানে অবশ্যই প্রতিষ্ঠানের ই-বিন নং ও নাম উল্লেখ থাকতে হবে।
+        <div class="signature-col" style="text-align: center !important; background: #ffffff !important;">
+          <div class="signature-space" style="height: 20px !important; width: 100% !important; background: #ffffff !important;"></div>
+          <div class="signature-line-wrapper" style="width: 85% !important; margin: 0 auto !important; background: #ffffff !important;">
+            <div class="signature-line" style="border-top: 1px solid #000000 !important; margin-bottom: 6px !important; height: 0 !important; background: #ffffff !important;"></div>
+          </div>
+          <div class="signature-label" style="font-size: 9.5pt !important; font-weight: 700 !important; color: #000000 !important; background: #ffffff !important;">${dict.approvedBy}</div>
+        </div>
       </div>
     </div>
 
