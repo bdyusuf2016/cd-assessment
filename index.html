@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body class="dark-mode">
 
@@ -149,39 +149,39 @@
         <div class="topbar-actions" id="topbarActions">
           <!-- Assessment tab actions (default visible) -->
           <div id="assessmentActions" class="action-group">
-            <button id="saveAssessmentBtn" class="btn btn-primary btn-sm">
+            <button id="saveAssessmentBtn" class="btn btn-primary btn-sm" title="Save Assessment">
               <span class="btn-icon">💾</span>
               <span id="lblSaveAssessment">সেভ করুন</span>
             </button>
-            <button id="savedHistoryBtn" class="btn btn-ghost btn-sm">
+            <button id="savedHistoryBtn" class="btn btn-ghost btn-sm" title="Saved History">
               <span class="btn-icon">📁</span>
               <span id="lblSavedHistory">সংরক্ষিত ফাইল</span>
             </button>
-            <button id="whatsappShareBtn" class="btn btn-whatsapp btn-sm">
+            <button id="whatsappShareBtn" class="btn btn-whatsapp btn-sm" title="Share Text to WhatsApp">
               <span class="btn-icon">💬</span>
               <span id="lblWhatsappShare">Text শেয়ার</span>
             </button>
-            <button id="sharePdfWhatsappBtn" class="btn btn-whatsapp btn-sm">
+            <button id="sharePdfWhatsappBtn" class="btn btn-whatsapp btn-sm" title="Share PDF to WhatsApp">
               <span class="btn-icon">💬</span>
               <span id="lblSharePdfWhatsapp">PDF WhatsApp</span>
             </button>
-            <button id="exportPdfBtn" class="btn btn-primary btn-sm">
+            <button id="exportPdfBtn" class="btn btn-primary btn-sm" title="Export PDF (A4)">
               <span class="btn-icon">📄</span>
               <span id="lblExportPdf">PDF ফাইল</span>
             </button>
-            <button id="exportHtmlBtn" class="btn btn-info btn-sm">
+            <button id="exportHtmlBtn" class="btn btn-info btn-sm" title="Export HTML File">
               <span class="btn-icon">🌐</span>
               <span id="lblExportHtml">HTML ফাইল</span>
             </button>
-            <button id="printBtn" class="btn btn-success btn-sm">
+            <button id="printBtn" class="btn btn-success btn-sm" title="Print Assessment (A4)">
               <span class="btn-icon">🖨️</span>
               <span id="lblPrint">প্রিন্ট (A4)</span>
             </button>
-            <button id="exportBtn" class="btn btn-info btn-sm">
+            <button id="exportBtn" class="btn btn-info btn-sm" title="Export Excel (CSV)">
               <span class="btn-icon">📥</span>
               <span id="lblExport">এক্সেল</span>
             </button>
-            <button id="importBtn" class="btn btn-ghost btn-sm">
+            <button id="importBtn" class="btn btn-ghost btn-sm" title="Import Assessment CSV">
               <span class="btn-icon">📤</span>
               <span id="lblImport">ইমপোর্ট</span>
             </button>
@@ -191,31 +191,38 @@
           <!-- Materials tab actions (hidden by default) -->
           <div id="materialsActions" class="action-group" style="display:none;">
             <button id="downloadSampleMaterialBtn" class="btn btn-ghost btn-sm" title="Download Sample Excel">
-              <span class="btn-icon">📄</span> নমুনা ফরম্যাট (Sample)
+              <span class="btn-icon">📄</span>
+              <span class="btn-text">নমুনা ফরম্যাট (Sample)</span>
             </button>
-            <button id="importMaterialsBtn" class="btn btn-info btn-sm">
-              <span class="btn-icon">📥</span> ইমপোর্ট (Import Excel)
+            <button id="importMaterialsBtn" class="btn btn-info btn-sm" title="Import Materials (Excel/CSV)">
+              <span class="btn-icon">📥</span>
+              <span class="btn-text">ইমপোর্ট (Import Excel)</span>
             </button>
             <input type="file" id="materialsImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
-            <button id="addNewMaterialBtn" class="btn btn-primary btn-sm">
-              <span class="btn-icon">＋</span> নতুন মালামাল (Add)
+            <button id="addNewMaterialBtn" class="btn btn-primary btn-sm" title="Add New Material">
+              <span class="btn-icon">＋</span>
+              <span class="btn-text">নতুন মালামাল (Add)</span>
             </button>
           </div>
 
           <!-- Companies tab actions (hidden by default) -->
           <div id="companiesActions" class="action-group" style="display:none;">
-            <button id="downloadSampleCompanyBtnTop" class="btn btn-ghost btn-sm" title="Download Sample">
-              <span class="btn-icon">📄</span> নমুনা ফরম্যাট
+            <button id="downloadSampleCompanyBtnTop" class="btn btn-ghost btn-sm" title="Download Sample Company Excel">
+              <span class="btn-icon">📄</span>
+              <span class="btn-text">নমুনা ফরম্যাট</span>
             </button>
-            <button id="importCompaniesBtnTop" class="btn btn-info btn-sm">
-              <span class="btn-icon">📥</span> Excel/CSV ইম্পোর্ট
+            <button id="importCompaniesBtnTop" class="btn btn-info btn-sm" title="Import Companies (Excel/CSV)">
+              <span class="btn-icon">📥</span>
+              <span class="btn-text">Excel/CSV ইম্পোর্ট</span>
             </button>
             <input type="file" id="companiesImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
-            <button id="clearAllCompaniesBtnTop" class="btn btn-ghost btn-sm" style="color:var(--clr-red);">
-              <span class="btn-icon">🗑️</span> সব মুছুন
+            <button id="clearAllCompaniesBtnTop" class="btn btn-ghost btn-sm" style="color:var(--clr-red);" title="Clear All Companies">
+              <span class="btn-icon">🗑️</span>
+              <span class="btn-text">সব মুছুন</span>
             </button>
-            <button id="addCompanyBtnTop" class="btn btn-primary btn-sm">
-              <span class="btn-icon">＋</span> নতুন কোম্পানি
+            <button id="addCompanyBtnTop" class="btn btn-primary btn-sm" title="Add New Company">
+              <span class="btn-icon">＋</span>
+              <span class="btn-text">নতুন কোম্পানি</span>
             </button>
           </div>
 
@@ -228,7 +235,7 @@
 
           <!-- Auth button — always visible right edge -->
           <div class="auth-btn-wrap">
-            <button id="authBtn" class="btn btn-ghost btn-sm auth-btn-guest" onclick="openUserModal()">
+            <button id="authBtn" class="btn btn-ghost btn-sm auth-btn-guest" onclick="openUserModal()" title="User Profile / Login">
               <span class="btn-icon">👤</span>
               <span id="authBtnLabel">লগইন</span>
             </button>
@@ -404,7 +411,7 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" id="lblPermissionNo" for="header-permissionNo">Permission No. <span style="font-size:0.78rem;color:var(--text-muted);">(prefix GB added automatically)</span></label>
+                <label class="form-label" id="lblPermissionNo" for="header-permissionNo">Permission No.</label>
                 <input type="text" class="form-control" id="header-permissionNo" placeholder="e.g. 15062600">
               </div>
             </div>
@@ -778,6 +785,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js?v=16"></script>
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>

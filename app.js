@@ -8,7 +8,7 @@ let state = {
   language: "en",
   calculationMethod: "bd",
   defaultRates: {
-    cd: 25.0, rd: 8.0, sd: 0.0, vat: 15.0,
+    cd: 25.0, rd: 4.0, sd: 0.0, vat: 15.0,
     ait: 5.0, at: 7.5, insurance: 1.0, landing: 1.0
   },
   columnVisibility: {
@@ -538,6 +538,7 @@ function updateUI() {
 
   // Form labels
   if (document.getElementById("lblCompanyName")) document.getElementById("lblCompanyName").textContent   = dict.companyName;
+  if (document.getElementById("lblPermissionNo"))  document.getElementById("lblPermissionNo").textContent   = dict.permissionNo;
   if (document.getElementById("lblHasFile"))       document.getElementById("lblHasFile").textContent       = dict.hasFileNo;
   if (document.getElementById("lblFilePage"))      document.getElementById("lblFilePage").textContent      = dict.filePageNo;
   if (document.getElementById("lblNotePara"))      document.getElementById("lblNotePara").textContent      = dict.noteParaNo;
@@ -821,6 +822,18 @@ function renderAssessmentTable() {
     qtyInput.addEventListener("keydown", event => {
       if (event.key === "Tab" && !event.shiftKey) {
         event.preventDefault();
+        if (idx < state.assessmentRows.length - 1) {
+          const nextRowId = state.assessmentRows[idx + 1].id;
+          const nextRowEl = document.getElementById(nextRowId);
+          if (nextRowEl) {
+            const nextCodeInput = nextRowEl.querySelector(".code-input");
+            if (nextCodeInput) {
+              nextCodeInput.focus();
+              nextCodeInput.select();
+              return;
+            }
+          }
+        }
         document.getElementById("addRowBtn")?.focus();
       }
     });

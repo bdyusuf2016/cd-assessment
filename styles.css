@@ -186,6 +186,7 @@ body.sidebar-collapsed .sidebar {
 
 body.sidebar-collapsed .main-area {
   margin-left: 0;
+  width: 100%;
 }
 
 .sidebar-logo-icon {
@@ -392,10 +393,12 @@ body.sidebar-collapsed .main-area {
 .main-area {
   flex: 1;
   margin-left: var(--sidebar-w);
+  width: calc(100% - var(--sidebar-w));
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: margin-left var(--t-slow);
+  transition: margin-left var(--t-slow), width var(--t-slow);
+  min-width: 0;
 }
 
 /* === 7. TOP BAR === */
@@ -423,7 +426,7 @@ body.sidebar-collapsed .main-area {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
+  margin-right: auto;
 }
 
 .topbar-page-name {
@@ -528,11 +531,14 @@ body.sidebar-collapsed .main-area {
 .content-area {
   flex: 1;
   padding: 20px 24px 32px;
+  min-width: 0;
 }
 
 .tab-panel {
   display: none;
   animation: fadeSlideIn 0.25s var(--ease);
+  width: 100%;
+  min-width: 0;
 }
 
 .tab-panel.active { display: block; }
@@ -550,6 +556,8 @@ body.sidebar-collapsed .main-area {
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  min-width: 0;
   /* overflow: hidden REMOVED — it breaks position:sticky on child table columns */
 }
 
@@ -802,6 +810,7 @@ select.form-control {
   position: relative;       /* stacking context for sticky cells */
   overflow-x: auto;
   overflow-y: auto;         /* was: visible — mixing visible+auto is invalid per spec */
+  width: 100%;
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border-base);
@@ -1081,7 +1090,6 @@ th.frozen-action {
 body.light-mode .autocomplete-list {
   background: #ffffff;
 }
-}
 
 /* Searchable Select Component */
 .searchable-select {
@@ -1203,6 +1211,11 @@ body.light-mode .searchable-select-dropdown {
   font-size: 13px;
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .in-words-label {
@@ -2647,6 +2660,7 @@ body.light-mode .searchable-select-dropdown {
 /* Company table wrap */
 .company-table-wrap {
   overflow-x: auto;
+  width: 100%;
 }
 
 /* Light mode adaptations */
@@ -2672,4 +2686,239 @@ body.light-mode .btn-toggle-active {
   background: rgba(22,163,74,0.10);
   color: #16a34a;
   border-color: rgba(22,163,74,0.25);
+}
+
+/* === 17. SIDEBAR BACKDROP & HAMBURGER FOR MOBILE OPTIMIZATION === */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 199;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-base);
+}
+
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.topbar-menu-btn {
+  display: flex; /* always show sidebar switch icon */
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--r-sm);
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.topbar-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.light-mode .topbar-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Optimize topbar actions buttons: make them circular icon-only buttons globally */
+header.topbar .topbar-actions .btn {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  min-width: 34px !important;
+  flex-shrink: 0 !important;
+}
+
+header.topbar .topbar-actions .btn .btn-icon {
+  margin: 0 !important;
+  font-size: 15px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+header.topbar .topbar-actions .btn span:not(.btn-icon) {
+  display: none !important;
+}
+
+/* === 18. RESPONSIVE DESIGN & SCREEN BREAKPOINTS === */
+@media (max-width: 900px) {
+  /* Layout adjustments */
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .main-area {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .topbar {
+    overflow-x: hidden !important;
+  }
+
+  .topbar-actions {
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    padding-left: 10px !important;
+    min-width: 0 !important;
+  }
+  .topbar-actions::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .topbar-menu-btn {
+    display: flex !important; /* Show hamburger on mobile/tablet */
+    flex-shrink: 0 !important;
+  }
+
+  .topbar-breadcrumb {
+    flex: none !important;
+  }
+
+
+
+  /* Content area spacing */
+  .content-area {
+    padding: 16px 16px 24px;
+  }
+
+  /* Metrics layout */
+  .metrics-strip {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 16px 16px 0;
+    gap: 12px;
+  }
+
+  /* Table actions spacing */
+  .table-add-row-action {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Metrics layout single column */
+  .metrics-strip {
+    grid-template-columns: 1fr;
+    padding: 12px 12px 0;
+    gap: 10px;
+  }
+
+  .metric-card {
+    padding: 14px 16px;
+  }
+
+  .metric-value {
+    font-size: 18px;
+  }
+
+  /* Spacing */
+  .content-area {
+    padding: 12px 12px 20px;
+  }
+
+  /* Topbar breadcrumbs adjustments */
+  .topbar-page-name {
+    font-size: 13.5px;
+  }
+
+  /* Actions list scrolling spacing */
+  .topbar {
+    padding: 0 12px;
+  }
+  
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  .btn-sm {
+    padding: 4px 8px;
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Modals vertical stack */
+  .modal-body {
+    grid-template-columns: 1fr !important; /* Stack elements vertically */
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .modal-body .form-group.full-width {
+    grid-column: span 1 !important;
+  }
+
+  .modal-card {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+  }
+
+  /* Login Gate adjustments */
+  .login-card {
+    padding: 24px 20px 20px;
+    border-radius: 16px;
+  }
+
+  .login-brand {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .login-brand-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+
+  .login-title {
+    font-size: 14px;
+  }
+
+  .login-subtitle {
+    font-size: 10px;
+  }
+
+  .login-input {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .login-btn {
+    height: 42px;
+    font-size: 13.5px;
+  }
 }
