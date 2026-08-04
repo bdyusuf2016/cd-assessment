@@ -1201,7 +1201,7 @@ function generateExportHtml(company, lang) {
   const permNoDisplay = h.permissionNo ? "GB" + escapeHtml(h.permissionNo) : "";
 
   return `<!DOCTYPE html>
-<html lang="${lang}">
+<html lang="${lang}" style="background:#ffffff !important;background-color:#ffffff !important;background-image:none !important;">
 <head>
   <meta charset="UTF-8">
   <title>Customs Assessment - ${escapeHtml(company)}</title>
@@ -1220,6 +1220,22 @@ function generateExportHtml(company, lang) {
       padding: 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      background-image: none !important;
+      filter: none !important;
+      -webkit-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+      opacity: 1 !important;
+    }
+    *::before, *::after {
+      display: none !important;
+      content: none !important;
+      background: none !important;
+      background-image: none !important;
     }
     html, body {
       font-family: 'Noto Serif Bengali', 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Inter', sans-serif !important;
@@ -1699,7 +1715,7 @@ async function exportToPDF() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
-      image:        { type: 'png' },
+      image:        { type: 'jpeg', quality: 1.0 },
       html2canvas:  {
         scale: 2,
         useCORS: true,
@@ -1776,7 +1792,7 @@ async function sharePdfToWhatsApp() {
     const opt = {
       margin:       [0.2, 0.3, 0.45, 0.3],
       filename:     filename,
-      image:        { type: 'png' },
+      image:        { type: 'jpeg', quality: 1.0 },
       html2canvas:  {
         scale: 2,
         useCORS: true,
