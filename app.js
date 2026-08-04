@@ -1869,82 +1869,62 @@ function _removePdfBgOverride() {
 async function generatePdfBlobFromExportHtml(company, lang) {
   await ensurePdfFontReady();
 
+  // Remove any stale render root
+  const oldRoot = document.getElementById("temp-pdf-render-root");
+  if (oldRoot) oldRoot.remove();
+
+  // Create temporary container directly in main DOM for 100% bulletproof html2canvas capture
+  const tempDiv = document.createElement("div");
+  tempDiv.id = "temp-pdf-render-root";
+  tempDiv.style.position = "fixed";
+  tempDiv.style.top = "0";
+  tempDiv.style.left = "0";
+  tempDiv.style.width = "1122px";
+  tempDiv.style.minHeight = "794px";
+  tempDiv.style.zIndex = "999999";
+  tempDiv.style.background = "#ffffff";
+  tempDiv.style.color = "#000000";
+  tempDiv.style.overflow = "visible";
+  tempDiv.style.pointerEvents = "none";
+
+  // Parse export HTML and extract sheet body
   const fullHtml = generateExportHtml(company, lang);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(fullHtml, "text/html");
+  const sheetNode = doc.querySelector(".sheet");
 
-  // Create temporary visible iframe at high z-index for 100% un-obscured rendering
-  const iframe = document.createElement("iframe");
-  iframe.style.position = "fixed";
-  iframe.style.top = "0";
-  iframe.style.left = "0";
-  iframe.style.width = "1122px";
-  iframe.style.height = "794px";
-  iframe.style.border = "0";
-  iframe.style.zIndex = "999999";
-  iframe.style.opacity = "1";
-  iframe.style.visibility = "visible";
-  iframe.style.background = "#ffffff";
-  document.body.appendChild(iframe);
-
-  const frameDoc = iframe.contentDocument || iframe.contentWindow?.document;
-  if (!frameDoc) {
-    iframe.remove();
-    throw new Error("Unable to create PDF render frame.");
+  if (sheetNode) {
+    tempDiv.appendChild(doc.adoptNode(sheetNode.cloneNode(true)));
+  } else {
+    tempDiv.innerHTML = doc.body.innerHTML;
   }
 
-  frameDoc.open();
-  frameDoc.write(fullHtml);
-  frameDoc.close();
+  document.body.appendChild(tempDiv);
+  _injectPdfBgOverride();
 
-  await new Promise(resolve => {
-    iframe.onload = () => resolve();
-    setTimeout(resolve, 250);
-  });
-
-  if (frameDoc.fonts && frameDoc.fonts.ready) {
-    try { await frameDoc.fonts.ready; } catch (e) {}
-  }
-  await new Promise(resolve => setTimeout(resolve, 150));
+  // Give browser 200ms to calculate layout & paint
+  await new Promise(resolve => setTimeout(resolve, 200));
 
   try {
-    const h2c = window.html2canvas || (iframe.contentWindow && iframe.contentWindow.html2canvas);
-    const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF || (iframe.contentWindow && iframe.contentWindow.jspdf && iframe.contentWindow.jspdf.jsPDF) || (iframe.contentWindow && iframe.contentWindow.jsPDF);
+    const h2c = window.html2canvas;
+    const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
 
-    const targetEl = frameDoc.querySelector('.sheet') || frameDoc.body;
+    if (!h2c) throw new Error("html2canvas library is not loaded.");
+    if (!jsPdfCtor) throw new Error("jsPDF library is not loaded.");
 
-    let canvas;
-    if (h2c) {
-      canvas = await h2c(targetEl, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        x: 0,
-        y: 0,
-        windowWidth: 1122,
-        width: 1122
-      });
-    } else if (typeof html2pdf !== "undefined") {
-      const opt = {
-        margin: 0,
-        filename: `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: false, logging: false, backgroundColor: '#ffffff', width: 1122 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      };
-
-      const worker = html2pdf().set(opt).from(targetEl);
-      const pdfObj = await worker.toPdf().get('pdf');
-      addPageNumbersToPdf(pdfObj);
-      return await worker.output('blob');
-    } else {
-      throw new Error("PDF rendering libraries (html2canvas/jsPDF) not loaded.");
-    }
-
-    if (!jsPdfCtor) throw new Error("jsPDF library not available.");
+    const canvas = await h2c(tempDiv, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0,
+      x: 0,
+      y: 0,
+      windowWidth: 1122,
+      width: 1122
+    });
 
     const imgWidth = 297; // mm
     const pageHeight = 210; // mm
@@ -1969,7 +1949,8 @@ async function generatePdfBlobFromExportHtml(company, lang) {
     addPageNumbersToPdf(pdf);
     return pdf.output('blob');
   } finally {
-    iframe.remove();
+    _removePdfBgOverride();
+    tempDiv.remove();
   }
 }
 
