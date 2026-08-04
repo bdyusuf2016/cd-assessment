@@ -1770,7 +1770,7 @@ function buildPdfExportOptions(filename) {
       windowHeight: 794,
       width: 1122,
       height: 794,
-      allowTaint: true,
+      allowTaint: false,
       removeContainer: false,
       captureBeyondView: true
     },
@@ -1792,6 +1792,7 @@ async function generatePdfBlobFromExportRoot(exportRoot, filename) {
   const canvas = await html2canvas(exportRoot, {
     scale: 1,
     useCORS: true,
+    allowTaint: false,
     logging: false,
     letterRendering: true,
     backgroundColor: '#ffffff',
@@ -1801,7 +1802,6 @@ async function generatePdfBlobFromExportRoot(exportRoot, filename) {
     windowHeight: 794,
     width: 1122,
     height: 794,
-    allowTaint: true,
     removeContainer: false,
     captureBeyondView: true
   });
@@ -1906,8 +1906,8 @@ async function generatePdfBlobFromExportHtml(company, lang) {
   await new Promise(resolve => setTimeout(resolve, 150));
 
   try {
-    const h2c = window.html2canvas;
-    const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+    const h2c = window.html2canvas || (iframe.contentWindow && iframe.contentWindow.html2canvas);
+    const jsPdfCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF || (iframe.contentWindow && iframe.contentWindow.jspdf && iframe.contentWindow.jspdf.jsPDF) || (iframe.contentWindow && iframe.contentWindow.jsPDF);
 
     const targetEl = frameDoc.querySelector('.sheet') || frameDoc.body;
 
@@ -1916,6 +1916,7 @@ async function generatePdfBlobFromExportHtml(company, lang) {
       canvas = await h2c(targetEl, {
         scale: 2,
         useCORS: true,
+        allowTaint: false,
         logging: false,
         backgroundColor: '#ffffff',
         scrollX: 0,
@@ -1930,7 +1931,7 @@ async function generatePdfBlobFromExportHtml(company, lang) {
         margin: 0,
         filename: `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 1122 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: false, logging: false, backgroundColor: '#ffffff', width: 1122 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak: { mode: ['css', 'legacy'] }
       };
