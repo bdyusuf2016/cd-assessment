@@ -18,6 +18,8 @@ let state = {
   companies: [],
   assessmentRows: [],
   savedAssessments: [],
+  currentLoadedAssessmentId: null,
+  currentLoadedAssessmentTitle: null,
   header: {
     companyName: "GUNGE",
     permissionNo: "15062600"
@@ -66,6 +68,15 @@ function bootApp() {
   // Always force English as the app language
   state.language = "en";
   document.documentElement.lang = "en";
+
+  // Always boot up in clean 'Reset All' workspace mode
+  state.assessmentRows = [];
+  localStorage.removeItem("customs_assessment_rows");
+  state.header = { companyName: "", permissionNo: "" };
+  localStorage.removeItem("customs_header");
+  state.currentLoadedAssessmentId = null;
+  state.currentLoadedAssessmentTitle = null;
+
   recalculateAllRows();
   initSidebar();
   initEventListeners();
@@ -935,6 +946,8 @@ function resetAllData() {
 
     state.header.companyName = "";
     state.header.permissionNo = "";
+    state.currentLoadedAssessmentId = null;
+    state.currentLoadedAssessmentTitle = null;
 
     addRow();
 
@@ -981,39 +994,96 @@ function handleGlobalEscape(e) {
 
 // === SAVE ASSESSMENTS & WHATSAPP SHARE ===
 function saveCurrentAssessment() {
-  const defaultTitle = `${state.header.companyName || "Customs Assessment"} - ${new Date().toLocaleDateString(state.language === "bn" ? "bn-BD" : "en-US")}`;
-  const title = prompt(
-    state.language === "bn" ? "সংরক্ষিত শুল্কায়নের একটি নাম লিখুন:" : "Enter a name for this saved assessment:",
+  const lang = state.language;
+  const defaultTitle = state.currentLoadedAssessmentTitle || `${state.header.companyName || "Customs Assessment"} - ${new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US")}`;
+
+  const titleInput = prompt(
+    lang === "bn" ? "সংরক্ষিত শুল্কায়নের একটি নাম লিখুন:" : "Enter a name for this saved assessment:",
     defaultTitle
   );
-  if (title === null) return;
+  if (titleInput === null) return;
 
-  const snapshot = {
-    id: "saved_" + Date.now(),
-    title: title.trim() || defaultTitle,
-    timestamp: new Date().toLocaleString(state.language === "bn" ? "bn-BD" : "en-US"),
-    header: JSON.parse(JSON.stringify(state.header)),
-    assessmentRows: JSON.parse(JSON.stringify(state.assessmentRows)),
-    defaultRates: JSON.parse(JSON.stringify(state.defaultRates)),
-    calculationMethod: state.calculationMethod
-  };
+  const finalTitle = titleInput.trim() || defaultTitle;
 
-  state.savedAssessments.unshift(snapshot);
-  localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
-
-  if (typeof syncAssessmentToSupabaseCloud === "function" && getSupabaseClient()) {
-    syncAssessmentToSupabaseCloud({
-      id: snapshot.id,
-      companyName: snapshot.header.companyName,
-      date: new Date().toISOString(),
-      rows: snapshot.assessmentRows,
-      totalAssessableValue: snapshot.assessmentRows.reduce((a, b) => a + b.assessableValue, 0),
-      totalDutyTax: snapshot.assessmentRows.reduce((a, b) => a + b.totalDutyTax, 0),
-      header: snapshot.header
-    });
+  // Check if existing item exists by current loaded ID or title match
+  let existingIndex = -1;
+  if (state.currentLoadedAssessmentId) {
+    existingIndex = state.savedAssessments.findIndex(s => s.id === state.currentLoadedAssessmentId);
+  }
+  if (existingIndex === -1) {
+    existingIndex = state.savedAssessments.findIndex(s => s.title.trim().toLowerCase() === finalTitle.toLowerCase());
   }
 
-  showToast(state.language === "bn" ? "শুল্কায়ন ফাইল স্থানীয়ভাবে ও ক্লাউডে সংরক্ষিত হয়েছে!" : "Assessment saved locally & in cloud!", "success");
+  let shouldOverwrite = false;
+  if (existingIndex !== -1) {
+    const matchedItem = state.savedAssessments[existingIndex];
+    const confirmText = lang === "bn"
+      ? `"${matchedItem.title}" নামে একটি সংরক্ষিত ফাইল ইতিমধ্যে রয়েছে।\n\nআপনি কি বর্তমান তথ্য দিয়ে আগের ফাইলটি ওভাররাইট (Update) করতে চান?\n\n- [OK] চাপলে আগের ফাইলটি ওভাররাইট/আপডেট হবে।\n- [Cancel] চাপলে নতুন আলাদা ফাইল হিসেবে সেভ হবে।`
+      : `An assessment named "${matchedItem.title}" already exists.\n\nDo you want to overwrite the existing file?\n\n- Press [OK] to Overwrite / Update existing file.\n- Press [Cancel] to Save as a new separate file.`;
+    
+    shouldOverwrite = confirm(confirmText);
+  }
+
+  const timestamp = new Date().toLocaleString(lang === "bn" ? "bn-BD" : "en-US");
+
+  if (shouldOverwrite && existingIndex !== -1) {
+    // OVERWRITE existing item
+    const targetItem = state.savedAssessments[existingIndex];
+    targetItem.title = finalTitle;
+    targetItem.timestamp = timestamp;
+    targetItem.header = JSON.parse(JSON.stringify(state.header));
+    targetItem.assessmentRows = JSON.parse(JSON.stringify(state.assessmentRows));
+    targetItem.defaultRates = JSON.parse(JSON.stringify(state.defaultRates));
+    targetItem.calculationMethod = state.calculationMethod;
+
+    state.currentLoadedAssessmentId = targetItem.id;
+    state.currentLoadedAssessmentTitle = finalTitle;
+    localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
+
+    if (typeof syncAssessmentToSupabaseCloud === "function" && getSupabaseClient()) {
+      syncAssessmentToSupabaseCloud({
+        id: targetItem.id,
+        companyName: targetItem.header.companyName,
+        date: new Date().toISOString(),
+        rows: targetItem.assessmentRows,
+        totalAssessableValue: targetItem.assessmentRows.reduce((a, b) => a + (b.assessableValue || 0), 0),
+        totalDutyTax: targetItem.assessmentRows.reduce((a, b) => a + (b.totalDutyTax || 0), 0),
+        header: targetItem.header
+      });
+    }
+
+    showToast(lang === "bn" ? "সংরক্ষিত ফাইল সফলভাবে ওভাররাইট (আপডেট) করা হয়েছে!" : "Assessment overwritten & updated successfully!", "success");
+  } else {
+    // SAVE AS NEW FILE
+    const newSnapshot = {
+      id: "saved_" + Date.now(),
+      title: finalTitle,
+      timestamp: timestamp,
+      header: JSON.parse(JSON.stringify(state.header)),
+      assessmentRows: JSON.parse(JSON.stringify(state.assessmentRows)),
+      defaultRates: JSON.parse(JSON.stringify(state.defaultRates)),
+      calculationMethod: state.calculationMethod
+    };
+
+    state.savedAssessments.unshift(newSnapshot);
+    state.currentLoadedAssessmentId = newSnapshot.id;
+    state.currentLoadedAssessmentTitle = finalTitle;
+    localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
+
+    if (typeof syncAssessmentToSupabaseCloud === "function" && getSupabaseClient()) {
+      syncAssessmentToSupabaseCloud({
+        id: newSnapshot.id,
+        companyName: newSnapshot.header.companyName,
+        date: new Date().toISOString(),
+        rows: newSnapshot.assessmentRows,
+        totalAssessableValue: newSnapshot.assessmentRows.reduce((a, b) => a + (b.assessableValue || 0), 0),
+        totalDutyTax: newSnapshot.assessmentRows.reduce((a, b) => a + (b.totalDutyTax || 0), 0),
+        header: newSnapshot.header
+      });
+    }
+
+    showToast(lang === "bn" ? "নতুন শুল্কায়ন ফাইল স্থানিয়ভাবে ও ক্লাউডে সংরক্ষিত হয়েছে!" : "New assessment saved locally & in cloud!", "success");
+  }
 }
 
 function openHistoryModal() {
@@ -1044,10 +1114,15 @@ function renderHistoryList() {
       totalDt += r.totalDutyTax || 0;
     });
 
+    const isCurrent = item.id === state.currentLoadedAssessmentId;
+
     return `
-      <div class="history-item-card" id="${item.id}">
+      <div class="history-item-card" id="${item.id}" style="${isCurrent ? 'border-left: 4px solid var(--success-color, #10b981); background: rgba(16, 185, 129, 0.05);' : ''}">
         <div>
-          <div class="history-title">${escapeHtml(item.title)}</div>
+          <div class="history-title">
+            ${escapeHtml(item.title)}
+            ${isCurrent ? `<span style="background:#10b981; color:#ffffff; font-size:7pt; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">${lang === "bn" ? "বর্তমান ফাইল" : "Active"}</span>` : ''}
+          </div>
           <div class="history-meta">
             🏢 ${escapeHtml(item.header?.companyName || "N/A")} | 
             📦 ${item.assessmentRows?.length || 0} ${lang === "bn" ? "টি আইটেম" : "items"} | 
@@ -1090,6 +1165,9 @@ function loadSavedAssessment(id) {
     if (item.defaultRates) state.defaultRates = JSON.parse(JSON.stringify(item.defaultRates));
     if (item.calculationMethod) state.calculationMethod = item.calculationMethod;
 
+    state.currentLoadedAssessmentId = item.id;
+    state.currentLoadedAssessmentTitle = item.title;
+
     saveState();
     recalculateAllRows();
     updateUI();
@@ -1100,6 +1178,10 @@ function loadSavedAssessment(id) {
 
 function deleteSavedAssessment(id) {
   if (confirm(state.language === "bn" ? "আপনি কি নিশ্চিতভাবে এই ফাইলটি মুছে ফেলতে চান?" : "Delete this saved assessment?")) {
+    if (state.currentLoadedAssessmentId === id) {
+      state.currentLoadedAssessmentId = null;
+      state.currentLoadedAssessmentTitle = null;
+    }
     state.savedAssessments = state.savedAssessments.filter(s => s.id !== id);
     localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
     renderHistoryList();
@@ -1267,6 +1349,26 @@ function generateExportHtml(company, lang) {
       box-sizing: border-box !important;
       padding: 24px 48px 60px 48px !important;
     }
+    .export-footer-credit {
+      position: absolute !important;
+      bottom: 18px !important;
+      left: 48px !important;
+      right: 48px !important;
+      border-top: 1px solid #b0b0b0 !important;
+      padding-top: 6px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      font-size: 8pt !important;
+      color: #505050 !important;
+      font-family: 'Inter', 'Segoe UI', sans-serif !important;
+      background: #ffffff !important;
+      z-index: 9999 !important;
+      box-sizing: border-box !important;
+    }
+    .export-footer-credit * {
+      color: #505050 !important;
+    }
     @media print {
       @page {
         size: A4 landscape;
@@ -1278,7 +1380,7 @@ function generateExportHtml(company, lang) {
         margin: 0 !important;
         padding: 0 !important;
         background: #ffffff !important;
-        overflow: hidden !important;
+        overflow: visible !important;
       }
       .sheet {
         position: relative !important;
@@ -1287,13 +1389,13 @@ function generateExportHtml(company, lang) {
         max-width: 297mm !important;
         max-height: 210mm !important;
         box-sizing: border-box !important;
-        padding: 8mm 12mm 14mm 12mm !important;
+        padding: 8mm 12mm 16mm 12mm !important;
         margin: 0 !important;
         background: #ffffff !important;
       }
       .export-footer-credit {
         position: absolute !important;
-        bottom: 5mm !important;
+        bottom: 8mm !important;
         left: 12mm !important;
         right: 12mm !important;
         border-top: 1px solid #b0b0b0 !important;
@@ -1304,6 +1406,12 @@ function generateExportHtml(company, lang) {
         font-size: 8pt !important;
         color: #505050 !important;
         background: #ffffff !important;
+        z-index: 9999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      .export-footer-credit * {
+        color: #505050 !important;
       }
     }
     .sheet * {
@@ -1492,15 +1600,15 @@ function generateExportHtml(company, lang) {
 
     <table class="meta-row" style="width: 100% !important; border: 1px solid #000000 !important; border-collapse: collapse !important; margin-bottom: 14px !important; table-layout: fixed !important; background: #ffffff !important; background-color: #ffffff !important;">
       <tr>
-        <td class="meta-left" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: left !important; color: #000000 !important; background: #ffffff !important;">
+        <td class="meta-left" style="width: 52% !important; border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: left !important; color: #000000 !important; background: #ffffff !important;">
           <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">Organization Name :</span>
           <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${escapeHtml(company)}</span>
         </td>
-        <td class="meta-center" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">
+        <td class="meta-center" style="width: 26% !important; border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: center !important; color: #000000 !important; background: #ffffff !important;">
           <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">Permission No. :</span>
           <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${permNoDisplay}</span>
         </td>
-        <td class="meta-right" style="border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: right !important; color: #000000 !important; background: #ffffff !important;">
+        <td class="meta-right" style="width: 22% !important; border: none !important; padding: 10px 14px !important; font-size: 10.5pt !important; vertical-align: middle !important; text-align: right !important; color: #000000 !important; background: #ffffff !important;">
           <span class="meta-label" style="font-weight: 700 !important; margin-right: 4px !important; color: #000000 !important;">${dateLabel} :</span>
           <span class="meta-value" style="font-weight: 700 !important; color: #000000 !important;">${currentDate}</span>
         </td>
@@ -1621,7 +1729,7 @@ function generateExportHtml(company, lang) {
       </div>
     </div>
 
-    <div class="export-footer-credit" style="position: absolute !important; bottom: 18px !important; left: 48px !important; right: 48px !important; border-top: 1px solid #b0b0b0 !important; padding-top: 6px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; font-size: 8pt !important; color: #505050 !important; font-family: 'Inter', 'Segoe UI', sans-serif !important; background: #ffffff !important;">
+    <div class="export-footer-credit">
       <div style="background: #ffffff !important; color: #505050 !important;">Customs Assessment Manager v2.0</div>
       <div style="background: #ffffff !important; color: #505050 !important;">Developed by: <strong>Md. Yusuf Ali</strong> &nbsp;|&nbsp; Mobile: <strong>+8801933814200</strong></div>
       <div style="background: #ffffff !important; color: #505050 !important;">Page 1 of 1</div>
@@ -1911,6 +2019,9 @@ async function generatePdfBlobFromExportHtml(company, lang) {
   } else {
     tempDiv.innerHTML += doc.body.innerHTML;
   }
+
+  // Remove static HTML footer credit completely from temporary render container so html2canvas never renders it
+  tempDiv.querySelectorAll(".export-footer-credit").forEach(el => el.remove());
 
   document.body.appendChild(tempDiv);
   _injectPdfBgOverride();
