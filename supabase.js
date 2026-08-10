@@ -186,15 +186,25 @@ async function fetchAssessmentsFromSupabaseCloud() {
 
     if (error) throw error;
 
-    const formatted = (data || []).map(item => ({
-      id: item.id,
-      companyName: item.company_name,
-      date: item.assessment_date,
-      rows: typeof item.rows_data === 'string' ? JSON.parse(item.rows_data) : item.rows_data,
-      totalAssessableValue: item.total_assessable_value,
-      totalDutyTax: item.total_duty_tax,
-      header: typeof item.header_info === 'string' ? JSON.parse(item.header_info) : item.header_info
-    }));
+    const formatted = (data || []).map(item => {
+      const parsedHeader = typeof item.header_info === 'string' ? JSON.parse(item.header_info || '{}') : (item.header_info || {});
+      const parsedRows = typeof item.rows_data === 'string' ? JSON.parse(item.rows_data || '[]') : (item.rows_data || []);
+      const title = item.title || parsedHeader.title || item.company_name || "Customs Assessment";
+      const timestamp = item.assessment_date ? new Date(item.assessment_date).toLocaleString() : new Date().toLocaleString();
+
+      return {
+        id: item.id,
+        title: title,
+        timestamp: timestamp,
+        companyName: item.company_name,
+        date: item.assessment_date,
+        rows: parsedRows,
+        assessmentRows: parsedRows,
+        totalAssessableValue: item.total_assessable_value,
+        totalDutyTax: item.total_duty_tax,
+        header: parsedHeader
+      };
+    });
 
     return { success: true, data: formatted };
   } catch (err) {

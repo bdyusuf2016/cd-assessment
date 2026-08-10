@@ -994,95 +994,112 @@ function handleGlobalEscape(e) {
 
 // === SAVE ASSESSMENTS & WHATSAPP SHARE ===
 function saveCurrentAssessment() {
-  const lang = state.language;
-  const defaultTitle = state.currentLoadedAssessmentTitle || `${state.header.companyName || "Customs Assessment"} - ${new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US")}`;
+  try {
+    const lang = state.language;
+    const companyName = state.header?.companyName || "";
+    const defaultTitle = state.currentLoadedAssessmentTitle || `${companyName || "Customs Assessment"} - ${new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US")}`;
 
-  const titleInput = prompt(
-    lang === "bn" ? "সংরক্ষিত শুল্কায়নের একটি নাম লিখুন:" : "Enter a name for this saved assessment:",
-    defaultTitle
-  );
-  if (titleInput === null) return;
+    const titleInput = prompt(
+      lang === "bn" ? "সংরক্ষিত শুল্কায়নের একটি নাম লিখুন:" : "Enter a name for this saved assessment:",
+      defaultTitle
+    );
+    if (titleInput === null) return;
 
-  const finalTitle = titleInput.trim() || defaultTitle;
+    const finalTitle = titleInput.trim() || defaultTitle;
 
-  // Check if existing item exists by current loaded ID or title match
-  let existingIndex = -1;
-  if (state.currentLoadedAssessmentId) {
-    existingIndex = state.savedAssessments.findIndex(s => s.id === state.currentLoadedAssessmentId);
-  }
-  if (existingIndex === -1) {
-    existingIndex = state.savedAssessments.findIndex(s => s.title.trim().toLowerCase() === finalTitle.toLowerCase());
-  }
-
-  let shouldOverwrite = false;
-  if (existingIndex !== -1) {
-    const matchedItem = state.savedAssessments[existingIndex];
-    const confirmText = lang === "bn"
-      ? `"${matchedItem.title}" নামে একটি সংরক্ষিত ফাইল ইতিমধ্যে রয়েছে।\n\nআপনি কি বর্তমান তথ্য দিয়ে আগের ফাইলটি ওভাররাইট (Update) করতে চান?\n\n- [OK] চাপলে আগের ফাইলটি ওভাররাইট/আপডেট হবে।\n- [Cancel] চাপলে নতুন আলাদা ফাইল হিসেবে সেভ হবে।`
-      : `An assessment named "${matchedItem.title}" already exists.\n\nDo you want to overwrite the existing file?\n\n- Press [OK] to Overwrite / Update existing file.\n- Press [Cancel] to Save as a new separate file.`;
-    
-    shouldOverwrite = confirm(confirmText);
-  }
-
-  const timestamp = new Date().toLocaleString(lang === "bn" ? "bn-BD" : "en-US");
-
-  if (shouldOverwrite && existingIndex !== -1) {
-    // OVERWRITE existing item
-    const targetItem = state.savedAssessments[existingIndex];
-    targetItem.title = finalTitle;
-    targetItem.timestamp = timestamp;
-    targetItem.header = JSON.parse(JSON.stringify(state.header));
-    targetItem.assessmentRows = JSON.parse(JSON.stringify(state.assessmentRows));
-    targetItem.defaultRates = JSON.parse(JSON.stringify(state.defaultRates));
-    targetItem.calculationMethod = state.calculationMethod;
-
-    state.currentLoadedAssessmentId = targetItem.id;
-    state.currentLoadedAssessmentTitle = finalTitle;
-    localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
-
-    if (typeof syncAssessmentToSupabaseCloud === "function" && getSupabaseClient()) {
-      syncAssessmentToSupabaseCloud({
-        id: targetItem.id,
-        companyName: targetItem.header.companyName,
-        date: new Date().toISOString(),
-        rows: targetItem.assessmentRows,
-        totalAssessableValue: targetItem.assessmentRows.reduce((a, b) => a + (b.assessableValue || 0), 0),
-        totalDutyTax: targetItem.assessmentRows.reduce((a, b) => a + (b.totalDutyTax || 0), 0),
-        header: targetItem.header
-      });
+    if (!Array.isArray(state.savedAssessments)) {
+      state.savedAssessments = [];
     }
 
-    showToast(lang === "bn" ? "সংরক্ষিত ফাইল সফলভাবে ওভাররাইট (আপডেট) করা হয়েছে!" : "Assessment overwritten & updated successfully!", "success");
-  } else {
-    // SAVE AS NEW FILE
-    const newSnapshot = {
-      id: "saved_" + Date.now(),
-      title: finalTitle,
-      timestamp: timestamp,
-      header: JSON.parse(JSON.stringify(state.header)),
-      assessmentRows: JSON.parse(JSON.stringify(state.assessmentRows)),
-      defaultRates: JSON.parse(JSON.stringify(state.defaultRates)),
-      calculationMethod: state.calculationMethod
-    };
-
-    state.savedAssessments.unshift(newSnapshot);
-    state.currentLoadedAssessmentId = newSnapshot.id;
-    state.currentLoadedAssessmentTitle = finalTitle;
-    localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
-
-    if (typeof syncAssessmentToSupabaseCloud === "function" && getSupabaseClient()) {
-      syncAssessmentToSupabaseCloud({
-        id: newSnapshot.id,
-        companyName: newSnapshot.header.companyName,
-        date: new Date().toISOString(),
-        rows: newSnapshot.assessmentRows,
-        totalAssessableValue: newSnapshot.assessmentRows.reduce((a, b) => a + (b.assessableValue || 0), 0),
-        totalDutyTax: newSnapshot.assessmentRows.reduce((a, b) => a + (b.totalDutyTax || 0), 0),
-        header: newSnapshot.header
-      });
+    // Check if existing item exists by current loaded ID or title match
+    let existingIndex = -1;
+    if (state.currentLoadedAssessmentId) {
+      existingIndex = state.savedAssessments.findIndex(s => s && s.id === state.currentLoadedAssessmentId);
+    }
+    if (existingIndex === -1) {
+      existingIndex = state.savedAssessments.findIndex(s => s && s.title && typeof s.title === "string" && s.title.trim().toLowerCase() === finalTitle.toLowerCase());
     }
 
-    showToast(lang === "bn" ? "নতুন শুল্কায়ন ফাইল স্থানিয়ভাবে ও ক্লাউডে সংরক্ষিত হয়েছে!" : "New assessment saved locally & in cloud!", "success");
+    let shouldOverwrite = false;
+    if (existingIndex !== -1) {
+      const matchedItem = state.savedAssessments[existingIndex];
+      const matchedTitle = matchedItem.title || matchedItem.header?.title || matchedItem.header?.companyName || finalTitle;
+      const confirmText = lang === "bn"
+        ? `"${matchedTitle}" নামে একটি সংরক্ষিত ফাইল ইতিমধ্যে রয়েছে।\n\nআপনি কি বর্তমান তথ্য দিয়ে আগের ফাইলটি ওভাররাইট (Update) করতে চান?\n\n- [OK] চাপলে আগের ফাইলটি ওভাররাইট/আপডেট হবে।\n- [Cancel] চাপলে নতুন আলাদা ফাইল হিসেবে সেভ হবে।`
+        : `An assessment named "${matchedTitle}" already exists.\n\nDo you want to overwrite the existing file?\n\n- Press [OK] to Overwrite / Update existing file.\n- Press [Cancel] to Save as a new separate file.`;
+      
+      shouldOverwrite = confirm(confirmText);
+    }
+
+    const timestamp = new Date().toLocaleString(lang === "bn" ? "bn-BD" : "en-US");
+    const headerCopy = JSON.parse(JSON.stringify(state.header || {}));
+    headerCopy.title = finalTitle; // Save title inside header object for cloud persistence
+
+    if (shouldOverwrite && existingIndex !== -1) {
+      // OVERWRITE existing item
+      const targetItem = state.savedAssessments[existingIndex];
+      targetItem.title = finalTitle;
+      targetItem.timestamp = timestamp;
+      targetItem.header = headerCopy;
+      targetItem.assessmentRows = JSON.parse(JSON.stringify(state.assessmentRows || []));
+      targetItem.defaultRates = JSON.parse(JSON.stringify(state.defaultRates || {}));
+      targetItem.calculationMethod = state.calculationMethod;
+
+      state.currentLoadedAssessmentId = targetItem.id;
+      state.currentLoadedAssessmentTitle = finalTitle;
+      localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
+      saveState();
+
+      if (typeof syncAssessmentToSupabaseCloud === "function" && typeof getSupabaseClient === "function" && getSupabaseClient()) {
+        syncAssessmentToSupabaseCloud({
+          id: targetItem.id,
+          title: finalTitle,
+          companyName: targetItem.header.companyName || "",
+          date: new Date().toISOString(),
+          rows: targetItem.assessmentRows,
+          totalAssessableValue: (targetItem.assessmentRows || []).reduce((a, b) => a + (b.assessableValue || 0), 0),
+          totalDutyTax: (targetItem.assessmentRows || []).reduce((a, b) => a + (b.totalDutyTax || 0), 0),
+          header: targetItem.header
+        }).catch(err => console.error("Cloud sync error:", err));
+      }
+
+      showToast(lang === "bn" ? "সংরক্ষিত ফাইল সফলভাবে ওভাররাইট (আপডেট) করা হয়েছে!" : "Assessment overwritten & updated successfully!", "success");
+    } else {
+      // SAVE AS NEW FILE
+      const newSnapshot = {
+        id: "saved_" + Date.now(),
+        title: finalTitle,
+        timestamp: timestamp,
+        header: headerCopy,
+        assessmentRows: JSON.parse(JSON.stringify(state.assessmentRows || [])),
+        defaultRates: JSON.parse(JSON.stringify(state.defaultRates || {})),
+        calculationMethod: state.calculationMethod
+      };
+
+      state.savedAssessments.unshift(newSnapshot);
+      state.currentLoadedAssessmentId = newSnapshot.id;
+      state.currentLoadedAssessmentTitle = finalTitle;
+      localStorage.setItem("customs_saved_assessments", JSON.stringify(state.savedAssessments));
+      saveState();
+
+      if (typeof syncAssessmentToSupabaseCloud === "function" && typeof getSupabaseClient === "function" && getSupabaseClient()) {
+        syncAssessmentToSupabaseCloud({
+          id: newSnapshot.id,
+          title: finalTitle,
+          companyName: newSnapshot.header.companyName || "",
+          date: new Date().toISOString(),
+          rows: newSnapshot.assessmentRows,
+          totalAssessableValue: (newSnapshot.assessmentRows || []).reduce((a, b) => a + (b.assessableValue || 0), 0),
+          totalDutyTax: (newSnapshot.assessmentRows || []).reduce((a, b) => a + (b.totalDutyTax || 0), 0),
+          header: newSnapshot.header
+        }).catch(err => console.error("Cloud sync error:", err));
+      }
+
+      showToast(lang === "bn" ? "নতুন শুল্কায়ন ফাইল স্থানিয়ভাবে ও ক্লাউডে সংরক্ষিত হয়েছে!" : "New assessment saved locally & in cloud!", "success");
+    }
+  } catch (err) {
+    console.error("Error saving assessment:", err);
+    showToast(state.language === "bn" ? "সেভ করার সময় সমস্যা হয়েছে: " + err.message : "Error saving assessment: " + err.message, "error");
   }
 }
 
@@ -3468,11 +3485,19 @@ async function pullAllDataFromCloud(silent = true) {
 
       cloudAssessments.forEach(a => {
         if (a && a.id) {
+          const headerObj = a.header || {};
+          const title = a.title || headerObj.title || a.companyName || headerObj.companyName || "Customs Assessment";
+          const timestamp = a.timestamp || (a.date ? new Date(a.date).toLocaleString() : new Date().toLocaleString());
+          const existing = mergedMap.get(a.id) || {};
+
           mergedMap.set(a.id, {
             id: a.id,
-            header: a.header || {},
-            assessmentRows: a.assessmentRows || a.rows || [],
-            calculationMethod: a.calculationMethod || "bd",
+            title: title || existing.title || "Customs Assessment",
+            timestamp: timestamp || existing.timestamp || "",
+            header: headerObj,
+            assessmentRows: a.assessmentRows || a.rows || existing.assessmentRows || [],
+            defaultRates: a.defaultRates || existing.defaultRates || {},
+            calculationMethod: a.calculationMethod || existing.calculationMethod || "bd",
             date: a.date || a.assessment_date || new Date().toISOString()
           });
         }
