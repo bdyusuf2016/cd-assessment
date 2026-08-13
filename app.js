@@ -323,6 +323,12 @@ function initEventListeners() {
   document.getElementById("addRowBtn").addEventListener("click", () => addRow());
   document.getElementById("saveAssessmentBtn").addEventListener("click", saveCurrentAssessment);
   document.getElementById("savedHistoryBtn").addEventListener("click", openHistoryModal);
+  if (document.getElementById("recalculateBtnTop")) {
+    document.getElementById("recalculateBtnTop").addEventListener("click", handleManualRecalculate);
+  }
+  if (document.getElementById("recalculateBtn")) {
+    document.getElementById("recalculateBtn").addEventListener("click", handleManualRecalculate);
+  }
   document.getElementById("whatsappShareBtn").addEventListener("click", () => shareToWhatsApp());
   if (document.getElementById("sharePdfWhatsappBtn")) {
     document.getElementById("sharePdfWhatsappBtn").addEventListener("click", () => sharePdfToWhatsApp());
@@ -540,6 +546,8 @@ function updateUI() {
   if (document.getElementById("lblExportHtml")) document.getElementById("lblExportHtml").textContent = dict.exportHtml;
   document.getElementById("lblExport").textContent = dict.exportBtn;
   document.getElementById("lblImport").textContent = dict.importBtn;
+  if (document.getElementById("lblRecalculate")) document.getElementById("lblRecalculate").textContent = dict.recalculateBtn;
+  if (document.getElementById("lblRecalculateTop")) document.getElementById("lblRecalculateTop").textContent = dict.recalculateBtn;
   document.getElementById("lblReset").textContent = dict.resetBtn;
 
   // Dashboard labels
@@ -613,12 +621,32 @@ function calculateRow(row) {
   const qty = parseFloat(row.quantity) || 0;
   const price = parseFloat(row.unitPrice) || 0;
   row.totalPrice = qty * price;
-  row.insurance = row.totalPrice * (state.defaultRates.insurance / 100);
-  row.landing = (row.totalPrice + row.insurance) * (state.defaultRates.landing / 100);
+
+  const dr = state.defaultRates || {};
+  const insRate = typeof dr.insurance === "number" ? dr.insurance : 1.0;
+  const landRate = typeof dr.landing === "number" ? dr.landing : 1.0;
+
+  row.insurance = row.totalPrice * (insRate / 100);
+  row.landing = (row.totalPrice + row.insurance) * (landRate / 100);
 
   // Assessable Value rounded up to next integer
   row.assessableValue = Math.ceil(row.totalPrice + row.insurance + row.landing);
   const av = row.assessableValue;
+
+  const getRate = (val, defaultVal) => {
+    if (val !== undefined && val !== null && val !== "" && !isNaN(val)) {
+      const parsed = parseFloat(val);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return defaultVal;
+  };
+
+  row.cdRate = getRate(row.cdRate, dr.cd ?? 25.0);
+  row.rdRate = getRate(row.rdRate, dr.rd ?? 4.0);
+  row.sdRate = getRate(row.sdRate, dr.sd ?? 0.0);
+  row.vatRate = getRate(row.vatRate, dr.vat ?? 15.0);
+  row.aitRate = getRate(row.aitRate, dr.ait ?? 5.0);
+  row.atRate = getRate(row.atRate, dr.at ?? 7.5);
 
   if (state.calculationMethod === "bd") {
     row.cd = Math.ceil(av * (row.cdRate / 100));
@@ -635,12 +663,22 @@ function calculateRow(row) {
     row.ait = Math.ceil(av * (row.aitRate / 100));
     row.at = Math.ceil(av * (row.atRate / 100));
   }
-  row.totalDutyTax = Math.ceil(row.cd + row.rd + row.sd + row.vat + row.ait + row.at);
+  row.totalDutyTax = Math.ceil((row.cd || 0) + (row.rd || 0) + (row.sd || 0) + (row.vat || 0) + (row.ait || 0) + (row.at || 0));
 }
 
 function recalculateAllRows() {
   state.assessmentRows.forEach(row => calculateRow(row));
   saveState();
+}
+
+function handleManualRecalculate() {
+  recalculateAllRows();
+  renderAssessmentTable();
+  updateDashboardMetrics();
+  const msg = state.language === "bn"
+    ? "সকল আইটেমের ট্যাক্স ও শুল্ক পুনঃগণনা করা হয়েছে!"
+    : "All duty & tax calculations updated successfully!";
+  showToast(msg, "success");
 }
 
 // Update only the readonly-val spans in a single row (no full re-render)
@@ -1177,16 +1215,21 @@ function loadSavedAssessment(id) {
   if (!item) return;
 
   if (confirm(state.language === "bn" ? "আপনি কি নিশ্চিতভাবে এই ফাইলটি লোড করতে চান?" : "Load this saved assessment? Current workspace data will be replaced.")) {
-    state.header = JSON.parse(JSON.stringify(item.header));
-    state.assessmentRows = JSON.parse(JSON.stringify(item.assessmentRows));
-    if (item.defaultRates) state.defaultRates = JSON.parse(JSON.stringify(item.defaultRates));
+    state.header = JSON.parse(JSON.stringify(item.header || {}));
+    state.assessmentRows = JSON.parse(JSON.stringify(item.assessmentRows || []));
+
+    const standardDefaults = {
+      cd: 25.0, rd: 4.0, sd: 0.0, vat: 15.0,
+      ait: 5.0, at: 7.5, insurance: 1.0, landing: 1.0
+    };
+    state.defaultRates = Object.assign({}, standardDefaults, item.defaultRates || {});
     if (item.calculationMethod) state.calculationMethod = item.calculationMethod;
 
     state.currentLoadedAssessmentId = item.id;
     state.currentLoadedAssessmentTitle = item.title;
 
-    saveState();
     recalculateAllRows();
+    saveState();
     updateUI();
     closeHistoryModal();
     showToast(state.language === "bn" ? "সংরক্ষিত ফাইল সফলভাবে লোড হয়েছে!" : "Assessment loaded successfully!", "success");
