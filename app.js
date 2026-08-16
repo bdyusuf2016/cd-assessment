@@ -550,7 +550,7 @@ function updateUI() {
   if (document.getElementById("lblRecalculate")) document.getElementById("lblRecalculate").textContent = dict.recalculateBtn;
   if (document.getElementById("lblRecalculateTop")) document.getElementById("lblRecalculateTop").textContent = dict.recalculateBtn;
   document.getElementById("lblReset").textContent = dict.resetBtn;
-  if (document.getElementById("lblCopyTotals")) document.getElementById("lblCopyTotals").textContent = lang === "bn" ? "টোটাল কপি" : "Copy Totals";
+  if (document.getElementById("lblCopyTotals")) document.getElementById("lblCopyTotals").textContent = state.language === "bn" ? "টোটাল কপি" : "Copy Totals";
 
   // Dashboard labels
   document.getElementById("dashLabelItems").textContent = dict.totalItems;
