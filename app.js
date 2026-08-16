@@ -345,6 +345,7 @@ function initEventListeners() {
   if (document.getElementById("exportPdfBtn")) document.getElementById("exportPdfBtn").addEventListener("click", exportToPDF);
   if (document.getElementById("exportHtmlBtn")) document.getElementById("exportHtmlBtn").addEventListener("click", exportToHTML);
   document.getElementById("resetBtn").addEventListener("click", resetAllData);
+  if (document.getElementById("copyTotalsBtn")) document.getElementById("copyTotalsBtn").addEventListener("click", copyTotalsToClipboard);
   document.getElementById("exportBtn").addEventListener("click", exportToCSV);
   document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFileInput").click());
   document.getElementById("importFileInput").addEventListener("change", importFromCSV);
@@ -549,6 +550,7 @@ function updateUI() {
   if (document.getElementById("lblRecalculate")) document.getElementById("lblRecalculate").textContent = dict.recalculateBtn;
   if (document.getElementById("lblRecalculateTop")) document.getElementById("lblRecalculateTop").textContent = dict.recalculateBtn;
   document.getElementById("lblReset").textContent = dict.resetBtn;
+  if (document.getElementById("lblCopyTotals")) document.getElementById("lblCopyTotals").textContent = lang === "bn" ? "টোটাল কপি" : "Copy Totals";
 
   // Dashboard labels
   document.getElementById("dashLabelItems").textContent = dict.totalItems;
@@ -759,6 +761,47 @@ function refreshTotals() {
   }
 }
 
+// === COPY TOTALS TO CLIPBOARD ===
+function copyTotalsToClipboard() {
+  const lang = state.language;
+  const cv = state.columnVisibility;
+  let totAv = 0, totCd = 0, totRd = 0, totVat = 0, totAit = 0, totAt = 0;
+
+  state.assessmentRows.forEach(r => {
+    totAv += r.assessableValue;
+    totCd += r.cd; totRd += r.rd;
+    totVat += r.vat; totAit += r.ait; totAt += r.at;
+  });
+
+  // Build tab-separated values matching Total Row display
+  const parts = [];
+  parts.push(formatCurrency(totAv, "en"));
+  if (cv.cd) parts.push(formatCurrency(totCd, "en"));
+  if (cv.rd) parts.push(formatCurrency(totRd, "en"));
+  if (cv.vat) parts.push(formatCurrency(totVat, "en"));
+  if (cv.ait) parts.push(formatCurrency(totAit, "en"));
+  if (cv.at) parts.push(formatCurrency(totAt, "en"));
+
+  const clipText = parts.join("\t");
+
+  navigator.clipboard.writeText(clipText).then(() => {
+    showToast(
+      lang === "bn"
+        ? "টোটাল মূল্য ক্লিপবোর্ডে কপি হয়েছে!"
+        : "Total values copied to clipboard!",
+      "success"
+    );
+  }).catch(err => {
+    console.error("Clipboard copy failed:", err);
+    showToast(
+      lang === "bn"
+        ? "কপি করা সম্ভব হয়নি।"
+        : "Failed to copy.",
+      "error"
+    );
+  });
+}
+
 function deleteRow(rowId) {
   state.assessmentRows = state.assessmentRows.filter(r => r.id !== rowId);
   if (state.assessmentRows.length === 0) addRow();
@@ -952,7 +995,7 @@ function updatePrintHeader() {
   if (!printHeaderContainer) return;
 
   const company = state.header.companyName;
-  const permNo = state.header.permissionNo ? "GB" + state.header.permissionNo : "";
+  const permNo = state.header.permissionNo ? state.header.permissionNo.split(",").map(s => "GB" + s.trim()).join(", ") : "";
   const currentDate = new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
   printHeaderContainer.innerHTML = `
@@ -1065,7 +1108,7 @@ function saveCurrentAssessment() {
       const confirmText = lang === "bn"
         ? `"${matchedTitle}" নামে একটি সংরক্ষিত ফাইল ইতিমধ্যে রয়েছে।\n\nআপনি কি বর্তমান তথ্য দিয়ে আগের ফাইলটি ওভাররাইট (Update) করতে চান?\n\n- [OK] চাপলে আগের ফাইলটি ওভাররাইট/আপডেট হবে।\n- [Cancel] চাপলে নতুন আলাদা ফাইল হিসেবে সেভ হবে।`
         : `An assessment named "${matchedTitle}" already exists.\n\nDo you want to overwrite the existing file?\n\n- Press [OK] to Overwrite / Update existing file.\n- Press [Cancel] to Save as a new separate file.`;
-      
+
       shouldOverwrite = confirm(confirmText);
     }
 
@@ -1344,7 +1387,7 @@ function generateExportHtml(company, lang) {
   const docTitle = lang === "bn" ? "কাস্টমস শুল্কায়ন বিবরণী" : "Customs Assessment Sheet";
   const dateLabel = lang === "bn" ? "তারিখ" : "Date";
   const inWordsLabel = dict.inWords ? dict.inWords.replace(':', '').trim() : (lang === "bn" ? "কথায়" : "In Words");
-  const permNoDisplay = h.permissionNo ? "GB" + (lang === "bn" ? toBengaliNumerals(escapeHtml(h.permissionNo)) : escapeHtml(h.permissionNo)) : "";
+  const permNoDisplay = h.permissionNo ? h.permissionNo.split(",").map(s => "GB" + (lang === "bn" ? toBengaliNumerals(escapeHtml(s.trim())) : escapeHtml(s.trim()))).join(", ") : "";
 
   return `<!DOCTYPE html>
 <html lang="${lang}" style="background:#ffffff !important;background-color:#ffffff !important;background-image:none !important;">
@@ -1760,7 +1803,7 @@ function generateExportHtml(company, lang) {
           <div style="background: #ffffff !important; color: #000000 !important;"><strong>1112101 :</strong> কোম্পানিসমূহ কর্তৃক দেয় আয়কর (AIT) = <strong>${formatCurrency(cv.ait ? totAit : 0, "en")}</strong></div>
         </div>
         <div style="margin-top: 2px !important; font-weight: 700 !important; font-size: 7.5pt !important; color: #000000 !important; background: #ffffff !important;">
-          * এ-চালানে অবশ্যই প্রতিষ্ঠানের ই-বিন নং ও নাম উল্লেখ থাকতে হবে।
+          * এ-চালানে অবশ্যই ভেন্ডর প্রতিষ্ঠানের ই-বিন নং ও নাম উল্লেখ থাকতে হবে।
         </div>
       </div>
 
