@@ -1266,7 +1266,7 @@ function renderHistoryList(searchTerm = "") {
         </div>
         <div class="history-actions">
           <button class="btn btn-primary btn-sm btn-history-load" data-id="${item.id}">📂 ${lang === "bn" ? "লোড" : "Load"}</button>
-          <button class="btn btn-whatsapp btn-sm btn-history-wa" data-id="${item.id}">💬 Share</button>
+          <button class="btn btn-whatsapp btn-sm btn-history-wa" data-id="${item.id}">💬 PDF Share</button>
           <button class="btn btn-danger btn-sm btn-history-del" data-id="${item.id}">🗑️</button>
         </div>
       </div>
@@ -1279,7 +1279,7 @@ function renderHistoryList(searchTerm = "") {
   container.querySelectorAll(".btn-history-wa").forEach(btn => {
     btn.addEventListener("click", () => {
       const item = state.savedAssessments.find(s => s.id === btn.dataset.id);
-      if (item) shareToWhatsApp(item);
+      if (item) shareSavedAssessmentPdf(item);
     });
   });
   container.querySelectorAll(".btn-history-del").forEach(btn => {
@@ -1298,6 +1298,29 @@ function getSavedAssessmentTime(item) {
 
   const timestampValue = Date.parse(item?.timestamp || "");
   return Number.isNaN(timestampValue) ? 0 : timestampValue;
+}
+
+async function shareSavedAssessmentPdf(item) {
+  const originalState = {
+    header: state.header,
+    assessmentRows: state.assessmentRows,
+    defaultRates: state.defaultRates,
+    calculationMethod: state.calculationMethod
+  };
+
+  state.header = JSON.parse(JSON.stringify(item.header || {}));
+  state.assessmentRows = JSON.parse(JSON.stringify(item.assessmentRows || []));
+  state.defaultRates = Object.assign({}, state.defaultRates, item.defaultRates || {});
+  if (item.calculationMethod) state.calculationMethod = item.calculationMethod;
+
+  try {
+    await sharePdfToWhatsApp();
+  } finally {
+    state.header = originalState.header;
+    state.assessmentRows = originalState.assessmentRows;
+    state.defaultRates = originalState.defaultRates;
+    state.calculationMethod = originalState.calculationMethod;
+  }
 }
 
 function bindHistorySearch() {
