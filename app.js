@@ -2246,11 +2246,15 @@ async function sharePdfToWhatsApp() {
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`)}`;
 
-  let waWindow = null;
-  try {
-    waWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-  } catch (e) {
-    console.warn("Initial WhatsApp popup blocked:", e);
+  let fallbackWindow = null;
+  const canShare = typeof navigator !== "undefined" && typeof navigator.canShare === "function" && navigator.canShare({ files: [new File([], filename, { type: "application/pdf" })] });
+
+  if (!canShare) {
+    try {
+      fallbackWindow = window.open("", "_blank", "noopener,noreferrer");
+    } catch (e) {
+      console.warn("PDF share popup init blocked:", e);
+    }
   }
 
   try {
@@ -2259,6 +2263,29 @@ async function sharePdfToWhatsApp() {
     const pdfBlob = await generatePdfBlobFromExportHtml(company, lang);
     if (!pdfBlob || pdfBlob.size < 1024) {
       throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
+    }
+
+    const file = new File([pdfBlob], filename, { type: "application/pdf" });
+
+    if (canShare) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: `Customs Assessment - ${company}`,
+          text: `Customs Assessment Sheet PDF (${company})`
+        });
+        showToast(lang === "bn" ? "PDF সরাসরি শেয়ার করা হয়েছে!" : "PDF shared directly!", "success");
+        return;
+      } catch (shareErr) {
+        const isPermissionBlock = shareErr && (
+          shareErr.name === "NotAllowedError" ||
+          shareErr.name === "AbortError" ||
+          /permission denied|denied/i.test(String(shareErr.message || shareErr))
+        );
+        if (!isPermissionBlock) {
+          console.warn("Native WhatsApp PDF share not accepted by browser:", shareErr);
+        }
+      }
     }
 
     const url = URL.createObjectURL(pdfBlob);
@@ -2270,25 +2297,26 @@ async function sharePdfToWhatsApp() {
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
 
-    if (waWindow) {
-      waWindow.focus();
+    if (fallbackWindow && !fallbackWindow.closed) {
+      fallbackWindow.location.href = whatsappUrl;
+      fallbackWindow.opener = null;
     } else {
-      setTimeout(() => {
-        try {
-          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-        } catch (e) {
-          console.warn("Delayed WhatsApp popup also blocked:", e);
-        }
-      }, 400);
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     }
 
-    showToast(lang === "bn" ? "PDF ডাউনলোড হয়েছে। WhatsApp-এ ফাইলটি সংযুক্ত করুন।" : "PDF downloaded. Please attach it in WhatsApp manually.", "success");
+    showToast(lang === "bn" ? "PDF ডাউনলোড হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
   } catch (err) {
     console.error("WhatsApp Share Error:", err);
 
-    if (waWindow) {
+    const isPermissionBlock = err && (
+      err.name === "NotAllowedError" ||
+      err.name === "PermissionDeniedError" ||
+      /permission denied|denied/i.test(String(err.message || err))
+    );
+
+    if (fallbackWindow && !fallbackWindow.closed) {
       try {
-        waWindow.location.href = whatsappUrl;
+        fallbackWindow.location.href = whatsappUrl;
       } catch (navErr) {
         console.warn("Fallback navigation blocked:", navErr);
       }
@@ -2300,8 +2328,17 @@ async function sharePdfToWhatsApp() {
       }
     }
 
-    const friendlyMessage = (lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err);
-    showToast(friendlyMessage, "error");
+    if (isPermissionBlock) {
+      showToast(
+        lang === "bn"
+          ? "WhatsApp শেয়ার অনুমতি বন্ধ থাকায় PDF ডাউনলোড হয়েছে।"
+          : "WhatsApp share permission was blocked, but the PDF was downloaded.",
+        "warning"
+      );
+      return;
+    }
+
+    showToast((lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err), "error");
   }
 }
 
