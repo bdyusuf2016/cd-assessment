@@ -2788,6 +2788,10 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   font-size: 18px !important;
 }
 
+header.topbar > .accessibility-toggle {
+  flex-shrink: 0;
+}
+
 .accessibility-toggle[aria-pressed="true"] {
   color: var(--clr-blue) !important;
   border-color: var(--clr-blue) !important;
@@ -2866,11 +2870,11 @@ header.topbar .topbar-actions .btn:focus-visible,
   }
 
   .topbar-actions {
+    display: none !important;
     overflow-x: auto !important;
     scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch !important;
     flex: 1 !important;
-    display: flex !important;
     justify-content: flex-start !important;
     gap: 8px !important;
     min-width: 0 !important;
@@ -2878,6 +2882,10 @@ header.topbar .topbar-actions .btn:focus-visible,
   }
   .topbar-actions::-webkit-scrollbar {
     display: none !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions {
+    display: flex !important;
   }
 
   header.topbar .topbar-actions .btn {
@@ -2897,7 +2905,7 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: inline !important;
   }
 
-  header.topbar .topbar-actions .accessibility-toggle {
+  header.topbar > .accessibility-toggle {
     position: fixed !important;
     right: 18px !important;
     bottom: 18px !important;
@@ -2912,19 +2920,8 @@ header.topbar .topbar-actions .btn:focus-visible,
     transition: width 180ms ease, border-radius 180ms ease, background 180ms ease !important;
   }
 
-  header.topbar .topbar-actions .accessibility-toggle span:not(.btn-icon) {
+  header.topbar > .accessibility-toggle span:not(.btn-icon) {
     display: none !important;
-  }
-
-  header.topbar .topbar-actions .accessibility-toggle[aria-pressed="true"] {
-    width: 178px !important;
-    min-width: 178px !important;
-    padding: 0 16px !important;
-    border-radius: 25px !important;
-  }
-
-  header.topbar .topbar-actions .accessibility-toggle[aria-pressed="true"] span:not(.btn-icon) {
-    display: inline !important;
   }
 
   .topbar-menu-btn {

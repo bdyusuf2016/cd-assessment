@@ -261,6 +261,14 @@ function initEventListeners() {
   document.body.classList.toggle("accessibility-mode", accessibilityEnabled);
   accessibilityBtn.setAttribute("aria-pressed", String(accessibilityEnabled));
   accessibilityBtn.addEventListener("click", () => {
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      const actionsVisible = document.body.classList.toggle("mobile-topbar-visible");
+      accessibilityBtn.setAttribute("aria-expanded", String(actionsVisible));
+      accessibilityBtn.setAttribute("aria-label", actionsVisible ? "Hide top bar actions" : "Show top bar actions");
+      accessibilityBtn.title = actionsVisible ? "Hide top bar actions" : "Show top bar actions";
+      return;
+    }
+
     const enabled = document.body.classList.toggle("accessibility-mode");
     localStorage.setItem("customs_accessibility_mode", String(enabled));
     accessibilityBtn.setAttribute("aria-pressed", String(enabled));
