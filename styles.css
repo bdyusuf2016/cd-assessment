@@ -2784,6 +2784,31 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   line-height: 1 !important;
 }
 
+.accessibility-toggle .btn-icon {
+  font-size: 18px !important;
+}
+
+.accessibility-toggle[aria-pressed="true"] {
+  color: var(--clr-blue) !important;
+  border-color: var(--clr-blue) !important;
+  background: var(--clr-blue-dim) !important;
+}
+
+body.accessibility-mode {
+  --border-base: rgba(139, 148, 158, 0.42);
+}
+
+body.accessibility-mode :focus-visible {
+  outline-width: 3px !important;
+  outline-offset: 3px !important;
+}
+
+body.accessibility-mode .form-label,
+body.accessibility-mode .nav-label,
+body.accessibility-mode .btn {
+  font-weight: 700;
+}
+
 header.topbar .topbar-actions .btn:focus-visible,
 .topbar-menu-btn:focus-visible,
 .history-search-input:focus-visible {

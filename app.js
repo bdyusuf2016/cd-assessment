@@ -255,6 +255,18 @@ function initEventListeners() {
     document.getElementById("themeToggleBtn").textContent = isDark ? "🌓" : "☀️";
   });
 
+  // Accessibility mode
+  const accessibilityBtn = document.getElementById("accessibilityBtn");
+  const accessibilityEnabled = localStorage.getItem("customs_accessibility_mode") === "true";
+  document.body.classList.toggle("accessibility-mode", accessibilityEnabled);
+  accessibilityBtn.setAttribute("aria-pressed", String(accessibilityEnabled));
+  accessibilityBtn.addEventListener("click", () => {
+    const enabled = document.body.classList.toggle("accessibility-mode");
+    localStorage.setItem("customs_accessibility_mode", String(enabled));
+    accessibilityBtn.setAttribute("aria-pressed", String(enabled));
+    showToast(enabled ? "Accessibility mode enabled." : "Accessibility mode disabled.", "info");
+  });
+
   // Calculation method
   document.getElementById("calcMethodSelect").addEventListener("change", (e) => {
     state.calculationMethod = e.target.value;
