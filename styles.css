@@ -2885,7 +2885,61 @@ header.topbar .topbar-actions .btn:focus-visible,
   }
 
   body.mobile-topbar-visible .topbar-actions {
-    display: flex !important;
+    display: block !important;
+    position: fixed !important;
+    right: 18px !important;
+    bottom: 18px !important;
+    width: 250px !important;
+    height: 280px !important;
+    z-index: 1090 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions .action-group:not([style*="display: none"]),
+  body.mobile-topbar-visible .topbar-actions .auth-btn-wrap {
+    display: contents !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions .action-group[style*="display: none"] {
+    display: none !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions .btn {
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    transform: translate(var(--petal-x), var(--petal-y)) scale(1) !important;
+    transition: transform 220ms ease, opacity 180ms ease !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions .btn span:not(.btn-icon) {
+    display: none !important;
+  }
+
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(1) { --petal-x: -8px; --petal-y: -62px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(2) { --petal-x: -58px; --petal-y: -104px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(3) { --petal-x: -116px; --petal-y: -128px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(4) { --petal-x: -174px; --petal-y: -120px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(5) { --petal-x: -214px; --petal-y: -78px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(6) { --petal-x: -228px; --petal-y: -24px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(7) { --petal-x: -214px; --petal-y: 30px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(8) { --petal-x: -174px; --petal-y: 72px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(9) { --petal-x: -116px; --petal-y: 96px; }
+  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(10) { --petal-x: -58px; --petal-y: 90px; }
+
+  body.mobile-topbar-visible .auth-btn-wrap .btn {
+    --petal-x: -8px;
+    --petal-y: 0;
   }
 
   header.topbar .topbar-actions .btn {
