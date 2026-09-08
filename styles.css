@@ -2906,6 +2906,13 @@ header.topbar .topbar-actions .btn:focus-visible,
   }
 
   body.mobile-topbar-visible .topbar-actions .btn {
+    display: none !important;
+  }
+
+  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn,
+  body.mobile-topbar-visible .topbar-actions #printBtn,
+  body.mobile-topbar-visible .topbar-actions #exportPdfBtn {
+    display: inline-flex !important;
     position: absolute !important;
     right: 0 !important;
     bottom: 0 !important;
@@ -2926,21 +2933,9 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: none !important;
   }
 
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(1) { --petal-x: -8px; --petal-y: -62px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(2) { --petal-x: -58px; --petal-y: -104px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(3) { --petal-x: -116px; --petal-y: -128px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(4) { --petal-x: -174px; --petal-y: -120px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(5) { --petal-x: -214px; --petal-y: -78px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(6) { --petal-x: -228px; --petal-y: -24px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(7) { --petal-x: -214px; --petal-y: 30px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(8) { --petal-x: -174px; --petal-y: 72px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(9) { --petal-x: -116px; --petal-y: 96px; }
-  body.mobile-topbar-visible #assessmentActions > button:nth-of-type(10) { --petal-x: -58px; --petal-y: 90px; }
-
-  body.mobile-topbar-visible .auth-btn-wrap .btn {
-    --petal-x: -8px;
-    --petal-y: 0;
-  }
+  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn { --petal-x: -70px; --petal-y: -76px; }
+  body.mobile-topbar-visible .topbar-actions #exportPdfBtn { --petal-x: -126px; --petal-y: -8px; }
+  body.mobile-topbar-visible .topbar-actions #printBtn { --petal-x: -70px; --petal-y: 60px; }
 
   header.topbar .topbar-actions .btn {
     min-height: 42px !important;
