@@ -2749,30 +2749,41 @@ body.light-mode .topbar-menu-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* Keep topbar buttons fully usable instead of forcing icon-only cut-off pills */
+/* Accessibility-friendly topbar controls: readable, touch-target friendly, and high-contrast */
 header.topbar .topbar-actions .btn {
-  width: auto !important;
-  height: auto !important;
-  min-width: 40px !important;
-  padding: 7px 12px !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 14px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   border-radius: 12px !important;
+  gap: 8px !important;
   flex-shrink: 0 !important;
   white-space: nowrap !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
 }
 
 header.topbar .topbar-actions .btn .btn-icon {
-  margin-right: 6px !important;
+  margin: 0 !important;
   font-size: 15px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
 header.topbar .topbar-actions .btn span:not(.btn-icon) {
   display: inline !important;
+  line-height: 1 !important;
+}
+
+header.topbar .topbar-actions .btn:focus-visible,
+.topbar-menu-btn:focus-visible,
+.history-search-input:focus-visible {
+  outline: 2px solid rgba(88, 166, 255, 0.95) !important;
+  outline-offset: 2px !important;
 }
 
 .history-search-wrap {
@@ -2840,17 +2851,16 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   }
 
   header.topbar .topbar-actions .btn {
-    width: auto !important;
-    height: auto !important;
-    min-width: 40px !important;
-    padding: 8px 12px !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 12px !important;
     border-radius: 12px !important;
     display: inline-flex !important;
     white-space: nowrap !important;
   }
 
   header.topbar .topbar-actions .btn .btn-icon {
-    margin-right: 6px !important;
+    margin: 0 !important;
   }
 
   header.topbar .topbar-actions .btn span:not(.btn-icon) {
