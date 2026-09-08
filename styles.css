@@ -2917,7 +2917,7 @@ header.topbar .topbar-actions .btn:focus-visible,
 
   body.mobile-topbar-visible .topbar-actions #saveAssessmentBtn,
   body.mobile-topbar-visible .topbar-actions #savedHistoryBtn,
-  body.mobile-topbar-visible .topbar-actions #whatsappShareBtn,
+  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn,
   body.mobile-topbar-visible .topbar-actions #printBtn {
     display: inline-flex !important;
     position: absolute !important;
@@ -2942,7 +2942,7 @@ header.topbar .topbar-actions .btn:focus-visible,
 
   body.mobile-topbar-visible .topbar-actions #saveAssessmentBtn { --petal-x: -2px; --petal-y: -68px; }
   body.mobile-topbar-visible .topbar-actions #savedHistoryBtn { --petal-x: -60px; --petal-y: -68px; }
-  body.mobile-topbar-visible .topbar-actions #whatsappShareBtn { --petal-x: -108px; --petal-y: -8px; }
+  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn { --petal-x: -108px; --petal-y: -8px; }
   body.mobile-topbar-visible .topbar-actions #printBtn { --petal-x: -60px; --petal-y: 54px; }
 
   header.topbar .topbar-actions .btn {
@@ -2969,7 +2969,7 @@ header.topbar .topbar-actions .btn:focus-visible,
 
   body.mobile-topbar-visible header.topbar .topbar-actions #saveAssessmentBtn,
   body.mobile-topbar-visible header.topbar .topbar-actions #savedHistoryBtn,
-  body.mobile-topbar-visible header.topbar .topbar-actions #whatsappShareBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #sharePdfWhatsappBtn,
   body.mobile-topbar-visible header.topbar .topbar-actions #printBtn {
     display: inline-flex !important;
     position: absolute !important;
