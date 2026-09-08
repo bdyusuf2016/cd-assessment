@@ -2788,6 +2788,11 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   font-size: 18px !important;
 }
 
+.accessibility-toggle,
+#recalculateBtnTop {
+  display: none !important;
+}
+
 header.topbar > .accessibility-toggle {
   flex-shrink: 0;
 }
@@ -2910,10 +2915,10 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: none !important;
   }
 
-  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn,
-  body.mobile-topbar-visible .topbar-actions #printBtn,
-  body.mobile-topbar-visible .topbar-actions #exportPdfBtn,
-  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn {
+  body.mobile-topbar-visible .topbar-actions #saveAssessmentBtn,
+  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn,
+  body.mobile-topbar-visible .topbar-actions #whatsappShareBtn,
+  body.mobile-topbar-visible .topbar-actions #printBtn {
     display: inline-flex !important;
     position: absolute !important;
     right: 0 !important;
@@ -2935,10 +2940,10 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: none !important;
   }
 
-  body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn { --petal-x: -60px; --petal-y: -68px; }
-  body.mobile-topbar-visible .topbar-actions #exportPdfBtn { --petal-x: -108px; --petal-y: -8px; }
+  body.mobile-topbar-visible .topbar-actions #saveAssessmentBtn { --petal-x: -2px; --petal-y: -68px; }
+  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn { --petal-x: -60px; --petal-y: -68px; }
+  body.mobile-topbar-visible .topbar-actions #whatsappShareBtn { --petal-x: -108px; --petal-y: -8px; }
   body.mobile-topbar-visible .topbar-actions #printBtn { --petal-x: -60px; --petal-y: 54px; }
-  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn { --petal-x: -2px; --petal-y: -68px; }
 
   header.topbar .topbar-actions .btn {
     min-height: 42px !important;
@@ -2962,10 +2967,10 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: none !important;
   }
 
-  body.mobile-topbar-visible header.topbar .topbar-actions #sharePdfWhatsappBtn,
-  body.mobile-topbar-visible header.topbar .topbar-actions #printBtn,
-  body.mobile-topbar-visible header.topbar .topbar-actions #exportPdfBtn,
-  body.mobile-topbar-visible header.topbar .topbar-actions #savedHistoryBtn {
+  body.mobile-topbar-visible header.topbar .topbar-actions #saveAssessmentBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #savedHistoryBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #whatsappShareBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #printBtn {
     display: inline-flex !important;
     position: absolute !important;
     right: 0 !important;
@@ -2985,6 +2990,7 @@ header.topbar .topbar-actions .btn:focus-visible,
   }
 
   header.topbar > .accessibility-toggle {
+    display: flex !important;
     position: fixed !important;
     right: 12px !important;
     bottom: 12px !important;
