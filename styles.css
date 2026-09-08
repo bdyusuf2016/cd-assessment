@@ -2957,6 +2957,33 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: inline !important;
   }
 
+  /* Keep only the selected actions in the mobile petal menu. */
+  body.mobile-topbar-visible header.topbar .topbar-actions .btn {
+    display: none !important;
+  }
+
+  body.mobile-topbar-visible header.topbar .topbar-actions #sharePdfWhatsappBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #printBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #exportPdfBtn,
+  body.mobile-topbar-visible header.topbar .topbar-actions #savedHistoryBtn {
+    display: inline-flex !important;
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    pointer-events: auto !important;
+    transform: translate(var(--petal-x), var(--petal-y)) scale(1) !important;
+  }
+
+  body.mobile-topbar-visible header.topbar .topbar-actions .btn span:not(.btn-icon) {
+    display: none !important;
+  }
+
   header.topbar > .accessibility-toggle {
     position: fixed !important;
     right: 12px !important;
