@@ -340,6 +340,7 @@ function initEventListeners() {
   if (closeHistBtn) closeHistBtn.addEventListener("click", closeHistoryModal);
   const closeHistFootBtn = document.getElementById("closeHistoryModalFooterBtn");
   if (closeHistFootBtn) closeHistFootBtn.addEventListener("click", closeHistoryModal);
+  bindHistorySearch();
 
   document.getElementById("printBtn").addEventListener("click", printFromExportTemplate);
   if (document.getElementById("exportPdfBtn")) document.getElementById("exportPdfBtn").addEventListener("click", exportToPDF);
@@ -1185,27 +1186,49 @@ function saveCurrentAssessment() {
 }
 
 function openHistoryModal() {
+  const searchInput = document.getElementById("historySearchInput");
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.placeholder = state.language === "bn" ? "সংরক্ষিত ফাইল খুঁজুন..." : "Search saved assessments...";
+  }
   renderHistoryList();
   document.getElementById("historyModal").classList.add("active");
 }
 
 function closeHistoryModal() {
+  const searchInput = document.getElementById("historySearchInput");
+  if (searchInput) searchInput.value = "";
   document.getElementById("historyModal").classList.remove("active");
 }
 
-function renderHistoryList() {
+function renderHistoryList(searchTerm = "") {
   const container = document.getElementById("historyListContainer");
   if (!container) return;
 
-  if (!state.savedAssessments || state.savedAssessments.length === 0) {
+  const query = (searchTerm || "").trim().toLowerCase();
+  const items = !state.savedAssessments || state.savedAssessments.length === 0
+    ? []
+    : state.savedAssessments.filter(item => {
+        if (!query) return true;
+        const searchableText = [
+          item.title,
+          item.header?.companyName,
+          item.timestamp,
+          item.id,
+          (item.assessmentRows || []).map(row => `${row.description || ""} ${row.approveCode || ""}`).join(" ")
+        ].join(" ").toLowerCase();
+        return searchableText.includes(query);
+      });
+
+  if (items.length === 0) {
     container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">
-      ${state.language === "bn" ? "কোন সংরক্ষিত শুল্কায়ন ফাইল পাওয়া যায়নি।" : "No saved assessments found."}
+      ${query ? (state.language === "bn" ? "খুঁজে পাওয়া যায়নি।" : "No matching saved assessments found.") : (state.language === "bn" ? "কোন সংরক্ষিত শুল্কায়ন ফাইল পাওয়া যায়নি।" : "No saved assessments found.")}
     </div>`;
     return;
   }
 
   const lang = state.language;
-  container.innerHTML = state.savedAssessments.map(item => {
+  container.innerHTML = items.map(item => {
     let totalAv = 0, totalDt = 0;
     (item.assessmentRows || []).forEach(r => {
       totalAv += r.assessableValue || 0;
@@ -1250,6 +1273,14 @@ function renderHistoryList() {
   });
   container.querySelectorAll(".btn-history-del").forEach(btn => {
     btn.addEventListener("click", () => deleteSavedAssessment(btn.dataset.id));
+  });
+}
+
+function bindHistorySearch() {
+  const searchInput = document.getElementById("historySearchInput");
+  if (!searchInput) return;
+  searchInput.addEventListener("input", (e) => {
+    renderHistoryList(e.target.value);
   });
 }
 
@@ -2214,54 +2245,50 @@ async function sharePdfToWhatsApp() {
   const lang = state.language;
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
 
-  let waWindow = null;
-  const canShare = navigator.canShare && navigator.canShare({ files: [new File([], filename, { type: "application/pdf" })] });
-  if (!canShare) {
-    waWindow = window.open("", "_blank");
-  }
-
   try {
     showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
 
     const pdfBlob = await generatePdfBlobFromExportHtml(company, lang);
     if (!pdfBlob || pdfBlob.size < 1024) {
-      if (waWindow && !waWindow.closed) waWindow.close();
       throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
     }
 
     const file = new File([pdfBlob], filename, { type: "application/pdf" });
+    const nativeShareSupported = typeof navigator !== "undefined" && typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] });
 
-    if (canShare) {
-      await navigator.share({
-        files: [file],
-        title: `Customs Assessment - ${company}`,
-        text: `Customs Assessment Sheet PDF (${company})`
-      });
-      showToast(lang === "bn" ? "PDF সরাসরি শেয়ার করা হয়েছে!" : "PDF shared directly!", "success");
-    } else {
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${msgText}`;
-
-      if (waWindow && !waWindow.closed) {
-        waWindow.location.href = whatsappUrl;
-      } else {
-        window.open(whatsappUrl, "_blank");
+    if (nativeShareSupported) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: `Customs Assessment - ${company}`,
+          text: `Customs Assessment Sheet PDF (${company})`
+        });
+        showToast(lang === "bn" ? "PDF সরাসরি শেয়ার করা হয়েছে!" : "PDF shared directly!", "success");
+        return;
+      } catch (shareErr) {
+        console.warn("Native WhatsApp PDF share not accepted by browser:", shareErr);
       }
-      showToast(lang === "bn" ? "PDF ডাউনলোড করা হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
     }
+
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${msgText}`;
+    const fallbackWindow = window.open(whatsappUrl, "_blank");
+    if (fallbackWindow) fallbackWindow.opener = null;
+
+    showToast(lang === "bn" ? "PDF ডাউনলোড হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
   } catch (err) {
     console.error("WhatsApp Share Error:", err);
-    if (waWindow && !waWindow.closed) waWindow.close();
-    showToast((lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err), "error");
+    const friendlyMessage = (lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err);
+    showToast(friendlyMessage, "error");
   }
 }
 

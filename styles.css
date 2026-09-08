@@ -2767,6 +2767,30 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   display: none !important;
 }
 
+.history-search-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0 0 12px;
+  background: var(--bg-surface);
+}
+
+.history-search-input {
+  width: 100%;
+  border: 1px solid var(--border-base);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.history-search-input:focus {
+  border-color: var(--clr-blue);
+  box-shadow: 0 0 0 3px rgba(47, 129, 247, 0.18);
+}
+
 /* === 18. RESPONSIVE DESIGN & SCREEN BREAKPOINTS === */
 @media (max-width: 900px) {
   /* Layout adjustments */
@@ -2795,11 +2819,31 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
     flex: 1 !important;
     display: flex !important;
     justify-content: flex-start !important;
-    padding-left: 10px !important;
+    gap: 8px !important;
+    padding: 6px 0 6px 10px !important;
     min-width: 0 !important;
+    white-space: nowrap !important;
   }
   .topbar-actions::-webkit-scrollbar {
     display: none !important;
+  }
+
+  header.topbar .topbar-actions .btn {
+    width: auto !important;
+    height: auto !important;
+    min-width: 40px !important;
+    padding: 8px 12px !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    white-space: nowrap !important;
+  }
+
+  header.topbar .topbar-actions .btn .btn-icon {
+    margin-right: 6px !important;
+  }
+
+  header.topbar .topbar-actions .btn span:not(.btn-icon) {
+    display: inline !important;
   }
 
   .topbar-menu-btn {
