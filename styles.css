@@ -2897,6 +2897,36 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: inline !important;
   }
 
+  header.topbar .topbar-actions .accessibility-toggle {
+    position: fixed !important;
+    right: 18px !important;
+    bottom: 18px !important;
+    z-index: 1100 !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    transition: width 180ms ease, border-radius 180ms ease, background 180ms ease !important;
+  }
+
+  header.topbar .topbar-actions .accessibility-toggle span:not(.btn-icon) {
+    display: none !important;
+  }
+
+  header.topbar .topbar-actions .accessibility-toggle[aria-pressed="true"] {
+    width: 178px !important;
+    min-width: 178px !important;
+    padding: 0 16px !important;
+    border-radius: 25px !important;
+  }
+
+  header.topbar .topbar-actions .accessibility-toggle[aria-pressed="true"] span:not(.btn-icon) {
+    display: inline !important;
+  }
+
   .topbar-menu-btn {
     display: flex !important; /* Show hamburger on mobile/tablet */
     flex-shrink: 0 !important;
