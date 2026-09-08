@@ -915,18 +915,6 @@ function renderAssessmentTable() {
     qtyInput.addEventListener("keydown", event => {
       if (event.key === "Tab" && !event.shiftKey) {
         event.preventDefault();
-        if (idx < state.assessmentRows.length - 1) {
-          const nextRowId = state.assessmentRows[idx + 1].id;
-          const nextRowEl = document.getElementById(nextRowId);
-          if (nextRowEl) {
-            const nextCodeInput = nextRowEl.querySelector(".code-input");
-            if (nextCodeInput) {
-              nextCodeInput.focus();
-              nextCodeInput.select();
-              return;
-            }
-          }
-        }
         document.getElementById("addRowBtn")?.focus();
       }
     });
