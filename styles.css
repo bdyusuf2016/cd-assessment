@@ -406,7 +406,8 @@ body.sidebar-collapsed .main-area {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: var(--topbar-h);
+  height: auto;
+  min-height: var(--topbar-h);
   background: var(--bg-topbar);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -414,7 +415,7 @@ body.sidebar-collapsed .main-area {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 18px;
+  padding: 8px 18px;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -427,12 +428,14 @@ body.sidebar-collapsed .main-area {
   align-items: center;
   gap: 8px;
   margin-right: auto;
+  min-width: 0;
 }
 
 .topbar-page-name {
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .topbar-separator {
@@ -445,7 +448,11 @@ body.sidebar-collapsed .main-area {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
 }
+.topbar-actions::-webkit-scrollbar { display: none; }
 
 /* === 8. DASHBOARD METRICS === */
 .metrics-strip {
@@ -2742,21 +2749,22 @@ body.light-mode .topbar-menu-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* Optimize topbar actions buttons: make them circular icon-only buttons globally */
+/* Keep topbar buttons fully usable instead of forcing icon-only cut-off pills */
 header.topbar .topbar-actions .btn {
-  width: 34px !important;
-  height: 34px !important;
-  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 40px !important;
+  padding: 7px 12px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 50% !important;
-  min-width: 34px !important;
+  border-radius: 12px !important;
   flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 header.topbar .topbar-actions .btn .btn-icon {
-  margin: 0 !important;
+  margin-right: 6px !important;
   font-size: 15px !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -2764,7 +2772,7 @@ header.topbar .topbar-actions .btn .btn-icon {
 }
 
 header.topbar .topbar-actions .btn span:not(.btn-icon) {
-  display: none !important;
+  display: inline !important;
 }
 
 .history-search-wrap {
