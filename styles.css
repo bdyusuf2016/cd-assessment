@@ -249,13 +249,13 @@ body.sidebar-collapsed .main-area {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
   padding: 9px 11px;
   border-radius: var(--r-md);
   border: 1px solid transparent;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  /* Always white-ish text — sidebar is always dark */
   color: rgba(255,255,255,0.5);
   background: transparent;
   width: 100%;
@@ -624,6 +624,7 @@ body.sidebar-collapsed .main-area {
   color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;
+  min-height: 42px;
   padding: 8px 11px;
   outline: none;
   transition: var(--t-base);
@@ -671,7 +672,9 @@ select.form-control {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
+  min-height: 42px;
   padding: 8px 16px;
   border-radius: var(--r-md);
   border: 1px solid transparent;
@@ -1587,10 +1590,12 @@ body.light-mode .searchable-select-dropdown {
 .modal-body .form-group.full-width { grid-column: 1 / -1; }
 
 .modal-footer {
+  min-height: 58px;
   padding: 14px 20px;
   border-top: 1px solid var(--border-base);
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 10px;
   background: rgba(255,255,255,0.015);
 }
