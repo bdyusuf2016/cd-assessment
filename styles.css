@@ -2894,7 +2894,7 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: block !important;
     position: fixed !important;
     right: 18px !important;
-    bottom: 18px !important;
+    bottom: 58px !important;
     width: 250px !important;
     height: 280px !important;
     z-index: 1090 !important;
@@ -2993,7 +2993,7 @@ header.topbar .topbar-actions .btn:focus-visible,
     display: flex !important;
     position: fixed !important;
     right: 12px !important;
-    bottom: 12px !important;
+    bottom: 52px !important;
     z-index: 1100 !important;
     width: 42px !important;
     min-width: 42px !important;
