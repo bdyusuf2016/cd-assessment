@@ -1128,8 +1128,10 @@ function saveCurrentAssessment() {
     if (shouldOverwrite && existingIndex !== -1) {
       // OVERWRITE existing item
       const targetItem = state.savedAssessments[existingIndex];
+      const savedAt = new Date().toISOString();
       targetItem.title = finalTitle;
       targetItem.timestamp = timestamp;
+      targetItem.date = savedAt;
       targetItem.header = headerCopy;
       targetItem.assessmentRows = JSON.parse(JSON.stringify(state.assessmentRows || []));
       targetItem.defaultRates = JSON.parse(JSON.stringify(state.defaultRates || {}));
@@ -1145,7 +1147,7 @@ function saveCurrentAssessment() {
           id: targetItem.id,
           title: finalTitle,
           companyName: targetItem.header.companyName || "",
-          date: new Date().toISOString(),
+          date: savedAt,
           rows: targetItem.assessmentRows,
           totalAssessableValue: (targetItem.assessmentRows || []).reduce((a, b) => a + (b.assessableValue || 0), 0),
           totalDutyTax: (targetItem.assessmentRows || []).reduce((a, b) => a + (b.totalDutyTax || 0), 0),
@@ -1160,6 +1162,7 @@ function saveCurrentAssessment() {
         id: "saved_" + Date.now(),
         title: finalTitle,
         timestamp: timestamp,
+        date: new Date().toISOString(),
         header: headerCopy,
         assessmentRows: JSON.parse(JSON.stringify(state.assessmentRows || [])),
         defaultRates: JSON.parse(JSON.stringify(state.defaultRates || {})),
@@ -1226,7 +1229,7 @@ function renderHistoryList(searchTerm = "") {
           (item.assessmentRows || []).map(row => `${row.description || ""} ${row.approveCode || ""}`).join(" ")
         ].join(" ").toLowerCase();
         return searchableText.includes(query);
-      });
+      }).sort((first, second) => getSavedAssessmentTime(second) - getSavedAssessmentTime(first));
 
   if (items.length === 0) {
     container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">
@@ -1282,6 +1285,19 @@ function renderHistoryList(searchTerm = "") {
   container.querySelectorAll(".btn-history-del").forEach(btn => {
     btn.addEventListener("click", () => deleteSavedAssessment(btn.dataset.id));
   });
+}
+
+function getSavedAssessmentTime(item) {
+  if (item?.date) {
+    const dateValue = Date.parse(item.date);
+    if (!Number.isNaN(dateValue)) return dateValue;
+  }
+
+  const idMatch = String(item?.id || "").match(/^saved_(\d+)$/);
+  if (idMatch) return Number(idMatch[1]);
+
+  const timestampValue = Date.parse(item?.timestamp || "");
+  return Number.isNaN(timestampValue) ? 0 : timestampValue;
 }
 
 function bindHistorySearch() {
