@@ -2244,9 +2244,14 @@ async function sharePdfToWhatsApp() {
   const company = state.header.companyName || "Customs_Assessment";
   const lang = state.language;
   const filename = `Customs_Assessment_${company.replace(/\s+/g, "_")}.pdf`;
-  const msgText = encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`);
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${msgText}`;
-  const fallbackWindow = window.open("", "_blank");
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`📋 *কাস্টমস শুল্কায়ন PDF — ${company}*\n(PDF ফাইলটি ডাউনলোড করা হয়েছে, WhatsApp এ ফাইল হিসেবে সংলগ্ন করুন)`)}`;
+
+  let waWindow = null;
+  try {
+    waWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  } catch (e) {
+    console.warn("Initial WhatsApp popup blocked:", e);
+  }
 
   try {
     showToast(lang === "bn" ? "WhatsApp PDF প্রসেস হচ্ছে..." : "Processing WhatsApp PDF...", "info");
@@ -2256,34 +2261,6 @@ async function sharePdfToWhatsApp() {
       throw new Error('PDF blob empty or too small: ' + (pdfBlob ? pdfBlob.size : 'null'));
     }
 
-    const file = new File([pdfBlob], filename, { type: "application/pdf" });
-    const nativeShareSupported = typeof navigator !== "undefined"
-      && typeof navigator.share === "function"
-      && typeof navigator.canShare === "function"
-      && navigator.canShare({ files: [file] });
-
-    if (nativeShareSupported) {
-      try {
-        await navigator.share({
-          files: [file],
-          title: `Customs Assessment - ${company}`,
-          text: `Customs Assessment Sheet PDF (${company})`
-        });
-        showToast(lang === "bn" ? "PDF সরাসরি শেয়ার করা হয়েছে!" : "PDF shared directly!", "success");
-        return;
-      } catch (shareErr) {
-        const isPermissionBlock = shareErr && (
-          shareErr.name === "NotAllowedError" ||
-          shareErr.name === "AbortError" ||
-          /permission denied|denied/i.test(String(shareErr.message || shareErr))
-        );
-
-        if (!isPermissionBlock) {
-          console.warn("Native WhatsApp PDF share not accepted by browser:", shareErr);
-        }
-      }
-    }
-
     const url = URL.createObjectURL(pdfBlob);
     const a = document.createElement("a");
     a.href = url;
@@ -2291,40 +2268,36 @@ async function sharePdfToWhatsApp() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
 
-    if (fallbackWindow) {
-      fallbackWindow.location.href = whatsappUrl;
-      fallbackWindow.opener = null;
+    if (waWindow) {
+      waWindow.focus();
     } else {
-      window.location.href = whatsappUrl;
+      setTimeout(() => {
+        try {
+          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        } catch (e) {
+          console.warn("Delayed WhatsApp popup also blocked:", e);
+        }
+      }, 400);
     }
 
-    showToast(lang === "bn" ? "PDF ডাউনলোড হয়েছে! WhatsApp খোলা হচ্ছে..." : "PDF downloaded! Opening WhatsApp...", "info");
+    showToast(lang === "bn" ? "PDF ডাউনলোড হয়েছে। WhatsApp-এ ফাইলটি সংযুক্ত করুন।" : "PDF downloaded. Please attach it in WhatsApp manually.", "success");
   } catch (err) {
     console.error("WhatsApp Share Error:", err);
-    const isPermissionBlock = err && (
-      err.name === "NotAllowedError" ||
-      err.name === "PermissionDeniedError" ||
-      /permission denied|denied/i.test(String(err.message || err))
-    );
 
-    if (fallbackWindow && !fallbackWindow.closed) {
+    if (waWindow) {
       try {
-        fallbackWindow.location.href = whatsappUrl;
+        waWindow.location.href = whatsappUrl;
       } catch (navErr) {
-        console.warn("Fallback WhatsApp navigation blocked:", navErr);
+        console.warn("Fallback navigation blocked:", navErr);
       }
-    }
-
-    if (isPermissionBlock) {
-      showToast(
-        lang === "bn"
-          ? "WhatsApp শেয়ার অনুমতি বন্ধ আছে, PDF ডাউনলোড হয়েছে।"
-          : "WhatsApp share permission was blocked, but the PDF was downloaded.",
-        "warning"
-      );
-      return;
+    } else {
+      try {
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      } catch (popupErr) {
+        console.warn("Final WhatsApp popup blocked:", popupErr);
+      }
     }
 
     const friendlyMessage = (lang === "bn" ? "PDF তৈরি সম্ভব হয়নি: " : "Failed to process PDF: ") + (err.message || err);
