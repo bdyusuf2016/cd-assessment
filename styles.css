@@ -2912,7 +2912,8 @@ header.topbar .topbar-actions .btn:focus-visible,
 
   body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn,
   body.mobile-topbar-visible .topbar-actions #printBtn,
-  body.mobile-topbar-visible .topbar-actions #exportPdfBtn {
+  body.mobile-topbar-visible .topbar-actions #exportPdfBtn,
+  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn {
     display: inline-flex !important;
     position: absolute !important;
     right: 0 !important;
@@ -2937,6 +2938,7 @@ header.topbar .topbar-actions .btn:focus-visible,
   body.mobile-topbar-visible .topbar-actions #sharePdfWhatsappBtn { --petal-x: -60px; --petal-y: -68px; }
   body.mobile-topbar-visible .topbar-actions #exportPdfBtn { --petal-x: -108px; --petal-y: -8px; }
   body.mobile-topbar-visible .topbar-actions #printBtn { --petal-x: -60px; --petal-y: 54px; }
+  body.mobile-topbar-visible .topbar-actions #savedHistoryBtn { --petal-x: -2px; --petal-y: -68px; }
 
   header.topbar .topbar-actions .btn {
     min-height: 42px !important;
