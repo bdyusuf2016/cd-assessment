@@ -406,7 +406,7 @@ body.sidebar-collapsed .main-area {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: auto;
+  height: var(--topbar-h);
   min-height: var(--topbar-h);
   background: var(--bg-topbar);
   backdrop-filter: blur(20px);
@@ -415,7 +415,7 @@ body.sidebar-collapsed .main-area {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 18px;
+  padding: 0 18px;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -2817,7 +2817,11 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
   }
 
   .topbar {
-    overflow-x: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: var(--topbar-h) !important;
+    min-height: var(--topbar-h) !important;
+    padding: 0 12px !important;
   }
 
   .topbar-actions {
@@ -2828,7 +2832,6 @@ header.topbar .topbar-actions .btn span:not(.btn-icon) {
     display: flex !important;
     justify-content: flex-start !important;
     gap: 8px !important;
-    padding: 6px 0 6px 10px !important;
     min-width: 0 !important;
     white-space: nowrap !important;
   }
