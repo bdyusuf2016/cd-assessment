@@ -340,7 +340,15 @@ function initEventListeners() {
   });
 
   // Assessment action buttons
-  document.getElementById("addRowBtn").addEventListener("click", () => addRow());
+  document.getElementById("addRowBtn").addEventListener("click", () => {
+    const newRowId = addRow();
+    const newRowEl = document.getElementById(newRowId);
+    const newCodeInput = newRowEl?.querySelector(".code-input");
+    if (newCodeInput) {
+      newCodeInput.focus();
+      newCodeInput.select();
+    }
+  });
   document.getElementById("saveAssessmentBtn").addEventListener("click", saveCurrentAssessment);
   document.getElementById("savedHistoryBtn").addEventListener("click", openHistoryModal);
   if (document.getElementById("recalculateBtnTop")) {
@@ -936,6 +944,14 @@ function renderAssessmentTable() {
       if (event.key === "Tab" && !event.shiftKey) {
         event.preventDefault();
         document.getElementById("addRowBtn")?.focus();
+      }
+    });
+
+    codeInput.addEventListener("keydown", event => {
+      if (event.key === "Tab" && !event.shiftKey) {
+        event.preventDefault();
+        qtyInput.focus();
+        qtyInput.select();
       }
     });
 
